@@ -22,7 +22,7 @@
 \begin{document}
 
 \begin{flushright}
-  Notes: \today
+  \today
 \end{flushright}
 
 \begin{flushleft}
@@ -40,17 +40,19 @@
   1\;\; |\;\;
   \cdots
   \\
-  t & ::= &
+  c & ::= &
   b\;\; |\;\;
-  n\;\; |\;\;
+  n
+  \\
+  t & ::= &
+  c\;\; |\;\;
   x\;\; |\;\;
   \lambda{x}.\, t\;\; |\;\;
   t\ t\;\; |\;\;
   t \updownarrow_{A} L
   \\
   v & ::= &
-  b\;\; |\;\;
-  n\;\; |\;\;
+  c\;\; |\;\;
   \langle{\rho, \lambda{x}.\, t\rangle}
   \\
   a & ::= &
@@ -64,12 +66,8 @@
 
 \begin{gather*}
   \inference{}{
-    \pc, \rho |- b \Downarrow b \at \pc
-  }[\textsc{Eval\_Bool}]
-  \qquad
-  \inference{}{
-    \pc, \rho |- n \Downarrow n \at \pc
-  }[\textsc{Eval\_Nat}]
+    \pc, \rho |- c \Downarrow c \at \pc
+  }[\textsc{Eval\_Const}]
   \\[3ex]
   \inference{
     \rho(x) = v \at L
@@ -110,8 +108,8 @@
 
 \begin{definition}
   The $\approx^{L}_{A}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and authority $A$.
-  Define $v_1 \at L_1 \approx^{L}_{A} v_2 \at L_2$ iff either
+  atoms for observers at label $L$ and authority $A$, where
+  $v_1 \at L_1 \approx^{L}_{A} v_2 \at L_2$ iff either
   \begin{itemize}
   \item $L_1 \not\sqsubseteq_{A} L$ and $L_2 \not\sqsubseteq_{A} L$, or
   \item $L_1 \sqsubseteq_{A} L$ and $L_1 \equiv L_2$ and
@@ -120,13 +118,12 @@
   The definition is lifted to values and environments:
   \begin{itemize}
   \item
-    $b_1 \approx^{L}_{A} b_2$ iff $b_1 = b_2$ and
-    $n_1 \approx^{L}_{A} n_2$ iff $n_1 = n_2$,
+    $c_1 \approx^{L}_{A} c_2$ iff $c_1 = c_2$,
   \item
     $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}_{A}
     \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
     $\rho_1 \approx^{L}_{A} \rho_2$ and
-    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$;
+    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$; and
   \item
     $\rho_1 \approx^{L}_{A} \rho_2$ iff
     $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
@@ -141,23 +138,49 @@
   \item $\pc, \rho_1 |- t \Downarrow a_1$ and 
     $\pc, \rho_2 |- t \Downarrow a_2$,
   \item $\rho_1 \approx^{L}_{A} \rho_2$,
-  \item $\mathit{Auth}(\rho_1) \leq A$, $\mathit{Auth}(\rho_2) \leq A$, and
+  \item $\mathit{Auth}(\rho_1) \leq A$ and $\mathit{Auth}(\rho_2) \leq A$ and
     $\mathit{Auth}(t) \leq A$,
   \end{itemize}
   then $a_1 \approx^{L}_{A} a_2$.
 \end{theorem}
 
-% \begin{flushleft}
-%   \textbf{2: Public / Secret Model}
-% \end{flushleft}
-% \[
-% \mathcal{L} = \{ \bot, \top \}
-% \qquad
-% \bot \sqsubseteq \top
-% \qquad
-% L^{\mathit{def}} = \bot
-% \qquad
-% \mathcal{A} = \mathbf{1}
-% \]
+\pagebreak
+
+\begin{flushleft}
+  \textbf{2: Public / Secret Model}
+\end{flushleft}
+\[
+\mathcal{L} = \{ \bot, \top \}
+\qquad
+\bot \sqsubseteq \top
+\qquad
+L^{\mathit{def}} = \bot
+\qquad
+\mathcal{A} = \mathbf{1}
+\]
+
+\begin{definition}
+  $v_1 \at L_1 \approx^{L} v_2 \at L_2$ iff either
+  \begin{itemize}
+  \item $L \equiv \bot$ and
+    $L_1 \equiv L_2 \equiv \top$ and $P(v_1, v_2)$, or
+  \item $L \equiv \bot$ and
+    $L_1 \equiv L_2 \equiv \bot$ and $v_1 \approx^{\bot} v_2$; or
+  \item $L \equiv \top$ and $L_1 \equiv L_2$ and $v_1 \approx^{L} v_2$.
+  \end{itemize}
+  The definition is lifted to values an environments:
+  \begin{itemize}
+  \item $c_1 \approx^{L} c_2$ iff $c_1 = c_2$,
+  \item
+    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}
+    \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
+    $\rho_1 \approx^{L} \rho_2$ and
+    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$; and
+  \item $\rho_1 \approx^{L} \rho_2$ iff
+    $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
+    $\rho_1(x) \approx^{L} \rho_2(x)$ for every
+    $x \in \mathrm{dom}\; \rho_1$.
+  \end{itemize}
+\end{definition}
 
 \end{document}
