@@ -12,6 +12,8 @@ Fixpoint term_equiv (t1 t2: term A L) {struct t1} : Prop :=
 match t1, t2 with
 | TBool b1, TBool b2 =>
     b1 = b2
+| TNat n1, TNat n2 =>
+    n1 = n2
 | TVar n1, TVar n2 =>
     n1 = n2
 | TLam t1, TLam t2 =>
@@ -20,7 +22,7 @@ match t1, t2 with
     term_equiv t1 t2 /\ term_equiv t1' t2'
 | TRelabel t1 a1 l1, TRelabel t2 a2 l2 =>
     term_equiv t1 t2 /\ a1 =A a2 /\ l1 =L l2
-| TBool _, _ | TVar _, _ | TLam _, _
+| TBool _, _ | TNat _, _ | TVar _, _ | TLam _, _
 | TApp _ _, _ | TRelabel _ _ _, _ => False
 end.
 
@@ -91,10 +93,11 @@ end
 with value_equiv (v1 v2: value A L) {struct v1} : Prop :=
 match v1, v2 with
 | VBool b1, VBool b2 => b1 = b2
+| VNat n1, VNat n2 => n1 = n2
 | VClos e1 t1, VClos e2 t2 =>
   list_forall2 atom_equiv e1 e2
   /\ term_equiv t1 t2
-| VBool _, _ | VClos _ _, _ => False
+| VBool _, _ | VNat _, _ | VClos _ _, _ => False
 end.
 
 Definition env_equiv := list_forall2 atom_equiv.
@@ -118,6 +121,7 @@ Proof.
 apply atom_value_env_mutind; intros; simpl in *.
 * destruct a2. simpl. intuition auto.
 * destruct v2; simpl; auto.
+* destruct v2; simpl; auto.
 * destruct v2; simpl; intuition auto.
   apply H. assumption.
   symmetry. assumption.
@@ -140,6 +144,7 @@ apply atom_value_env_mutind; intros; simpl in *.
 * destruct a2. simpl in *. destruct a3. intuition.
   eauto. etransitivity; eassumption. etransitivity; eassumption.
 * destruct v2; simpl in *; destruct v3; eauto.
+* destruct v2; simpl in *; destruct v3; intuition auto.
 * destruct v2; simpl in *; destruct v3; intuition auto.
   eapply H; eassumption.
   etransitivity; eassumption.
@@ -241,6 +246,7 @@ generalize dependent pc2.
 induction Heval; intros pc' Hpc e' He t' Ht;
 destruct t'; simpl in Ht; try tauto.
 * subst b0. exists (Atom (VBool b) pc'). auto.
+* subst n0. exists (Atom (VNat n) pc'). auto.
 * subst n0.
   destruct (list_forall2_atIndex_fun _ _ _ _ _ He H) as [a' [na' Ha']].
   destruct a' as [v' l']. destruct Ha' as [Hv' Hl'].

@@ -16,9 +16,10 @@ end
 with value_Lequiv (v1 v2: value A L) : Prop :=
 match v1, v2 with
 | VBool b1, VBool b2 => b1 = b2
+| VNat n1, VNat n2 => n1 = n2
 | VClos e1 t1, VClos e2 t2 =>
     list_forall2 atom_Lequiv e1 e2 /\ term_equiv t1 t2
-| VBool _, _ | VClos _ _, _ => False
+| VBool _, _ | VNat _, _ | VClos _ _, _ => False
 end.
 
 Definition env_Lequiv : env A L -> env A L -> Prop :=
@@ -43,6 +44,7 @@ Lemma atom_value_env_Lequiv_sym :
 Proof.
 apply atom_value_env_mutind; intros; simpl in *.
 * destruct a2. simpl. intuition auto.
+* destruct v2; simpl; auto.
 * destruct v2; simpl; auto.
 * destruct v2; simpl; intuition auto.
   apply H. assumption.
@@ -72,6 +74,7 @@ apply atom_value_env_mutind; intros; simpl in *.
     destruct H0 as [Hvv0  [Hl0l1 Hl1l0]]. right. transitivity l2; auto.
     splits. eauto. etransitivity; eassumption. etransitivity; eassumption.
 * destruct v2; simpl in *; destruct v3; eauto.
+* destruct v2; simpl in *; destruct v3; intuition auto.
 * destruct v2; simpl in *; destruct v3; intuition auto.
   eapply H; eassumption.
   etransitivity; eassumption.

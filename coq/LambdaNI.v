@@ -59,6 +59,7 @@ induction Heval; intros pc' Hpc e' Hauthe' He t' Hautht' Ht a' Heval';
 destruct t'; simpl in Ht; simpl in Hautht; simpl in Hautht';
 try tauto; inversion Heval'; subst.
 * rename b0 into b. intro Hlab. auto.
+* rename n0 into n. intro Hlab. auto.
 * rename n0 into n. rename v0 into v'. rename l0 into l'.
   intro Hlab. fold (value_Lequiv auth lab v v').
   assert (l ⊑[auth] lab \/ l' ⊑[auth] lab) as Hlab'.

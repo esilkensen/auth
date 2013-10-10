@@ -11,7 +11,7 @@ Context {A L: Type} {LA: LabelAlgebra A L}.
 
 Fixpoint term_auth (t: term A L) : A :=
 match t with
-| TBool _ | TVar _ => bottom
+| TBool _ | TNat _ | TVar _ => bottom
 | TLam t => term_auth t
 | TApp t1 t2 => term_auth t1 ∨ term_auth t2
 | TRelabel t auth _ => term_auth t ∨ auth
@@ -23,7 +23,7 @@ match a with
 end
 with value_auth (v: value A L) : A :=
 match v with
-| VBool _ => bottom
+| VBool _ | VNat _ => bottom
 | VClos e t =>
   fold_right (fun a auth => auth ∨ atom_auth a) bottom e
   ∨ term_auth t

@@ -6,6 +6,7 @@ Set Implicit Arguments.
 (** * A small lambda calculus, in de Bruijn notation. *)
 Inductive term (A L: Type) : Type :=
 | TBool: bool -> term A L
+| TNat: nat -> term A L
 | TVar: nat -> term A L
 | TLam: term A L -> term A L
 | TApp: term A L -> term A L -> term A L
@@ -13,6 +14,7 @@ Inductive term (A L: Type) : Type :=
 .
 
 Arguments TBool [A L] _.
+Arguments TNat  [A L] _.
 Arguments TVar  [A L] _.
 
 (** * Application of LA-maps on it. *)
@@ -22,6 +24,7 @@ Fixpoint LA_apply_term
          (m: LA1 ==> LA2) (t: term A1 L1) : term A2 L2 :=
 match t with
 | TBool b        => TBool b
+| TNat n         => TNat n
 | TVar n         => TVar n
 | TLam t         => TLam (LA_apply_term m t)
 | TApp t1 t2     => TApp (LA_apply_term m t1) (LA_apply_term m t2)
@@ -44,6 +47,11 @@ Context {A1 L1} {LA1: LabelAlgebra A1 L1}
         (m: LA1 ==> LA2).
 
 Lemma simpl_apply_term_bool : forall b, apply m (TBool b) = TBool b.
+Proof.
+reflexivity.
+Qed.
+
+Lemma simpl_apply_term_nat : forall n, apply m (TNat n) = TNat n.
 Proof.
 reflexivity.
 Qed.
@@ -74,6 +82,7 @@ End Simpl_apply_term.
 
 Hint Rewrite
      @simpl_apply_term_bool
+     @simpl_apply_term_nat
      @simpl_apply_term_var
      @simpl_apply_term_lam
      @simpl_apply_term_app
@@ -88,6 +97,7 @@ Inductive atom : Type :=
 | Atom: value -> L -> atom
 with value : Type :=
 | VBool: bool -> value
+| VNat: nat -> value
 | VClos: list atom -> term A L -> value.
 
 Definition env := list atom.
@@ -99,6 +109,7 @@ Hypothesis (Pvalue: value -> Type).
 Hypothesis (Penv: list atom -> Type).
 Hypothesis (Hatom: forall v, Pvalue v -> forall l, Patom (Atom v l)).
 Hypothesis (Hbool: forall b, Pvalue (VBool b)).
+Hypothesis (Hnat: forall n, Pvalue (VNat n)).
 Hypothesis (Hclos: forall l, Penv l -> forall t, Pvalue (VClos l t)).
 Hypothesis (Henv:  forall l, (forall n a, atIndex l n = Some a -> Patom a) -> Penv l).
 
@@ -134,6 +145,7 @@ end
 with value_fold (v: value) : Pvalue v :=
 match v with
 | VBool b     => Hbool b
+| VNat n      => Hnat n
 | VClos e t => Hclos (env_fold' atom_fold e) t
 end.
 
@@ -155,6 +167,7 @@ Hypothesis (Pvalue: value -> Prop).
 Hypothesis (Penv: env -> Prop).
 Hypothesis (Hatom: forall v, Pvalue v -> forall l, Patom (Atom v l)).
 Hypothesis (Hbool: forall b, Pvalue (VBool b)).
+Hypothesis (Hnat: forall n, Pvalue (VNat n)).
 Hypothesis (Hclos: forall l, Penv l -> forall t, Pvalue (VClos l t)).
 Hypothesis (Henv:  forall l, (forall n a, atIndex l n = Some a -> Patom a) -> Penv l).
 
@@ -162,15 +175,16 @@ Definition atom_value_env_mutind :
   (forall a, Patom a)
   /\ (forall v, Pvalue v)
   /\ (forall e, Penv e) :=
-  conj (atom_fold Patom Pvalue Penv Hatom Hbool Hclos Henv)
-       (conj (value_fold Patom Pvalue Penv Hatom Hbool Hclos Henv)
-             (env_fold Patom Pvalue Penv Hatom Hbool Hclos Henv)).
+  conj (atom_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)
+       (conj (value_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)
+             (env_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)).
 
 End mutind.
 
 End Atoms.
 
 Arguments VBool [A L] _.
+Arguments VNat  [A L] _.
 
 Section apply.
 
@@ -187,6 +201,7 @@ end
 with LA_apply_value (v: value A1 L1) : value A2 L2 :=
 match v with
 | VBool b => VBool b
+| VNat n => VNat n
 | VClos e t =>
   VClos (map LA_apply_atom e) (apply m t)
 end.
@@ -206,6 +221,7 @@ apply atom_value_env_mutind; intros; simpl.
 * transitivity (Atom (LA_apply_value (LAidentity LA) v) l).
   + reflexivity.
   + congruence.
+* reflexivity.
 * reflexivity.
 * transitivity (VClos (LA_apply_env (LAidentity LA) l) t).
   + unfold LA_apply_value. simpl. f_equal.
@@ -234,6 +250,7 @@ Proof.
 apply atom_value_env_mutind; intros; simpl.
 * unfold LA_apply_atom at 1. fold (LA_apply_value (LAcompose m23 m12) v).
   rewrite H. reflexivity.
+* reflexivity.
 * reflexivity.
 * unfold LA_apply_value at 1.
   fold (LA_apply_atom (LAcompose m23 m12)).
@@ -283,6 +300,9 @@ Inductive eval {A L} {LA: LabelAlgebra A L} :
 | Eval_bool : forall pc e b,
 (* ------------------------------------- *)
     pc; e ⊢ TBool b ⇓ Atom (VBool b) pc
+| Eval_nat : forall pc e n,
+(* ------------------------------------- *)
+    pc; e ⊢ TNat n ⇓ Atom (VNat n) pc
 | Eval_var : forall pc e n v l,
     atIndex e n = Some (Atom v l) ->
 (* ---------------------------------- *)
