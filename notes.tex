@@ -115,7 +115,7 @@
   \item $L_1 \sqsubseteq_{A} L$ and $L_1 \equiv L_2$ and
     $v_1 \approx^{L}_{A} v_2$.
   \end{itemize}
-  The definition is lifted to values and environments:
+  The definition is mutually recursive with values and environments:
   \begin{itemize}
   \item
     $c_1 \approx^{L}_{A} c_2$ iff $c_1 = c_2$,
@@ -160,25 +160,27 @@ L^{\mathit{def}} = \bot
 \]
 
 \begin{definition}
-  $v_1 \at L_1 \approx^{L} v_2 \at L_2$ iff either
+  The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
+  atoms for observers at label $L$ and with respect to some predicate on values
+  $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
-  \item $L \equiv \bot$ and
-    $L_1 \equiv L_2 \equiv \top$ and $P(v_1, v_2)$, or
-  \item $L \equiv \bot$ and
-    $L_1 \equiv L_2 \equiv \bot$ and $v_1 \approx^{\bot} v_2$; or
-  \item $L \equiv \top$ and $L_1 \equiv L_2$ and $v_1 \approx^{L} v_2$.
+  \item $L = \bot$ and
+    $L_1 = L_2 = \top$ and $P(v_1, v_2)$, or
+  \item $L = \bot$ and
+    $L_1 = L_2 = \bot$ and $v_1 \approx^{L}_{P} v_2$; or
+  \item $L = \top$ and $L_1 = L_2$ and $v_1 \approx^{L}_{P} v_2$.
   \end{itemize}
-  The definition is lifted to values an environments:
+  The definition is mutually recursive with values and environments:
   \begin{itemize}
-  \item $c_1 \approx^{L} c_2$ iff $c_1 = c_2$,
+  \item $c_1 \approx^{L}_{P} c_2$ iff $c_1 = c_2$,
   \item
-    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}
+    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}_{P}
     \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
-    $\rho_1 \approx^{L} \rho_2$ and
+    $\rho_1 \approx^{L}_{P} \rho_2$ and
     $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$; and
-  \item $\rho_1 \approx^{L} \rho_2$ iff
+  \item $\rho_1 \approx^{L}_{P} \rho_2$ iff
     $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
-    $\rho_1(x) \approx^{L} \rho_2(x)$ for every
+    $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
     $x \in \mathrm{dom}\; \rho_1$.
   \end{itemize}
 \end{definition}
