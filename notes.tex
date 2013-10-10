@@ -1,0 +1,163 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{geometry}
+\usepackage{semantic}
+
+\newcommand{\at}{\ensuremath{{\scriptstyle{@}}}}
+\newcommand{\pc}{\ensuremath{{\mathit{pc}}}}
+
+\newcommand{\twoheadlongmapsto}{\mapstochar\relbar\joinrel\twoheadrightarrow}
+
+\renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+
+\begin{flushright}
+  Notes: \today
+\end{flushright}
+
+\begin{flushleft}
+  \textbf{Labeled Lambda-Calculus} 
+\end{flushleft}
+
+\[
+\begin{array}{lcl}
+  b & ::= &
+  \mathit{tt}\;\; |\;\;
+  \mathit{ff}
+  \\
+  n & ::= &
+  0\;\; |\;\;
+  1\;\; |\;\;
+  \cdots
+  \\
+  t & ::= &
+  b\;\; |\;\;
+  n\;\; |\;\;
+  x\;\; |\;\;
+  \lambda{x}.\, t\;\; |\;\;
+  t\ t\;\; |\;\;
+  t \updownarrow_{A} L
+  \\
+  v & ::= &
+  b\;\; |\;\;
+  n\;\; |\;\;
+  \langle{\rho, \lambda{x}.\, t\rangle}
+  \\
+  a & ::= &
+  v \at L
+  \\
+  \rho & ::= &
+  \bullet\;\; |\;\;
+  \rho, x = a
+\end{array}
+\]
+
+\begin{gather*}
+  \inference{}{
+    \pc, \rho |- b \Downarrow b \at \pc
+  }[\textsc{Eval\_Bool}]
+  \qquad
+  \inference{}{
+    \pc, \rho |- n \Downarrow n \at \pc
+  }[\textsc{Eval\_Nat}]
+  \\[3ex]
+  \inference{
+    \rho(x) = v \at L
+  }{
+    \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
+  }[\textsc{Eval\_Var}]
+  \qquad
+  \inference{}{
+    \pc, \rho |- (\lambda{x}.\, t) \Downarrow
+    \langle{\rho, \lambda{x}.\, t\rangle} \at \pc
+  }[\textsc{Eval\_Abs}]
+  \\[3ex]
+  \inference{
+    \pc, \rho |- t_1 \Downarrow \langle{\rho_1, \lambda{x}.\, t\rangle} \at L_1
+    \\
+    \pc, \rho |- t_2 \Downarrow a_2
+    \\
+    L_1, (\rho_1, x = a_2) |- t \Downarrow a_3
+  }{
+    \pc, \rho |- (t_1\ t_2) \Downarrow a_3
+  }[\textsc{Eval\_App}]
+  \qquad
+  \inference{
+    \pc, \rho |- t_1 \Downarrow v_1 \at L_2
+    \\
+    L_1 \sqsubseteq_{A} L_2
+  }{
+    \pc, \rho |- t_1 \updownarrow_{A} L_2 \Downarrow v_1 \at L_2
+  }[\textsc{Eval\_Relabel}]
+  \\[-2ex]
+\end{gather*}
+
+\begin{definition}
+  The \emph{authority of a program} $t$, written $\mathit{Auth}(t)$, is the
+  join of all the authorities that occur in $t$. The definition is lifted to
+  atoms, values, and environments.
+\end{definition}
+
+\begin{definition}
+  The $\approx^{L}_{A}$ relation expresses the \emph{indistinguishability} of
+  atoms for observers at label $L$ and authority $A$.
+  Define $v_1 \at L_1 \approx^{L}_{A} v_2 \at L_2$ iff either
+  \begin{itemize}
+  \item $L_1 \not\sqsubseteq_{A} L$ and $L_2 \not\sqsubseteq_{A} L$, or
+  \item $L_1 \sqsubseteq_{A} L$ and $L_1 \equiv L_2$ and
+    $v_1 \approx^{L}_{A} v_2$.
+  \end{itemize}
+  The definition is lifted to values and environments:
+  \begin{itemize}
+  \item
+    $b_1 \approx^{L}_{A} b_2$ iff $b_1 = b_2$ and
+    $n_1 \approx^{L}_{A} n_2$ iff $n_1 = n_2$,
+  \item
+    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}_{A}
+    \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
+    $\rho_1 \approx^{L}_{A} \rho_2$ and
+    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$;
+  \item
+    $\rho_1 \approx^{L}_{A} \rho_2$ iff
+    $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
+    $\rho_1(x) \approx^{L}_{A} \rho_2(x)$
+    for every $x \in \mathrm{dom}\; \rho_1$.
+  \end{itemize}
+\end{definition}
+
+\begin{theorem}[Non-Interference]
+  If
+  \begin{itemize}
+  \item $\pc, \rho_1 |- t \Downarrow a_1$ and 
+    $\pc, \rho_2 |- t \Downarrow a_2$,
+  \item $\rho_1 \approx^{L}_{A} \rho_2$,
+  \item $\mathit{Auth}(\rho_1) \leq A$, $\mathit{Auth}(\rho_2) \leq A$, and
+    $\mathit{Auth}(t) \leq A$,
+  \end{itemize}
+  then $a_1 \approx^{L}_{A} a_2$.
+\end{theorem}
+
+% \begin{flushleft}
+%   \textbf{2: Public / Secret Model}
+% \end{flushleft}
+% \[
+% \mathcal{L} = \{ \bot, \top \}
+% \qquad
+% \bot \sqsubseteq \top
+% \qquad
+% L^{\mathit{def}} = \bot
+% \qquad
+% \mathcal{A} = \mathbf{1}
+% \]
+
+\end{document}
