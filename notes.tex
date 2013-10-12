@@ -16,8 +16,8 @@
 
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
 
 \begin{document}
 
@@ -25,139 +25,114 @@
   \today
 \end{flushright}
 
-\begin{flushleft}
-  \textbf{Labeled Lambda-Calculus} 
-\end{flushleft}
+% Figure \ref{fig:two} defines a label algebra $\mathbf{2}$,
+% the \emph{public / secret} model. Figures \ref{fig:syntax} and
+% \ref{fig:semantics} define the syntax and semantics of $\lambda_{\mathbf{2}}$,
+% a labeled lambda-calculus for $\mathbf{2}$.
 
-\[
-\begin{array}{lcl}
-  b & ::= &
-  \mathit{tt}\;\; |\;\;
-  \mathit{ff}
-  \\
-  n & ::= &
-  0\;\; |\;\;
-  1\;\; |\;\;
-  \cdots
-  \\
-  c & ::= &
-  b\;\; |\;\;
-  n
-  \\
-  t & ::= &
-  c\;\; |\;\;
-  x\;\; |\;\;
-  \lambda{x}.\, t\;\; |\;\;
-  t\ t\;\; |\;\;
-  t \updownarrow_{A} L
-  \\
-  v & ::= &
-  c\;\; |\;\;
-  \langle{\rho, \lambda{x}.\, t\rangle}
-  \\
-  a & ::= &
-  v \at L
-  \\
-  \rho & ::= &
-  \bullet\;\; |\;\;
-  \rho, x = a
-\end{array}
-\]
-
-\begin{gather*}
-  \inference{}{
-    \pc, \rho |- c \Downarrow c \at \pc
-  }[\textsc{Eval\_Const}]
-  \\[3ex]
-  \inference{
-    \rho(x) = v \at L
-  }{
-    \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
-  }[\textsc{Eval\_Var}]
+\begin{figure}[h]
+  \centering
+  \[
+  \mathcal{L} = \{ \bot, \top \}
   \qquad
-  \inference{}{
-    \pc, \rho |- (\lambda{x}.\, t) \Downarrow
-    \langle{\rho, \lambda{x}.\, t\rangle} \at \pc
-  }[\textsc{Eval\_Abs}]
-  \\[3ex]
-  \inference{
-    \pc, \rho |- t_1 \Downarrow \langle{\rho_1, \lambda{x}.\, t\rangle} \at L_1
-    \\
-    \pc, \rho |- t_2 \Downarrow a_2
-    \\
-    L_1, (\rho_1, x = a_2) |- t \Downarrow a_3
-  }{
-    \pc, \rho |- (t_1\ t_2) \Downarrow a_3
-  }[\textsc{Eval\_App}]
+  \bot \sqsubseteq \top
   \qquad
-  \inference{
-    \pc, \rho |- t_1 \Downarrow v_1 \at L_2
-    \\
-    L_1 \sqsubseteq_{A} L_2
-  }{
-    \pc, \rho |- t_1 \updownarrow_{A} L_2 \Downarrow v_1 \at L_2
-  }[\textsc{Eval\_Relabel}]
-  \\
-\end{gather*}
+  L^{\mathit{def}} = \bot
+  \qquad
+  \mathcal{A} = \mathbf{1}
+  \]
+  \caption{Label algebra $\mathbf{2}$.}
+  \label{fig:two}
+\end{figure}
 
-\begin{definition}
-  The \emph{authority of a program} $t$, written $\mathit{Auth}(t)$, is the
-  join of all the authorities that occur in $t$. The definition is lifted to
-  atoms, values, and environments.
-\end{definition}
+\begin{figure}[h]
+  \centering
+  \[
+  \begin{array}[t]{r @{\ } c @{\ } l c l}
+    e & \in & \mathit{Exp} & ::= &
+    n\;\; |\;\;
+    x\;\; |\;\;
+    \lambda{x}.\, e\;\; |\;\;
+    e\ e\;\; |\;\;
+    e \updownarrow_{A} %L
+    \\[0.5ex]
+    v & \in & \mathit{Val} & ::= &
+    n\;\; |\;\;
+    \langle{\rho, \lambda{x}.\, e\rangle}
+    \\[0.5ex]
+    a & \in & \mathit{Atom} & ::= &
+    v \at L
+    \\[0.5ex]
+    \rho & \in & \mathit{Env} & ::= &
+    \bullet\;\; |\;\;
+    \rho, x = a
+    \\[1.5ex]
+    n & \in & \mathbb{N} & &
+    \text{the set of natural numbers}
+    \\[0.5ex]
+    x & \in & \mathit{Var} & &
+    \text{a set of identifiers}
+  \end{array}
+  \]
+  \caption{Syntax of $\lambda_{\mathbf{2}}$.}
+  \label{fig:syntax}
+\end{figure}
 
-\begin{definition}
-  The $\approx^{L}_{A}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and authority $A$, where
-  $v_1 \at L_1 \approx^{L}_{A} v_2 \at L_2$ iff either
-  \begin{itemize}
-  \item $L_1 \not\sqsubseteq_{A} L$ and $L_2 \not\sqsubseteq_{A} L$, or
-  \item $L_1 \sqsubseteq_{A} L$ and $L_1 \equiv L_2$ and
-    $v_1 \approx^{L}_{A} v_2$.
-  \end{itemize}
-  The definition is mutually recursive with values and environments:
-  \begin{itemize}
-  \item
-    $c_1 \approx^{L}_{A} c_2$ iff $c_1 = c_2$,
-  \item
-    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}_{A}
-    \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
-    $\rho_1 \approx^{L}_{A} \rho_2$ and
-    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$; and
-  \item
-    $\rho_1 \approx^{L}_{A} \rho_2$ iff
-    $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
-    $\rho_1(x) \approx^{L}_{A} \rho_2(x)$
-    for every $x \in \mathrm{dom}\; \rho_1$.
-  \end{itemize}
-\end{definition}
-
-\begin{theorem}[Non-Interference]
-  If
-  \begin{itemize}
-  \item $\pc, \rho_1 |- t \Downarrow a_1$ and 
-    $\pc, \rho_2 |- t \Downarrow a_2$,
-  \item $\rho_1 \approx^{L}_{A} \rho_2$,
-  \item $\mathit{Auth}(\rho_1) \leq A$ and $\mathit{Auth}(\rho_2) \leq A$ and
-    $\mathit{Auth}(t) \leq A$,
-  \end{itemize}
-  then $a_1 \approx^{L}_{A} a_2$.
-\end{theorem}
+\begin{figure}[h]
+  \centering
+  \begin{gather*}
+    \inference{}{
+      \pc, \rho |- n \Downarrow n \at \pc
+    }[\textsc{E-Nat}]
+    \qquad
+    \inference{
+      \rho(x) = v \at L
+    }{
+      \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
+    }[\textsc{E-Var}]
+    \\[3ex]
+    \inference{}{
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow
+      \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+    }[\textsc{E-Abs}]
+    \qquad
+    \inference{
+      \pc, \rho |- e_1 \Downarrow
+      \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+      \\
+      \pc, \rho |- e_2 \Downarrow a_2
+      \\
+      L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
+    }{
+      \pc, \rho |- (e_1\ e_2) \Downarrow a_3
+    }[\textsc{E-App}]
+    \\[3ex]
+    % \inference{
+    %   \pc, \rho |- e_1 \Downarrow v_1 \at L_2
+    %   \\
+    %   L_1 \sqsubseteq_{A} L_2
+    % }{
+    %   \pc, \rho |- e_1 \updownarrow_{A} L_2
+    % }[\textsc{E-Relabel}]
+    \inference{
+      \pc, \rho |- e \Downarrow v \at \bot
+    }{
+      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    }[\textsc{E-Relabel1}]
+    \qquad
+    \inference{
+      \pc, \rho |- e \Downarrow v \at \top
+      &
+      \textit{Condition on } e
+    }{
+      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    }[\textsc{E-Relabel2}]
+  \end{gather*}
+  \caption{Semantics of $\lambda_{\mathbf{2}}$.}
+  \label{fig:semantics}
+\end{figure}
 
 \pagebreak
-
-\begin{flushleft}
-  \textbf{2: Public / Secret Model}
-\end{flushleft}
-\[
-\mathcal{L} = \{ \bot, \top \}
-\qquad
-\bot \sqsubseteq \top
-\qquad
-L^{\mathit{def}} = \bot
-\qquad
-\mathcal{A} = \mathbf{1}
-\]
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
@@ -170,19 +145,21 @@ L^{\mathit{def}} = \bot
     $L_1 = L_2 = \bot$ and $v_1 \approx^{L}_{P} v_2$; or
   \item $L = \top$ and $L_1 = L_2$ and $v_1 \approx^{L}_{P} v_2$.
   \end{itemize}
-  The definition is mutually recursive with values and environments:
+  The definition for atoms is mutually recursive with that for values and
+  environments:
   \begin{itemize}
-  \item $c_1 \approx^{L}_{P} c_2$ iff $c_1 = c_2$,
+  \item $n_1 \approx^{L}_{P} n_2$ iff $n_1 = n_2$,
   \item
-    $\langle{\rho_1, \lambda{x_1}.\, t_1\rangle} \approx^{L}_{P}
-    \langle{\rho_2, \lambda{x_2}.\, t_2\rangle}$ iff
+    $\langle{\rho_1, \lambda{x_1}.\, e_1\rangle} \approx^{L}_{P}
+    \langle{\rho_2, \lambda{x_2}.\, e_2\rangle}$ iff
     $\rho_1 \approx^{L}_{P} \rho_2$ and
-    $\lambda{x_1}.\, t_1 \equiv \lambda{x_2}.\, t_2$; and
+    $\lambda{x_1}.\, e_1 \equiv \lambda{x_2}.\, e_2$; and
   \item $\rho_1 \approx^{L}_{P} \rho_2$ iff
     $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
     $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
     $x \in \mathrm{dom}\; \rho_1$.
   \end{itemize}
+  \label{def:indistinguishability}
 \end{definition}
 
 \end{document}
