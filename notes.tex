@@ -107,26 +107,26 @@
       \pc, \rho |- (e_1\ e_2) \Downarrow a_3
     }[\textsc{E-App}]
     \\[3ex]
+    \inference{
+      \pc, \rho |- e_1 \Downarrow v_1 \at L_2
+      \\
+      L_1 \sqsubseteq_{A} L_2
+    }{
+      \pc, \rho |- e_1 \updownarrow_{A} L_2
+    }[\textsc{E-Relabel}]
     % \inference{
-    %   \pc, \rho |- e_1 \Downarrow v_1 \at L_2
-    %   \\
-    %   L_1 \sqsubseteq_{A} L_2
+    %   \pc, \rho |- e \Downarrow v \at \bot
     % }{
-    %   \pc, \rho |- e_1 \updownarrow_{A} L_2
-    % }[\textsc{E-Relabel}]
-    \inference{
-      \pc, \rho |- e \Downarrow v \at \bot
-    }{
-      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    }[\textsc{E-Relabel1}]
-    \qquad
-    \inference{
-      \pc, \rho |- e \Downarrow v \at \top
-      &
-      \textit{Condition on } e
-    }{
-      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    }[\textsc{E-Relabel2}]
+    %   \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    % }[\textsc{E-Relabel1}]
+    % \qquad
+    % \inference{
+    %   \pc, \rho |- e \Downarrow v \at \top
+    %   &
+    %   \textit{Condition on } e
+    % }{
+    %   \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    % }[\textsc{E-Relabel2}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathbf{2}}$.}
   \label{fig:semantics}
