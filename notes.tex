@@ -25,11 +25,6 @@
   \today
 \end{flushright}
 
-% Figure \ref{fig:two} defines a label algebra $\mathbf{2}$,
-% the \emph{public / secret} model. Figures \ref{fig:syntax} and
-% \ref{fig:semantics} define the syntax and semantics of $\lambda_{\mathbf{2}}$,
-% a labeled lambda-calculus for $\mathbf{2}$.
-
 \begin{figure}[h]
   \centering
   \[
@@ -106,14 +101,14 @@
     }{
       \pc, \rho |- (e_1\ e_2) \Downarrow a_3
     }[\textsc{E-App}]
-    \\[3ex]
-    \inference{
-      \pc, \rho |- e_1 \Downarrow v_1 \at L_2
-      \\
-      L_1 \sqsubseteq_{A} L_2
-    }{
-      \pc, \rho |- e_1 \updownarrow_{A} L_2
-    }[\textsc{E-Relabel}]
+    % \\[3ex]
+    % \inference{
+    %   \pc, \rho |- e_1 \Downarrow v_1 \at L_2
+    %   \\
+    %   L_1 \sqsubseteq_{A} L_2
+    % }{
+    %   \pc, \rho |- e_1 \updownarrow_{A} L_2
+    % }[\textsc{E-Relabel}]
     % \inference{
     %   \pc, \rho |- e \Downarrow v \at \bot
     % }{
@@ -136,11 +131,12 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and with respect to some predicate on values
-  $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
+  atoms for observers at label $L$ and with respect to some equivalence
+  relation on values $P$, where
+  $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item $L = \bot$ and
-    $L_1 = L_2 = \top$ and $P(v_1, v_2)$, or
+    $L_1 = L_2 = \top$ and $P(v_1, v_2)$; or
   \item $L = \bot$ and
     $L_1 = L_2 = \bot$ and $v_1 \approx^{L}_{P} v_2$; or
   \item $L = \top$ and $L_1 = L_2$ and $v_1 \approx^{L}_{P} v_2$.
@@ -148,12 +144,12 @@
   The definition for atoms is mutually recursive with that for values and
   environments:
   \begin{itemize}
-  \item $n_1 \approx^{L}_{P} n_2$ iff $n_1 = n_2$,
+  \item $n_1 \approx^{L}_{P} n_2$ iff $n_1 = n_2$.
   \item
     $\langle{\rho_1, \lambda{x_1}.\, e_1\rangle} \approx^{L}_{P}
     \langle{\rho_2, \lambda{x_2}.\, e_2\rangle}$ iff
     $\rho_1 \approx^{L}_{P} \rho_2$ and
-    $\lambda{x_1}.\, e_1 \equiv \lambda{x_2}.\, e_2$; and
+    $\lambda{x_1}.\, e_1 \equiv \lambda{x_2}.\, e_2$.
   \item $\rho_1 \approx^{L}_{P} \rho_2$ iff
     $\mathrm{dom}\; \rho_1 = \mathrm{dom}\; \rho_2$ and
     $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
