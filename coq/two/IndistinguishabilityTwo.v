@@ -81,28 +81,30 @@ Lemma atom_value_env_Lequiv_trans :
   /\ (forall e1 e2 e3,
         env_Lequiv e1 e2 -> env_Lequiv e2 e3 -> env_Lequiv e1 e3).
 Proof.
-apply atom_value_env_mutind; intros; simpl in *.
-* destruct a2. simpl in *. destruct a3.
-  intros [Hl | Hl].
-  + destruct H0 as [Hvv0  [Hl0l1 Hl1l0]]. tauto.
-    destruct H1 as [Hv0v1 [Hl1l2 Hl2l1]]. left. transitivity l0; auto.
-    splits. eauto. etransitivity; eassumption. etransitivity; eassumption.
-  + destruct H1 as [Hv0v1 [Hl1l2 Hl2l1]]. tauto.
-    destruct H0 as [Hvv0  [Hl0l1 Hl1l0]]. right. transitivity l2; auto.
-    splits. eauto. etransitivity; eassumption. etransitivity; eassumption.
-* destruct v2; simpl in *; destruct v3; eauto.
-* destruct v2; simpl in *; destruct v3; intuition auto.
-  eapply H; eassumption.
-  etransitivity; eassumption.
-* generalize dependent e3. generalize dependent e2.
-  induction l0; intros e2 H12 e3 H23; destruct e2; simpl in *;
-  destruct e3; try tauto.
-  split.
-  - apply (H 0 a0 eq_refl a1); tauto.
-  - apply IHl0 with (e2 := e2); try tauto.
-    intros n b Hb. apply (H (S n) b). assumption.
+  apply atom_value_env_mutind; intros.
+  destruct a2. destruct a3. simpl in *.
+  destruct H0; destruct H0; destruct H1; destruct H1;
+  destruct_conjs; subst; destruct l; destruct t0; try clear_dup; inversion H0;
+  try inversion H1; try inversion H2; try inversion H3; try inversion H4.
+    apply (Ptrans v v0 v1) in H7. left. auto. assumption.
+    apply (H v0 v1) in H4. right. left. auto. assumption.
+    apply (H v0 v1) in H3. right. right. auto. assumption.
+    apply (H v0 v1) in H3. right. right. auto. assumption.
+    destruct v2; destruct v3; simpl in *; auto.
+    destruct v2; destruct v3; simpl in *; auto.
+      unfold env_Lequiv in H.
+      destruct H0. destruct H1. split.
+        apply (H l1 l2). assumption. assumption.
+        transitivity t0; assumption.
+    generalize dependent e3. generalize dependent e2.
+    induction l0; intros e2 H12 e3 H23; destruct e2; simpl in *;
+    destruct e3; try tauto. destruct H12. destruct H23.
+    split.
+      apply H with (n:=0) (a2:=a0); tauto.
+      apply IHl0 with (e2:=e2); try tauto.
+        intros n b Hb. apply (H (S n) b). assumption.
 Qed.
-
+    
 Global Instance Equivalence_atom_Lequiv : Equivalence atom_Lequiv.
 Proof.
 constructor.
@@ -134,17 +136,16 @@ Section Monotonicity.
 
 Context {A L: Type} {LA: LabelAlgebra A L}.
 
-Notation value_pred := (value A L -> value A L -> Prop).
-Check atom_Lequiv.
 (** ** With respect to authorities. *)
+Check atom_Lequiv.
 Lemma Lequiv_auth_antimonotone :
-  forall (auth auth': A) (lab: L) (P: value_pred),
+  forall (auth auth': A) (lab: L),
     auth ≤ auth' ->
-    (forall a1 a2,  atom_Lequiv auth' lab P a1 a2 -> atom_Lequiv auth lab P a1 a2)
-    /\ (forall v1 v2, value_Lequiv auth' lab P v1 v2 -> value_Lequiv auth lab P v1 v2)
-    /\ (forall e1 e2, env_Lequiv auth' lab P e1 e2 -> env_Lequiv auth lab P e1 e2).
+    (forall a1 a2,  atom_Lequiv auth' lab a1 a2 -> atom_Lequiv auth lab a1 a2)
+    /\ (forall v1 v2, value_Lequiv auth' lab v1 v2 -> value_Lequiv auth lab v1 v2)
+    /\ (forall e1 e2, env_Lequiv auth' lab e1 e2 -> env_Lequiv auth lab e1 e2).
 Proof.
-intros auth auth' lab P Hleq.
+intros auth auth' lab Hleq.
 apply atom_value_env_mutind; intros; simpl; auto.
 * destruct a2; simpl in *. intro Hlab.
   fold (value_Lequiv auth lab v v0).
