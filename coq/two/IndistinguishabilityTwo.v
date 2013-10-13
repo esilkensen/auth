@@ -1,3 +1,4 @@
+Require Import Program.Tactics.
 Require Import MyTactics.
 Require Import LabelAlgebra.
 Require Import LambdaTwo.
@@ -50,58 +51,15 @@ Lemma atom_value_env_Lequiv_sym :
   /\ (forall v1 v2, value_Lequiv v1 v2 -> value_Lequiv v2 v1)
   /\ (forall e1 e2, env_Lequiv e1 e2 -> env_Lequiv e2 e1).
 Proof.
-  apply atom_value_env_mutind; intros.
+  apply atom_value_env_mutind; intros. 
   destruct a2. simpl. simpl in H0.
-  destruct l.
-    destruct l0.
-      destruct t.
-        inversion H0.
-          inversion H1. inversion H3. inversion H5. inversion H6.
-          inversion H1; inversion H2.
-            inversion H4. inversion H6. right. left. auto.
-            inversion H3.
-        inversion H0.
-          inversion H1. inversion H3. inversion H4.
-          inversion H1; inversion H2.
-            inversion H4. inversion H5.
-            inversion H3.
-      destruct t.
-        inversion H0.
-          inversion H1. inversion H3. inversion H4.
-          inversion H1; inversion H2.
-            inversion H4. inversion H5.
-            inversion H3.
-        inversion H0.
-          inversion H1. inversion H3. inversion H5. left. auto.
-          inversion H1; inversion H2.
-            inversion H4. inversion H6. inversion H7.
-            inversion H3.
-    destruct l0.
-      destruct t.
-        inversion H0.
-          inversion H1. inversion H2.
-          inversion H1; inversion H2.
-            inversion H3.
-            inversion H4. right. right. auto.
-        inversion H0.
-          inversion H1. inversion H2.
-          inversion H1; inversion H2.
-            inversion H3.
-            inversion H4. inversion H5.
-      destruct t.
-        inversion H0.
-          inversion H1. inversion H2.
-          inversion H1; inversion H2.
-            inversion H3.
-            inversion H4. inversion H5.
-        inversion H0.
-          inversion H1. inversion H2.
-          inversion H1; inversion H2.
-            inversion H3.
-            inversion H4. right. right. auto.
+  destruct H0; destruct H0; destruct_conjs; destruct l; subst; inversion H0.
+    left. auto.
+    right. left. auto.
+    right. right. auto.
   destruct v2; inversion H. reflexivity.
   destruct v2. 
-    destruct l0; (simpl in H0; inversion H0).
+    destruct l0; simpl in H0; inversion H0.
     destruct l0.
       destruct l1.
         inversion H0. simpl. split. reflexivity. symmetry. assumption.
