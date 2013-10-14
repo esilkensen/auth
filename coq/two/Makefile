@@ -39,8 +39,8 @@ $(call includecmdwithout@,$(COQBIN)coqtop -config)
 #                        #
 ##########################
 
-COQLIBS?= -R . auth
-COQDOCLIBS?=-R . auth
+COQLIBS?=-I . 
+COQDOCLIBS?=
 
 ##########################
 #                        #
@@ -95,6 +95,7 @@ VFILES:=UnitLattice.v\
 .SECONDARY: $(addsuffix .d,$(VFILES))
 
 VOFILES:=$(VFILES:.v=.vo)
+VOFILESINC=$(filter $(wildcard ./*),$(VOFILES)) 
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
@@ -164,15 +165,15 @@ userinstall:
 	+$(MAKE) USERINSTALL=true install
 
 install:
-	for i in $(VOFILES); do \
-	 install -d `dirname $(DSTROOT)$(COQLIBINSTALL)/auth/$$i`; \
-	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/auth/$$i; \
+	install -d $(DSTROOT)$(COQLIBINSTALL)/$(INSTALLDEFAULTROOT); \
+	for i in $(VOFILESINC); do \
+	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/$(INSTALLDEFAULTROOT)/`basename $$i`; \
 	done
 
 install-doc:
-	install -d $(DSTROOT)$(COQDOCINSTALL)/auth/html
+	install -d $(DSTROOT)$(COQDOCINSTALL)/$(INSTALLDEFAULTROOT)/html
 	for i in html/*; do \
-	 install -m 0644 $$i $(DSTROOT)$(COQDOCINSTALL)/auth/$$i;\
+	 install -m 0644 $$i $(DSTROOT)$(COQDOCINSTALL)/$(INSTALLDEFAULTROOT)/$$i;\
 	done
 
 clean:
