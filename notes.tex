@@ -50,21 +50,21 @@
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
     e \updownarrow_{A} %L
-    \\[0.5ex]
+    \\[0.6ex]
     v & \in & \mathit{Val} & ::= &
     n\;\; |\;\;
     \langle{\rho, \lambda{x}.\, e\rangle}
-    \\[0.5ex]
+    \\[0.6ex]
     a & \in & \mathit{Atom} & ::= &
     v \at L
-    \\[0.5ex]
+    \\[0.6ex]
     \rho & \in & \mathit{Env} & ::= &
     \bullet\;\; |\;\;
     \rho, x = a
-    \\[1.5ex]
+    \\[1.6ex]
     n & \in & \mathbb{N} & &
     \text{the set of natural numbers}
-    \\[0.5ex]
+    \\[0.6ex]
     x & \in & \mathit{Var} & &
     \text{a set of identifiers}
   \end{array}
@@ -85,7 +85,7 @@
     }{
       \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
     }[\textsc{E-Var}]
-    \\[3ex]
+    \\[6ex]
     \inference{}{
       \pc, \rho |- (\lambda{x}.\, e) \Downarrow
       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
@@ -101,7 +101,7 @@
     }{
       \pc, \rho |- (e_1\ e_2) \Downarrow a_3
     }[\textsc{E-App}]
-    % \\[3ex]
+    \\[6ex]
     % \inference{
     %   \pc, \rho |- e_1 \Downarrow v_1 \at L_2
     %   \\
@@ -109,19 +109,19 @@
     % }{
     %   \pc, \rho |- e_1 \updownarrow_{A} L_2
     % }[\textsc{E-Relabel}]
-    % \inference{
-    %   \pc, \rho |- e \Downarrow v \at \bot
-    % }{
-    %   \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    % }[\textsc{E-Relabel1}]
-    % \qquad
-    % \inference{
-    %   \pc, \rho |- e \Downarrow v \at \top
-    %   &
-    %   \textit{Condition on } e
-    % }{
-    %   \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    % }[\textsc{E-Relabel2}]
+    \inference{
+      \pc, \rho |- e \Downarrow v \at \bot
+    }{
+      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    }[\textsc{E-Relabel1}]
+    \qquad
+    \inference{
+      \pc, \rho |- e \Downarrow v \at \top
+      &
+      \textit{Condition on } e
+    }{
+      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
+    }[\textsc{E-Relabel2}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathbf{2}}$.}
   \label{fig:semantics}
@@ -131,9 +131,8 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and with respect to some equivalence
-  relation on values $P$, where
-  $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
+  atoms for observers at label $L$ and with respect to some predicate on values
+  $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item $L = \bot$ and
     $L_1 = L_2 = \top$ and $P(v_1, v_2)$; or
@@ -157,5 +156,16 @@
   \end{itemize}
   \label{def:indistinguishability}
 \end{definition}
+
+\begin{flushleft}
+  Questions:
+\end{flushleft}
+
+\begin{itemize}
+\item What is $P$ allowed to be?
+\item Should $v_1 \approx^{L}_{P} v_2$ imply $P(v_1,v_2)$?
+\item Should $\approx^{L}_{P}$ be an equivalence relation?
+\item Should $a_1 \approx^{\top}_{P} a_2$ imply $a_1 \approx^{\bot}_{P} a_2$?
+\end{itemize}
 
 \end{document}
