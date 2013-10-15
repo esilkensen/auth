@@ -7,7 +7,7 @@ Require Import TermEquivTwo.
 (** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
 
-Context (l : two)
+Context (L : two)
         (P : value -> value -> Prop)
         (Prefl : forall x, P x x)
         (Psym : forall x y, P x y -> P y x)
@@ -16,9 +16,9 @@ Context (l : two)
 Fixpoint atom_Lequiv a1 a2 : Prop :=
   match a1, a2 with
     | Atom v1 l1, Atom v2 l2 =>
-      (l = Bottom2 /\ l1 = l2 /\ l1 = Top2 /\ P v1 v2) \/
-      (l = Bottom2 /\ l1 = l2 /\ l1 = Bottom2 /\ value_Lequiv v1 v2) \/
-      (l = Top2 /\ l1 = l2 /\ value_Lequiv v1 v2)
+      (L = Bottom2 /\ l1 = l2 /\ l1 = Top2 /\ P v1 v2) \/
+      (L = Bottom2 /\ l1 = l2 /\ l1 = Bottom2 /\ value_Lequiv v1 v2) \/
+      (L = Top2 /\ l1 = l2 /\ value_Lequiv v1 v2)
   end
 with value_Lequiv v1 v2 : Prop :=
        match v1, v2 with
@@ -31,6 +31,14 @@ with value_Lequiv v1 v2 : Prop :=
 Definition env_Lequiv : env -> env -> Prop :=
   list_forall2 atom_Lequiv.
 
+Lemma atom_Lequiv_lab_inv :
+  forall v1 v2 l1 l2,
+    atom_Lequiv (Atom v1 l1) (Atom v2 l2) ->
+    l1 = l2.
+Proof.
+  intros. inversion H; inversion H0; destruct_conjs; auto.
+Qed.
+
 (** ** The indistinguishability relations are equivalences. *)
 Lemma atom_value_env_Lequiv_refl :
   (forall a, atom_Lequiv a a)
@@ -38,12 +46,12 @@ Lemma atom_value_env_Lequiv_refl :
   /\ (forall e, env_Lequiv e e).
 Proof.
   apply atom_value_env_mutind; intros; simpl; auto.
-  destruct l; destruct l0; auto. right. auto.
-  induction l0.
+  destruct L; destruct l; auto. right. auto.
+  induction l.
     reflexivity.
     simpl. split.
       apply (H 0 a). reflexivity.
-      apply IHl0. intros n b Hb. apply (H (S n) b). assumption.
+      apply IHl. intros n b Hb. apply (H (S n) b). assumption.
 Qed.
 
 Lemma atom_value_env_Lequiv_sym :
@@ -53,24 +61,24 @@ Lemma atom_value_env_Lequiv_sym :
 Proof.
   apply atom_value_env_mutind; intros. 
   destruct a2. simpl. simpl in H0.
-  destruct H0; destruct H0; destruct_conjs; destruct l; subst; inversion H0.
+  destruct H0; destruct H0; destruct_conjs; destruct L; subst; inversion H0.
     left. auto.
     right. left. auto.
     right. right. auto.
   destruct v2; inversion H. reflexivity.
   destruct v2. 
-    destruct l0; simpl in H0; inversion H0.
-    destruct l0.
-      destruct l1.
+    destruct l; simpl in H0; inversion H0.
+    destruct l.
+      destruct l0.
         inversion H0. simpl. split. reflexivity. symmetry. assumption.
         simpl in H0. inversion H0. inversion H1.
       simpl. split. apply H.
-        destruct l1; inversion H0; inversion H1; auto.
+        destruct l0; inversion H0; inversion H1; auto.
         inversion H0. symmetry. assumption.
   generalize dependent e2.
-  induction l0; intros e2 H2; destruct e2; simpl in *; try tauto.
+  induction l; intros e2 H2; destruct e2; simpl in *; try tauto.
   split. apply (H 0). reflexivity. inversion H2. assumption.
-  apply IHl0. intros n b Hb. apply (H (S n) b). assumption. tauto.
+  apply IHl. intros n b Hb. apply (H (S n) b). assumption. tauto.
 Qed.
 
 Lemma atom_value_env_Lequiv_trans :
@@ -84,7 +92,7 @@ Proof.
   apply atom_value_env_mutind; intros.
   destruct a2. destruct a3. simpl in *.
   destruct H0; destruct H0; destruct H1; destruct H1;
-  destruct_conjs; subst; destruct l; destruct t0; try clear_dup; inversion H0;
+  destruct_conjs; subst; destruct L; destruct t0; try clear_dup; inversion H0;
   try inversion H1; try inversion H2; try inversion H3; try inversion H4.
     apply (Ptrans v v0 v1) in H7. left. auto. assumption.
     apply (H v0 v1) in H4. right. left. auto. assumption.
@@ -94,14 +102,14 @@ Proof.
     destruct v2; destruct v3; simpl in *; auto.
       unfold env_Lequiv in H.
       destruct H0. destruct H1. split.
-        apply (H l1 l2). assumption. assumption.
+        apply (H l0 l1). assumption. assumption.
         transitivity t0; assumption.
     generalize dependent e3. generalize dependent e2.
-    induction l0; intros e2 H12 e3 H23; destruct e2; simpl in *;
+    induction l; intros e2 H12 e3 H23; destruct e2; simpl in *;
     destruct e3; try tauto. destruct H12. destruct H23.
     split.
       apply H with (n:=0) (a2:=a0); tauto.
-      apply IHl0 with (e2:=e2); try tauto.
+      apply IHl with (e2:=e2); try tauto.
         intros n b Hb. apply (H (S n) b). assumption.
 Qed.
     
