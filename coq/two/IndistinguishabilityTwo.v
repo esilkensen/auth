@@ -16,7 +16,11 @@ Context (L : two)
 Fixpoint atom_Lequiv a1 a2 : Prop :=
   match a1, a2 with
     | Atom v1 l1, Atom v2 l2 =>
-      (L = Bottom2 /\ l1 = l2 /\ l1 = Top2 /\ P v1 v2) \/
+      (L = Bottom2 /\ l1 = l2 /\ l1 = Top2 /\
+       match v1, v2 with
+         | VNat n1, VNat n2 => P v1 v2
+         | _, _ => True
+       end) \/
       (L = Bottom2 /\ l1 = l2 /\ l1 = Bottom2 /\ value_Lequiv v1 v2) \/
       (L = Top2 /\ l1 = l2 /\ value_Lequiv v1 v2)
   end
@@ -46,7 +50,7 @@ Lemma atom_value_env_Lequiv_refl :
   /\ (forall e, env_Lequiv e e).
 Proof.
   apply atom_value_env_mutind; intros; simpl; auto.
-  destruct L; destruct l; auto. right. auto.
+  destruct L; destruct l; auto. right. auto. destruct v; auto.
   induction l.
     reflexivity.
     simpl. split.
@@ -59,22 +63,23 @@ Lemma atom_value_env_Lequiv_sym :
   /\ (forall v1 v2, value_Lequiv v1 v2 -> value_Lequiv v2 v1)
   /\ (forall e1 e2, env_Lequiv e1 e2 -> env_Lequiv e2 e1).
 Proof.
-  apply atom_value_env_mutind; intros. 
+  apply atom_value_env_mutind; intros.
   destruct a2. simpl. simpl in H0.
-  destruct H0; destruct H0; destruct_conjs; destruct L; subst; inversion H0.
+  destruct v; destruct v0; destruct H0; destruct H0; destruct_conjs; subst; auto.
     left. auto.
     right. left. auto.
     right. right. auto.
+    right. left. auto.
+    right. right. auto.
   destruct v2; inversion H. reflexivity.
-  destruct v2. 
-    destruct l; simpl in H0; inversion H0.
-    destruct l.
-      destruct l0.
-        inversion H0. simpl. split. reflexivity. symmetry. assumption.
-        simpl in H0. inversion H0. inversion H1.
-      simpl. split. apply H.
-        destruct l0; inversion H0; inversion H1; auto.
-        inversion H0. symmetry. assumption.
+  destruct v2.
+    inversion H0.
+    destruct l; destruct l0.
+      simpl in H0. destruct H0. simpl. split. assumption. symmetry. assumption.
+      inversion H0. inversion H1.
+      inversion H0. inversion H1.
+      inversion H0. apply H in H1. inversion H1.
+        simpl. split. split. auto. auto. symmetry. auto.
   generalize dependent e2.
   induction l; intros e2 H2; destruct e2; simpl in *; try tauto.
   split. apply (H 0). reflexivity. inversion H2. assumption.
@@ -89,7 +94,8 @@ Lemma atom_value_env_Lequiv_trans :
   /\ (forall e1 e2 e3,
         env_Lequiv e1 e2 -> env_Lequiv e2 e3 -> env_Lequiv e1 e3).
 Proof.
-  apply atom_value_env_mutind; intros.
+  Admitted. (* TODO *)
+  (*apply atom_value_env_mutind; intros.
   destruct a2. destruct a3. simpl in *.
   destruct H0; destruct H0; destruct H1; destruct H1;
   destruct_conjs; subst; destruct L; destruct t0; try clear_dup; inversion H0;
@@ -110,8 +116,7 @@ Proof.
     split.
       apply H with (n:=0) (a2:=a0); tauto.
       apply IHl with (e2:=e2); try tauto.
-        intros n b Hb. apply (H (S n) b). assumption.
-Qed.
+        intros n b Hb. apply (H (S n) b). assumption.*)
     
 Global Instance Equivalence_atom_Lequiv : Equivalence atom_Lequiv.
 Proof.
