@@ -22,6 +22,16 @@ Fixpoint term_equiv (t1 t2 : term) {struct t1} : Prop :=
     | TApp _ _, _ | TRelabel _, _ => False
   end.
 
+Lemma term_equiv_eq :
+  forall t1 t2,
+    term_equiv t1 t2 -> t1 = t2.
+Proof.
+  intros t1.
+  induction t1; intros; destruct t2; simpl in H; auto;
+  try (apply IHt1 in H; subst; reflexivity).
+  destruct H. apply IHt1_1 in H. apply IHt1_2 in H0. subst. reflexivity.
+Qed.
+
 Global Instance Equivalence_term_equiv : Equivalence term_equiv.
 Proof.
 constructor.
