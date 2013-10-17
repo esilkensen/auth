@@ -7,11 +7,7 @@ Require Import TermEquivTwo.
 (** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
 
-Context (L : two)
-        (P : value -> value -> Prop)
-        (Prefl : forall x, P x x)
-        (Psym : forall x y, P x y -> P y x)
-        (Ptrans : forall x y z, P x y -> P y z -> P x z).
+Context (L : two) (P : value -> value -> Prop).
 
 Fixpoint atom_Lequiv a1 a2 : Prop :=
   match a1, a2 with
@@ -43,103 +39,25 @@ Proof.
   intros. inversion H; inversion H0; destruct_conjs; auto.
 Qed.
 
-(** ** The indistinguishability relations are equivalences. *)
-Lemma atom_value_env_Lequiv_refl :
-  (forall a, atom_Lequiv a a)
-  /\ (forall v, value_Lequiv v v)
-  /\ (forall e, env_Lequiv e e).
+Lemma atom_Lequiv_raise :
+  forall v1 v2,
+    (value_Lequiv v1 v2 -> P v1 v2) ->
+    atom_Lequiv (Atom v1 Bottom2) (Atom v2 Bottom2) ->
+    atom_Lequiv (Atom v1 Top2) (Atom v2 Top2).
 Proof.
-  apply atom_value_env_mutind; intros; simpl; auto.
-  destruct L; destruct l; auto. right. auto. destruct v; auto.
-  induction l.
-    reflexivity.
-    simpl. split.
-      apply (H 0 a). reflexivity.
-      apply IHl. intros n b Hb. apply (H (S n) b). assumption.
-Qed.
-
-Lemma atom_value_env_Lequiv_sym :
-  (forall a1 a2, atom_Lequiv a1 a2 -> atom_Lequiv a2 a1)
-  /\ (forall v1 v2, value_Lequiv v1 v2 -> value_Lequiv v2 v1)
-  /\ (forall e1 e2, env_Lequiv e1 e2 -> env_Lequiv e2 e1).
-Proof.
-  apply atom_value_env_mutind; intros.
-  destruct a2. simpl. simpl in H0.
-  destruct v; destruct v0; destruct H0; destruct H0; destruct_conjs; subst; auto.
-    left. auto.
-    right. left. auto.
-    right. right. auto.
-    right. left. auto.
-    right. right. auto.
-  destruct v2; inversion H. reflexivity.
-  destruct v2.
-    inversion H0.
-    destruct l; destruct l0.
-      simpl in H0. destruct H0. simpl. split. assumption. symmetry. assumption.
-      inversion H0. inversion H1.
-      inversion H0. inversion H1.
-      inversion H0. apply H in H1. inversion H1.
-        simpl. split. split. auto. auto. symmetry. auto.
-  generalize dependent e2.
-  induction l; intros e2 H2; destruct e2; simpl in *; try tauto.
-  split. apply (H 0). reflexivity. inversion H2. assumption.
-  apply IHl. intros n b Hb. apply (H (S n) b). assumption. tauto.
-Qed.
-
-Lemma atom_value_env_Lequiv_trans :
-  (forall a1 a2 a3,
-     atom_Lequiv a1 a2 -> atom_Lequiv a2 a3 -> atom_Lequiv a1 a3)
-  /\ (forall v1 v2 v3,
-        value_Lequiv v1 v2 -> value_Lequiv v2 v3 -> value_Lequiv v1 v3)
-  /\ (forall e1 e2 e3,
-        env_Lequiv e1 e2 -> env_Lequiv e2 e3 -> env_Lequiv e1 e3).
-Proof.
-  Admitted. (* TODO *)
-  (*apply atom_value_env_mutind; intros.
-  destruct a2. destruct a3. simpl in *.
-  destruct H0; destruct H0; destruct H1; destruct H1;
-  destruct_conjs; subst; destruct L; destruct t0; try clear_dup; inversion H0;
-  try inversion H1; try inversion H2; try inversion H3; try inversion H4.
-    apply (Ptrans v v0 v1) in H7. left. auto. assumption.
-    apply (H v0 v1) in H4. right. left. auto. assumption.
-    apply (H v0 v1) in H3. right. right. auto. assumption.
-    apply (H v0 v1) in H3. right. right. auto. assumption.
-    destruct v2; destruct v3; simpl in *; auto.
-    destruct v2; destruct v3; simpl in *; auto.
-      unfold env_Lequiv in H.
-      destruct H0. destruct H1. split.
-        apply (H l0 l1). assumption. assumption.
-        transitivity t0; assumption.
-    generalize dependent e3. generalize dependent e2.
-    induction l; intros e2 H12 e3 H23; destruct e2; simpl in *;
-    destruct e3; try tauto. destruct H12. destruct H23.
-    split.
-      apply H with (n:=0) (a2:=a0); tauto.
-      apply IHl with (e2:=e2); try tauto.
-        intros n b Hb. apply (H (S n) b). assumption.*)
-    
-Global Instance Equivalence_atom_Lequiv : Equivalence atom_Lequiv.
-Proof.
-constructor.
-* destruct atom_value_env_Lequiv_refl as [? _]. assumption.
-* destruct atom_value_env_Lequiv_sym as [? _]. assumption.
-* destruct atom_value_env_Lequiv_trans as [? _]. assumption.
-Qed.
-
-Global Instance Equivalence_value_Lequiv : Equivalence value_Lequiv.
-Proof.
-constructor.
-* destruct atom_value_env_Lequiv_refl as [_ [? _]]. assumption.
-* destruct atom_value_env_Lequiv_sym as [_ [? _]]. assumption.
-* destruct atom_value_env_Lequiv_trans as [_ [? _]]. assumption.
-Qed.
-
-Global Instance Equivalence_env_Lequiv : Equivalence env_Lequiv.
-Proof.
-constructor.
-* destruct atom_value_env_Lequiv_refl as [_ [_ ?]]. assumption.
-* destruct atom_value_env_Lequiv_sym as [_ [_ ?]]. assumption.
-* destruct atom_value_env_Lequiv_trans as [_ [_ ?]]. assumption.
+  intros v1 v2 Pv H. destruct L.
+    destruct v1; destruct v2; destruct H; destruct H; destruct_conjs;
+        inversion H; try inversion H1; auto.
+      left. auto.
+      right. right. repeat (split; auto).
+      left. auto.
+      right. right. auto.
+    destruct v1; destruct v2; destruct H; destruct H; destruct_conjs;
+        inversion H; inversion H1; inversion H2.
+      left. repeat (split; auto). subst. auto. 
+      right. right. repeat (split; auto).
+      left. auto.
+      right. right. auto.
 Qed.
 
 End IndistinguishabilityTwo.
