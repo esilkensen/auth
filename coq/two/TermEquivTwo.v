@@ -22,16 +22,6 @@ Fixpoint term_equiv (t1 t2 : term) {struct t1} : Prop :=
     | TApp _ _, _ | TRelabel _, _ => False
   end.
 
-Lemma term_equiv_eq :
-  forall t1 t2,
-    term_equiv t1 t2 -> t1 = t2.
-Proof.
-  intros t1.
-  induction t1; intros; destruct t2; simpl in H; auto;
-  try (apply IHt1 in H; subst; reflexivity).
-  destruct H. apply IHt1_1 in H. apply IHt1_2 in H0. subst. reflexivity.
-Qed.
-
 Global Instance Equivalence_term_equiv : Equivalence term_equiv.
 Proof.
 constructor.
@@ -159,6 +149,62 @@ match goal with
 | |- value_equiv _ _ => reflexivity
 | |- env_equiv _ _ => reflexivity
 end.
+
+Section EquivEq.
+
+Lemma term_equiv_eq :
+  forall t1 t2,
+    term_equiv t1 t2 <-> t1 = t2.
+Proof.
+  split; generalize dependent t2.
+  induction t1; intros; destruct t2; simpl in H; auto;
+    try (apply IHt1 in H; subst; reflexivity).
+    destruct H. apply IHt1_1 in H. apply IHt1_2 in H0. subst. reflexivity.
+  induction t1; intros; destruct t2; rewrite H; inversion H; try reflexivity;
+    subst; simpl; auto.
+Qed.
+
+Lemma atom_value_env_equiv_eq :
+  (forall a1 a2, atom_equiv a1 a2 <-> a1 = a2)
+  /\ (forall v1 v2, value_equiv v1 v2 <-> v1 = v2)
+  /\ (forall e1 e2, env_equiv e1 e2 <-> e1 = e2).
+Proof.
+  apply atom_value_env_mutind.
+  intros v1 Hv. split; rename l into l1; intros H;
+    destruct v1 as [n1 | e1 t1]; destruct l1; destruct a2 as [v2 l2];
+      destruct v2; destruct l2; destruct H; auto;
+      apply Hv in H; rewrite H; reflexivity.
+  intros n1. split; intros H; destruct v2; try rewrite H; auto.
+  intros e1 He t1. split; intros H;
+    destruct v2; destruct H; try apply term_equiv_eq in H0; try apply He in H;
+      subst; auto.
+  intros e1.
+    induction e1 as [| a1 e1']; intros Ha e2; split; intros H;
+      destruct e2 as [| a2 e2']; inversion H; auto.
+    apply (Ha 0 a1) in H0.
+    apply IHe1' in H1. subst. reflexivity.
+      split; intros; subst; auto.
+        assert (atIndex (a2 :: e1') (S n) = Some a) by auto.
+          apply (Ha (S n) a). assumption. assumption.
+    reflexivity.
+Qed.
+
+Lemma atom_equiv_eq :
+  forall a1 a2,
+    atom_equiv a1 a2 <-> a1 = a2.
+Proof. apply atom_value_env_equiv_eq. Qed.
+
+Lemma value_equiv_eq :
+  forall v1 v2,
+    value_equiv v1 v2 <-> v1 = v2.
+Proof. apply atom_value_env_equiv_eq. Qed.
+
+Lemma env_equiv_eq :
+  forall e1 e2,
+    atom_equiv e1 e2 <-> e1 = e2.
+Proof. apply atom_value_env_equiv_eq. Qed.
+  
+End EquivEq.
 
 (** * Compatibility of evaluation with respect to equivalence. *)
 Section Eval.
