@@ -94,7 +94,15 @@ Proof.
       (atom_Lequiv L P (Atom (VClos e1' t1') l1) (Atom (VClos e1'0 t1'0) l1)).
       apply IHHeval1 in H3. assumption. reflexivity. assumption. reflexivity.
     destruct L.
-      admit. (* TODO *)
+      destruct l1.
+        destruct H; destruct H; destruct_conjs; try inversion H1; inversion H.
+          assert (atom_Lequiv Bottom2 P a2 a2').
+            apply IHHeval2 in H6; auto.
+          assert (env_Lequiv Bottom2 P e1' e1'0) by auto.
+          assert (env_Lequiv Bottom2 P (a2 :: e1') (a2' :: e1'0)).
+            split; auto. 
+          apply IHHeval3 in H8; auto.
+        admit. (* TODO: L=Bottom2 l1=Top2 *)
       assert (env_Lequiv Top2 P e1' e1'0).
         destruct H; destruct H; destruct_conjs; inversion H; auto.
       assert (atom_Lequiv Top2 P a2 a2').
