@@ -54,7 +54,7 @@ Proof.
   generalize dependent e2.
   generalize dependent pc2.
   induction Heval;
-    intros pc2 Hpc e2 He t2' Ht a2' Heval2'; destruct t2'; try inversion Ht.
+    intros pc2 Hpc e2 He t2' Ht a3' Heval2'; destruct t2'; try inversion Ht.
     (* Eval_nat *)
     inversion Heval2'. subst.
     destruct L; destruct pc2.
@@ -81,9 +81,32 @@ Proof.
       right. right. auto.
       right. right. auto.
     (* Eval_app *)
-    Admitted.
-    
-
+    inversion Heval2'. subst.
+    rename l0 into l1'. rename a0 into a2'.
+    assert (t2'1 = t1).
+      apply term_equiv_eq. symmetry. assumption. subst. clear H.
+    assert (t2'2 = t2).
+      apply term_equiv_eq. symmetry. assumption. subst. clear H0. clear Ht.
+    assert (l1' = l1).
+      apply IHHeval1 in H3. apply atom_Lequiv_lab_inv in H3. subst. 
+      reflexivity. reflexivity. assumption. reflexivity. subst.
+    assert
+      (atom_Lequiv L P (Atom (VClos e1' t1') l1) (Atom (VClos e1'0 t1'0) l1)).
+      apply IHHeval1 in H3. assumption. reflexivity. assumption. reflexivity.
+    destruct L.
+      admit. (* TODO *)
+      assert (env_Lequiv Top2 P e1' e1'0).
+        destruct H; destruct H; destruct_conjs; inversion H; auto.
+      assert (atom_Lequiv Top2 P a2 a2').
+        apply IHHeval2 in H6. assumption. reflexivity. assumption. reflexivity.
+      assert (env_Lequiv Top2 P (a2 :: e1') (a2' :: e1'0)).
+        split; assumption. clear H0. clear H1.
+      assert (term_equiv t1' t1'0).
+        destruct H; destruct H; destruct_conjs; inversion H; auto.
+      apply IHHeval3 in H8. assumption.
+        reflexivity. assumption. assumption.
+Qed.
+      
 (** * General non-interference theorem. *)
 Theorem general_non_interference :
   forall pc e1 e2 t a1 a2,
@@ -91,7 +114,6 @@ Theorem general_non_interference :
     pc; e1 ⊢ t ⇓ a1 ->
     pc; e2 ⊢ t ⇓ a2 ->
     atom_Lequiv L P a1 a2.
-Proof.
-  Admitted.
+Proof. intros. eapply NI_strong; eauto. Qed.
 
 End NI.
