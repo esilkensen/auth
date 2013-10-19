@@ -30,14 +30,6 @@ Proof.
     apply (IHHeval3 v' l'). reflexivity.
 Qed.
 
-Lemma join_top :
-  forall l, l ⊔ Top2 = Top2.
-Proof. destruct l; reflexivity. Qed.
-
-Lemma join_bot :
-  forall l, l ⊔ Bottom2 = l.
-Proof. destruct l; reflexivity. Qed.
-
 (** ** Strong version of the non-interference theorem. *)
 Lemma NI_strong :
   forall pc1 pc2 e1 e2 t1 t2 a1 a2,

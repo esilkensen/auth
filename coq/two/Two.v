@@ -71,3 +71,11 @@ Proof.
 * auto.
 * intros t1 t2 H x. tauto.
 Defined.
+
+Lemma join_top :
+  forall l, l ⊔ Top2 = Top2.
+Proof. destruct l; reflexivity. Qed.
+
+Lemma join_bot :
+  forall l, l ⊔ Bottom2 = l.
+Proof. destruct l; reflexivity. Qed.
