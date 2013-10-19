@@ -102,7 +102,12 @@ Proof.
           assert (env_Lequiv Bottom2 P (a2 :: e1') (a2' :: e1'0)).
             split; auto. 
           apply IHHeval3 in H8; auto.
-        admit. (* TODO: L=Bottom2 l1=Top2 *)
+        destruct a3 as [v3 l3]; destruct v3; destruct l3;
+        destruct a3' as [v3' l3']; destruct v3'; destruct l3';
+          apply eval_pc_lower_bound in H8; inversion H8;
+          apply eval_pc_lower_bound in Heval3; inversion Heval3;
+          left; auto; repeat (split; auto).
+        admit. (* TODO: L=Bottom2 l1=Top2, need P (VNat n) (VNat n0) *)
       assert (env_Lequiv Top2 P e1' e1'0).
         destruct H; destruct H; destruct_conjs; inversion H; auto.
       assert (atom_Lequiv Top2 P a2 a2').
