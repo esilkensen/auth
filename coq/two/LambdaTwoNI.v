@@ -11,7 +11,7 @@ Section NI.
 
 Context (L : two)
         (P : value -> value -> Prop)
-        (Pv : forall v1 v2, value_Lequiv L P v1 v2 -> P v1 v2).
+        (Prefl : forall x, P x x).
   
 (** * Preliminary lemmas. *)
 (** ** The pc label is below the label of the resulting atom. *)
@@ -64,7 +64,7 @@ Proof.
     destruct pc2.
       rewrite join_bot. assumption.
       rewrite join_top. destruct l0.
-        apply atom_Lequiv_raise. apply Pv. assumption. assumption.
+        apply atom_Lequiv_raise. apply Prefl. assumption. assumption.
     (* Eval_lam *)
     inversion Heval2'. subst.
     destruct L; destruct pc2.
@@ -75,16 +75,17 @@ Proof.
     (* Eval_app *)
     inversion Heval2'. subst.
     rename l0 into l1'. rename a0 into a2'.
-    assert (t2'1 = t1).
-      apply term_equiv_eq. symmetry. assumption. subst. clear H.
-    assert (t2'2 = t2).
-      apply term_equiv_eq. symmetry. assumption. subst. clear H0. clear Ht.
-    assert (l1' = l1).
-      apply IHHeval1 in H3. apply atom_Lequiv_lab_inv in H3. subst. 
-      reflexivity. reflexivity. assumption. reflexivity. subst.
-    assert
-      (atom_Lequiv L P (Atom (VClos e1' t1') l1) (Atom (VClos e1'0 t1'0) l1)).
-      apply IHHeval1 in H3. assumption. reflexivity. assumption. reflexivity.
+    assert (t2'1 = t1) by
+        (apply term_equiv_eq; symmetry; auto).
+    assert (t2'2 = t2) by
+        (apply term_equiv_eq; symmetry; auto).
+    subst. clear H. clear H0. clear Ht.
+    remember (Atom (VClos e1' t1') l1) as f1.
+    remember (Atom (VClos e1'0 t1'0) l1') as f2.
+    assert (atom_Lequiv L P f1 f2) by
+        (eapply IHHeval1; eauto). subst.
+    assert (l1' = l1) by
+        (apply atom_Lequiv_lab_inv in H; auto). subst.
     destruct L.
       destruct l1.
         destruct H; destruct H; destruct_conjs; try inversion H1; inversion H.
@@ -100,16 +101,15 @@ Proof.
           apply eval_pc_lower_bound in Heval3; inversion Heval3;
           left; auto; repeat (split; auto).
         admit. (* TODO: L=Bottom2 l1=Top2, need P (VNat n) (VNat n0) *)
-      assert (env_Lequiv Top2 P e1' e1'0).
-        destruct H; destruct H; destruct_conjs; inversion H; auto.
-      assert (atom_Lequiv Top2 P a2 a2').
-        apply IHHeval2 in H6. assumption. reflexivity. assumption. reflexivity.
-      assert (env_Lequiv Top2 P (a2 :: e1') (a2' :: e1'0)).
-        split; assumption. clear H0. clear H1.
-      assert (term_equiv t1' t1'0).
-        destruct H; destruct H; destruct_conjs; inversion H; auto.
-      apply IHHeval3 in H8. assumption.
-        reflexivity. assumption. assumption.
+      assert (env_Lequiv Top2 P e1' e1'0) by
+            (destruct H; destruct H; destruct_conjs; inversion H; auto).
+      assert (atom_Lequiv Top2 P a2 a2') by
+            (apply IHHeval2 in H6; auto).
+      assert (env_Lequiv Top2 P (a2 :: e1') (a2' :: e1'0)) by
+          (split; auto).
+      assert (term_equiv t1' t1'0) by
+          (destruct H; destruct H; destruct_conjs; inversion H; auto).
+      apply IHHeval3 in H8; auto.
 Qed.
       
 (** * General non-interference theorem. *)

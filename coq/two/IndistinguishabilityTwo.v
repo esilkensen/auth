@@ -7,7 +7,9 @@ Require Import TermEquivTwo.
 (** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
 
-Context (L : two) (P : value -> value -> Prop).
+Context (L : two)
+        (P : value -> value -> Prop)
+        (Prefl : forall x, P x x).
 
 Fixpoint atom_Lequiv a1 a2 : Prop :=
   match a1, a2 with
@@ -41,14 +43,13 @@ Qed.
 
 Lemma atom_Lequiv_raise :
   forall v1 v2,
-    (value_Lequiv v1 v2 -> P v1 v2) ->
     atom_Lequiv (Atom v1 Bottom2) (Atom v2 Bottom2) ->
     atom_Lequiv (Atom v1 Top2) (Atom v2 Top2).
 Proof.
-  intros v1 v2 Pv H. destruct L.
+  intros v1 v2 H. destruct L.
     destruct v1; destruct v2; destruct H; destruct H; destruct_conjs;
-        inversion H; try inversion H1; auto.
-      left. auto.
+        inversion H; try inversion H1; subst; auto.
+      destruct H2. left. auto.
       right. right. repeat (split; auto).
       left. auto.
       right. right. auto.
