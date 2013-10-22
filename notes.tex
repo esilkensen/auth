@@ -5,6 +5,7 @@
 \usepackage{amsthm}
 \usepackage{array}
 \usepackage{geometry}
+\usepackage{graphicx}
 \usepackage{semantic}
 
 \newcommand{\at}{\ensuremath{{\scriptstyle{@}}}}
@@ -14,6 +15,9 @@
 
 \renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
 
+\newcommand{\CoqSymbol}{\raisebox{-.2ex}{\includegraphics[height=0.9em]{coq.pdf}}\,}
+\newcommand{\Coqed}{\hfill\CoqSymbol}
+
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -22,8 +26,8 @@
 \begin{document}
 
 \begin{flushright}
-  \texttt{github.com/esilkensen/auth}
-  \\
+  %\texttt{github.com/esilkensen/auth}
+  %\\
   \today
 \end{flushright}
 
@@ -167,12 +171,21 @@
 
 \begin{lemma}
   If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
+  \Coqed
   \label{lem:lab-inversion}
 \end{lemma}
 
 \begin{lemma}
   If $v_1 \at \bot \approx^{L}_{P} v_2 \at \bot$, then
   $v_1 \at \top \approx^{L}_{P} v_2 \at \top$.
+  \Coqed
+  \label{lem:lab-raise}
+\end{lemma}
+
+\begin{lemma}
+  If $\pc, \rho |- e \Downarrow v \at L$, then $pc \sqsubseteq L$.
+  \Coqed
+  \label{lem:eval-pc-lb}
 \end{lemma}
 
 \begin{theorem}
@@ -182,8 +195,7 @@
 \begin{proof}
   By induction on the derivation of $\pc, \rho_1 |- e \Downarrow a_1$.
 
-    For the \textsc{E-App} case, by inversion we have $e = (e_1\ e_2)$ and the
-    following:
+    For the \textsc{E-App} case, by inversion $e = (e_1\ e_2)$ and:
     \begin{itemize}
     \item
       $\pc, \rho_1 |- e_1 \Downarrow
@@ -200,7 +212,7 @@
       \hspace{2.54ex} and \quad
       $L_{21}, (\rho_{21}, x_2 = a_{22}) |- e_{21} \Downarrow a_{23}$
     \end{itemize}
-    By the induction hypothesis, we have
+    By the induction hypothesis,
     \begin{itemize}
     \item
       $\langle{\rho_{11}, \lambda{x_1}.\, e_{11}\rangle} \at L_{11}
@@ -235,7 +247,7 @@
 \begin{itemize}
 \item Definition of \textsc{E-Relabel}.
 \item Change definition of $\approx^{L}_{P}$? Change statement of theorem?
-\item What properties should $P$ have?
+\item What properties should $P$ have? Should it be reflexive?
 \item Should $\approx^{L}_{P}$ be an equivalence relation?
 \item Should $a_1 \approx^{\top}_{P} a_2$ imply $a_1 \approx^{\bot}_{P} a_2$?
 \end{itemize}
