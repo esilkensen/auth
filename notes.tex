@@ -133,7 +133,7 @@
   \centering
   \begin{gather*}
     \inference{}{
-      \pc, \rho |- n \Downarrow n \at \pc
+      P, \pc, \rho |- n \Downarrow n \at \pc
     }[\textsc{E-Nat}]
     \qquad
     \inference{
@@ -141,72 +141,65 @@
           \rho(x) = v \at L
         \end{array}}
     }{
-      \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
+      P, \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow
+      P, \pc, \rho |- (\lambda{x}.\, e) \Downarrow
       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
     }[\textsc{E-Abs}]
     \qquad
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow
+          P, \pc, \rho |- e_1 \Downarrow
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \pc, \rho |- e_2 \Downarrow a_2
+          P, \pc, \rho |- e_2 \Downarrow a_2
           \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
+          P, L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
         \end{array}}
     }{
-      \pc, \rho |- (e_1\ e_2) \Downarrow a_3
+      P, \pc, \rho |- (e_1\ e_2) \Downarrow a_3
     }[\textsc{E-App}]
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- (e_1\ e_2) \Downarrow v_3 \at \bot
+          P, \pc, \rho |- (e_1\ e_2) \Downarrow v \at \bot
         \end{array}}
     }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v_3 \at \bot
+      P, \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v \at \bot
     }[\textsc{E-Decl1}]
-    \qquad
-    \inference{
-      {\begin{array}{l}
-          \pc, \rho |- (e_1\ e_2) \Downarrow v_3 \at \top
-          \\
-          \pc, \rho |- e_1\ \textsf{well-behaved}
-        \end{array}}
-    }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v_3 \at \bot
-    }[\textsc{E-Decl2}]
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow
+          P, \pc, \rho |- e_1 \Downarrow
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \forall{a_1, a_2}.\,
-          a_1 \approx^{L}_{P} a_2\; \land
+          P, \pc, \rho |- e_2 \Downarrow a_2
+          \\
+          P, L_1, (\rho_1, x = a_2) |- e \Downarrow v_3 \at \top
+          \\
+          \forall{a_2' \text{ s.t. } a_2 \approx^{L}_{P} a_2'}.\, 
           \\\quad
-          \pc, (\rho_1, x = a_1) |- e \Downarrow v_1 \at \top\; \land
-          \\\quad
-          \pc, (\rho_1, x = a_2) |- e \Downarrow v_2 \at \top =>
-          v_1 \approx^{L} v_2
+          P, \pc, (\rho_1, x = a_2') |- e \Downarrow v_3' \at \top =>
+          v_3 \approx^{L} v_3'
         \end{array}}
     }{
-      \pc, \rho |- e_1\ \textsf{well-behaved}
-    }
+      P, \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v_3 \at \bot
+    }[\textsc{E-Decl2}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathbf{2}}$.}
   \label{fig:semantics}
 \end{figure}
 
 \begin{theorem}
-  If $\pc, \rho_1 |- e \Downarrow a_1$ and $\pc, \rho_2 |- e \Downarrow a_2$
-  and $\rho_1 \approx^{L}_{P} \rho_2$, then $a_1 \approx^{L} a_2$.
+  If $P, \pc, \rho_1 |- e \Downarrow a_1$ and
+  $P, \pc, \rho_2 |- e \Downarrow a_2$ and
+  $\rho_1 \approx^{L}_{P} \rho_2$, then
+  $a_1 \approx^{L} a_2$.
 \end{theorem}
 \begin{proof}
-  By induction on the derivation of $\pc, \rho_1 |- e \Downarrow a_1$.
+  By induction on the derivation of $P, \pc, \rho_1 |- e \Downarrow a_1$.
   \begin{description}
   \item[\emph{Case} \textsc{E-Nat}:]
   \item[\emph{Case} \textsc{E-Var}:]
