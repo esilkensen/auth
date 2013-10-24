@@ -82,7 +82,6 @@ endif
 
 VFILES:=UnitLattice.v\
   Two.v\
-  TermEquivTwo.v\
   PreLattice.v\
   MyTactics.v\
   MyList.v\
