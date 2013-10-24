@@ -6,6 +6,5 @@ LambdaTwoSyntax.v
 MyList.v
 MyTactics.v
 PreLattice.v
-TermEquivTwo.v
 Two.v
 UnitLattice.v
