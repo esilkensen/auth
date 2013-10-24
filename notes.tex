@@ -8,6 +8,8 @@
 \usepackage{graphicx}
 \usepackage{semantic}
 
+\renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
+
 \newcommand{\at}{\ensuremath{{\scriptstyle{@}}}}
 \newcommand{\pc}{\ensuremath{{\mathit{pc}}}}
 
@@ -26,8 +28,6 @@
 \begin{document}
 
 \begin{flushright}
-  %\texttt{github.com/esilkensen/auth}
-  %\\
   \today
 \end{flushright}
 
@@ -49,91 +49,29 @@
 \begin{figure}[h]
   \centering
   \[
-  \begin{array}[t]{r @{\ } c @{\ } l c l}
-    e & \in & \mathit{Exp} & ::= &
+  \begin{array}[t]{lcl}
+    e & ::= &
     n\;\; |\;\;
     x\;\; |\;\;
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
-    e \updownarrow_{A} %L
-    \\[0.6ex]
-    v & \in & \mathit{Val} & ::= &
+    \mathsf{declassify}\ e\ e
+    \\[0.3ex]
+    v & ::= &
     n\;\; |\;\;
     \langle{\rho, \lambda{x}.\, e\rangle}
-    \\[0.6ex]
-    a & \in & \mathit{Atom} & ::= &
+    \\[0.3ex]
+    a & ::= &
     v \at L
-    \\[0.6ex]
-    \rho & \in & \mathit{Env} & ::= &
+    \\[0.3ex]
+    \rho & ::= &
     \bullet\;\; |\;\;
     \rho, x = a
-    \\[1.6ex]
-    n & \in & \mathbb{N} & &
-    \text{the set of natural numbers}
-    \\[0.6ex]
-    x & \in & \mathit{Var} & &
-    \text{a set of identifiers}
   \end{array}
   \]
   \caption{Syntax of $\lambda_{\mathbf{2}}$.}
   \label{fig:syntax}
 \end{figure}
-
-\begin{figure}[h]
-  \centering
-  \begin{gather*}
-    \inference{}{
-      \pc, \rho |- n \Downarrow n \at \pc
-    }[\textsc{E-Nat}]
-    \qquad
-    \inference{
-      \rho(x) = v \at L
-    }{
-      \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
-    }[\textsc{E-Var}]
-    \\[6ex]
-    \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow
-      \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
-    }[\textsc{E-Abs}]
-    \qquad
-    \inference{
-      \pc, \rho |- e_1 \Downarrow
-      \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-      \\
-      \pc, \rho |- e_2 \Downarrow a_2
-      \\
-      L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
-    }{
-      \pc, \rho |- (e_1\ e_2) \Downarrow a_3
-    }[\textsc{E-App}]
-    \\[6ex]
-    % \inference{
-    %   \pc, \rho |- e_1 \Downarrow v_1 \at L_2
-    %   \\
-    %   L_1 \sqsubseteq_{A} L_2
-    % }{
-    %   \pc, \rho |- e_1 \updownarrow_{A} L_2
-    % }[\textsc{E-Relabel}]
-    \inference{
-      \pc, \rho |- e \Downarrow v \at \bot
-    }{
-      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    }[\textsc{E-Relabel1}]
-    \qquad
-    \inference{
-      \pc, \rho |- e \Downarrow v \at \top
-      &
-      \textit{Condition on } e
-    }{
-      \pc, \rho |- e \updownarrow_{A}\; \Downarrow v \at \bot
-    }[\textsc{E-Relabel2}]
-  \end{gather*}
-  \caption{Semantics of $\lambda_{\mathbf{2}}$.}
-  \label{fig:semantics}
-\end{figure}
-
-\pagebreak
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
@@ -166,90 +104,118 @@
     $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
     $x \in \mathrm{dom}\; \rho_1$.
   \end{itemize}
-  \label{def:indistinguishability}
+  We write $\approx^{L}$ when $P$ is the everywhere-true relation.
+  \label{def:lp-equiv}
 \end{definition}
 
 \begin{lemma}
   If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
   \Coqed
-  \label{lem:lab-inversion}
+  \label{lem:lp-equiv-lab-inv}
 \end{lemma}
 
 \begin{lemma}
   If $v_1 \at \bot \approx^{L}_{P} v_2 \at \bot$, then
   $v_1 \at \top \approx^{L}_{P} v_2 \at \top$.
   \Coqed
-  \label{lem:lab-raise}
+  \label{lem:lp-equiv-raise}
 \end{lemma}
 
 \begin{lemma}
-  If $\pc, \rho |- e \Downarrow v \at L$, then $pc \sqsubseteq L$.
+  If $a_1 \approx^{L}_{P} a_2$, then $a_1 \approx^{L} a_2$.
   \Coqed
-  \label{lem:eval-pc-lb}
+  \label{lem:lpequiv-lequiv}
 \end{lemma}
+
+\pagebreak
+
+\begin{figure}[h]
+  \centering
+  \begin{gather*}
+    \inference{}{
+      \pc, \rho |- n \Downarrow n \at \pc
+    }[\textsc{E-Nat}]
+    \qquad
+    \inference{
+      {\begin{array}{l}
+          \rho(x) = v \at L
+        \end{array}}
+    }{
+      \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
+    }[\textsc{E-Var}]
+    \\[3ex]
+    \inference{}{
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow
+      \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+    }[\textsc{E-Abs}]
+    \qquad
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          \\
+          \pc, \rho |- e_2 \Downarrow a_2
+          \\
+          L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
+        \end{array}}
+    }{
+      \pc, \rho |- (e_1\ e_2) \Downarrow a_3
+    }[\textsc{E-App}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- (e_1\ e_2) \Downarrow v_3 \at \bot
+        \end{array}}
+    }{
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v_3 \at \bot
+    }[\textsc{E-Decl1}]
+    \qquad
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- (e_1\ e_2) \Downarrow v_3 \at \top
+          \\
+          \pc, \rho |- e_1\ \textsf{well-behaved}
+        \end{array}}
+    }{
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow v_3 \at \bot
+    }[\textsc{E-Decl2}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          \\
+          \forall{a_1, a_2}.\,
+          a_1 \approx^{L}_{P} a_2\; \land
+          \\\quad
+          \pc, (\rho_1, x = a_1) |- e \Downarrow v_1 \at \top\; \land
+          \\\quad
+          \pc, (\rho_1, x = a_2) |- e \Downarrow v_2 \at \top =>
+          v_1 \approx^{L} v_2
+        \end{array}}
+    }{
+      \pc, \rho |- e_1\ \textsf{well-behaved}
+    }
+  \end{gather*}
+  \caption{Semantics of $\lambda_{\mathbf{2}}$.}
+  \label{fig:semantics}
+\end{figure}
 
 \begin{theorem}
   If $\pc, \rho_1 |- e \Downarrow a_1$ and $\pc, \rho_2 |- e \Downarrow a_2$
-  and $\rho_1 \approx^{L}_{P} \rho_2$, then $a_1 \approx^{L}_{P} a_2$.
+  and $\rho_1 \approx^{L}_{P} \rho_2$, then $a_1 \approx^{L} a_2$.
 \end{theorem}
 \begin{proof}
   By induction on the derivation of $\pc, \rho_1 |- e \Downarrow a_1$.
-
-    For the \textsc{E-App} case, by inversion $e = (e_1\ e_2)$ and:
-    \begin{itemize}
-    \item
-      $\pc, \rho_1 |- e_1 \Downarrow
-      \langle{\rho_{11}, \lambda{x_1}.\, e_{11}\rangle} \at L_{11}$
-      \quad and \quad
-      $\pc, \rho_2 |- e_1 \Downarrow
-      \langle{\rho_{21}, \lambda{x_2}.\, e_{21}\rangle} \at L_{21}$
-    \item
-      $\pc, \rho_1 |- e_2 \Downarrow a_{12}$
-      \hspace{17.2ex} and \quad
-      $\pc, \rho_2 |- e_2 \Downarrow a_{22}$
-    \item
-      $L_{11}, (\rho_{11}, x_1 = a_{12}) |- e_{11} \Downarrow a_{13}$
-      \hspace{2.54ex} and \quad
-      $L_{21}, (\rho_{21}, x_2 = a_{22}) |- e_{21} \Downarrow a_{23}$
-    \end{itemize}
-    By the induction hypothesis,
-    \begin{itemize}
-    \item
-      $\langle{\rho_{11}, \lambda{x_1}.\, e_{11}\rangle} \at L_{11}
-      \approx^{L}_{P}
-      \langle{\rho_{21}, \lambda{x_2}.\, e_{21}\rangle} \at L_{21}$
-      \quad and \quad
-      $a_{12} \approx^{L}_{P} a_{22}$
-    \end{itemize}
-    If we can show that
-    \begin{itemize}
-    \item 
-      $L_{11} = L_{21}$
-      \quad and \quad
-      $(\rho_{11}, x_1 = a_{12}) \approx^{L}_{P} (\rho_{21}, x_2 = a_{22})$
-      \quad and \quad
-      $e_{11} = e_{21}$
-    \end{itemize}
-    then $a_{13} \approx^{L}_{P} a_{23}$ follows from the induction hypothesis,
-    and the case is completed.
-    
-    However, we can't show that
-    $(\rho_{11}, x_1 = a_{12}) \approx^{L}_{P} (\rho_{21}, x_2 = a_{22})$
-    or that
-    $e_{11} = e_{21}$, for example, when $L_{11} = L_{21} = \top$ and $L = \bot$,
-    so the proof fails.
+  \begin{description}
+  \item[\emph{Case} \textsc{E-Nat}:]
+  \item[\emph{Case} \textsc{E-Var}:]
+  \item[\emph{Case} \textsc{E-Abs}:]
+  \item[\emph{Case} \textsc{E-App}:]
+  \item[\emph{Case} \textsc{E-Decl1}:]
+  \item[\emph{Case} \textsc{E-Decl2}:]
+    \qedhere
+  \end{description}
 \end{proof}
-
-\begin{flushleft}
-  Questions:
-\end{flushleft}
-
-\begin{itemize}
-\item Definition of \textsc{E-Relabel}.
-\item Change definition of $\approx^{L}_{P}$? Change statement of theorem?
-\item What properties should $P$ have? Should it be reflexive?
-\item Should $\approx^{L}_{P}$ be an equivalence relation?
-\item Should $a_1 \approx^{\top}_{P} a_2$ imply $a_1 \approx^{\bot}_{P} a_2$?
-\end{itemize}
 
 \end{document}
