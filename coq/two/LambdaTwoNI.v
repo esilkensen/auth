@@ -86,7 +86,41 @@ Proof.
     assert (l1' = l1).
       apply IHHeval1 in H3. apply atom_Lequiv_lab_inv in H3.
         symmetry. assumption. reflexivity. assumption. reflexivity. subst.
-    Admitted.
+    destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
+    apply IHHeval1 in H3.
+    apply IHHeval2 in H6. {
+      destruct L; destruct l3; destruct l3'.
+      + (* Bottom2, Bottom2, Bottom2 *)
+        admit.
+      + (* Bottom2, Bottom2, Top2 *)
+        destruct l1.
+          admit. (* Bottom2 *)
+          apply eval_pc_lower_bound in Heval3. inversion Heval3.
+      + (* Bottom2, Top2, Bottom2 *)
+        destruct l1.
+          admit. (* Bottom2 *)
+          apply eval_pc_lower_bound in H8. inversion H8.
+      + (* Bottom2, Top2, Top2 *)
+        destruct v3; destruct v3'; left; auto.
+      + (* Top2, Bottom2, Bottom2 *)
+        destruct l1.
+          destruct H3; destruct H; destruct_conjs; inversion H.
+            admit. (* Bottom2 *)
+          apply eval_pc_lower_bound in H8. inversion H8.
+      + (* Top2, Bottom2, Top2 *)
+        destruct l1.
+          admit. (* Bottom2 *)
+          apply eval_pc_lower_bound in Heval3. inversion Heval3.
+      + (* Top2, Top2, Bottom2 *)
+        destruct l1.
+          admit. (* Bottom2 *)
+          apply eval_pc_lower_bound in H8. inversion H8.
+      + (* Top2, Top2, Top2 *)
+        admit.
+    }
+    reflexivity. assumption. reflexivity.
+    reflexivity. assumption. reflexivity.
+Qed.
       
 (** * General non-interference theorem. *)
 Theorem general_non_interference :
