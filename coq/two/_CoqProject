@@ -2,6 +2,7 @@ IndistinguishabilityTwo.v
 LabelAlgebra.v
 LambdaTwo.v
 LambdaTwoNI.v
+LambdaTwoSyntax.v
 MyList.v
 MyTactics.v
 PreLattice.v

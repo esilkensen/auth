@@ -1,8 +1,7 @@
 Require Import Program.Tactics.
 Require Import MyTactics.
 Require Import LabelAlgebra.
-Require Import LambdaTwo.
-Require Import TermEquivTwo.
+Require Import LambdaTwoSyntax.
 
 (** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
@@ -26,7 +25,7 @@ with value_LPequiv v1 v2 : Prop :=
        match v1, v2 with
          | VNat n1, VNat n2 => n1 = n2
          | VClos e1 t1, VClos e2 t2 =>
-           list_forall2 atom_LPequiv e1 e2 /\ term_equiv t1 t2
+           list_forall2 atom_LPequiv e1 e2 /\ t1 = t2
          | VNat _, _ | VClos _ _, _ => False
        end.
 
@@ -99,8 +98,7 @@ Proof.
   - intros e1 He t1 v2 H. destruct v2 as [| e2 t2].
     + inversion H.
     + assert (env_LPequiv L P e1 e2) by (destruct H; auto).
-      assert (t2 = t1) by
-          (destruct H; apply term_equiv_eq in H1; symmetry; assumption).
+      assert (t2 = t1) by (destruct H; symmetry; assumption).
       apply He in H0. subst. split; auto.
   - intros e1.
     induction e1 as [| a1 e1']; intros Ha e2 H;
