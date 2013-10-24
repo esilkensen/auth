@@ -78,7 +78,36 @@ Lemma atom_value_env_LPequiv_Lequiv :
     /\ (forall e1 e2,
           env_LPequiv L P e1 e2 -> env_Lequiv L e1 e2).
 Proof.
-  Admitted. (* TODO *)
+  intros. apply atom_value_env_mutind.
+  - intros v1 Hv l1 a2 H. destruct a2 as [v2 l2].
+    destruct L; destruct l1; destruct l2.
+    + assert (value_LPequiv Bottom2 P v1 v2) by
+          (destruct H; destruct H; destruct_conjs; try inversion H1; auto).
+      apply Hv in H0. right. left. auto.
+    + apply atom_LPequiv_lab_inv in H. inversion H.
+    + apply atom_LPequiv_lab_inv in H. inversion H.
+    + destruct v1; destruct v2; left; auto.
+    + assert (value_LPequiv Top2 P v1 v2) by
+          (destruct H; destruct H; destruct_conjs; try inversion H; auto).
+      apply Hv in H0. right. right. auto.
+    + apply atom_LPequiv_lab_inv in H. inversion H.
+    + apply atom_LPequiv_lab_inv in H. inversion H.
+    + assert (value_LPequiv Top2 P v1 v2) by
+          (destruct H; destruct H; destruct_conjs; try inversion H; auto).
+      apply Hv in H0. right. right. auto.
+  - intros n1 v2 H. destruct v2; inversion H; reflexivity.
+  - intros e1 He t1 v2 H. destruct v2 as [| e2 t2].
+    + inversion H.
+    + assert (env_LPequiv L P e1 e2) by (destruct H; auto).
+      assert (t2 = t1) by
+          (destruct H; apply term_equiv_eq in H1; symmetry; assumption).
+      apply He in H0. subst. split; auto.
+  - intros e1.
+    induction e1 as [| a1 e1']; intros Ha e2 H;
+    destruct e2 as [| a2 e2']; inversion H; auto; split.
+    + apply (Ha 0); auto.
+    + apply IHe1'. intros. apply (Ha (S n)); auto. assumption.
+Qed.
 
 Lemma atom_LPequiv_Lequiv :
   forall L P a1 a2,
