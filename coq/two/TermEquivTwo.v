@@ -16,10 +16,10 @@ Fixpoint term_equiv (t1 t2 : term) {struct t1} : Prop :=
       term_equiv t1 t2
     | TApp t1 t1', TApp t2 t2' =>
       term_equiv t1 t2 /\ term_equiv t1' t2'
-    | TRelabel t1, TRelabel t2 =>
-      term_equiv t1 t2
+    | TDecl t1 t1', TDecl t2 t2' =>
+      term_equiv t1 t2 /\ term_equiv t1' t2'
     | TNat _, _ | TVar _, _ | TLam _, _
-    | TApp _ _, _ | TRelabel _, _ => False
+    | TApp _ _, _ | TDecl _ _, _ => False
   end.
 
 Global Instance Equivalence_term_equiv : Equivalence term_equiv.
@@ -158,8 +158,8 @@ Lemma term_equiv_eq :
 Proof.
   split; generalize dependent t2.
   induction t1; intros; destruct t2; simpl in H; auto;
-    try (apply IHt1 in H; subst; reflexivity).
-    destruct H. apply IHt1_1 in H. apply IHt1_2 in H0. subst. reflexivity.
+    try (apply IHt1 in H; subst; reflexivity);
+    destruct H; apply IHt1_1 in H; apply IHt1_2 in H0; subst; reflexivity.
   induction t1; intros; destruct t2; rewrite H; inversion H; try reflexivity;
     subst; simpl; auto.
 Qed.
