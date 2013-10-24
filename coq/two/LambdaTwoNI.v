@@ -1,25 +1,20 @@
 Require Import Program.Tactics.
-Require Import MyTactics.
 Require Import LambdaTwo.
-Require Import IndistinguishabilityTwo.
-
-Set Implicit Arguments.
 
 Section NI.
 
-Context (L : two)
-        (P : value -> value -> Prop)
-        (Prefl : forall x, P x x).
+Context (L : two).
   
 (** * General non-interference theorem. *)
 Theorem general_non_interference :
-  forall pc e1 e2 t a1 a2,
+  forall (P : value -> value -> Prop) pc e1 e2 t a1 a2,
+    (forall x, P x x) ->
     env_LPequiv L P e1 e2 ->
-    pc; e1 ⊢ t ⇓ a1 ->
-    pc; e2 ⊢ t ⇓ a2 ->
+    P, pc; e1 ⊢ t ⇓ a1 ->
+    P, pc; e2 ⊢ t ⇓ a2 ->
     atom_Lequiv L a1 a2.
 Proof. 
-  intros pc e1 e2 t a1 a2 He Heval.
+  intros P pc e1 e2 t a1 a2 Prefl He Heval.
   generalize dependent a2.
   generalize dependent e2.
   induction Heval; intros e2 He a3' Heval2'.
@@ -56,10 +51,10 @@ Proof.
     rename l0 into l1'. rename a0 into a2'. 
     assert (l1' = l1).
       apply IHHeval1 in H1. apply atom_LPequiv_lab_inv in H1.
-        symmetry. assumption. assumption. subst.
+        symmetry. assumption. assumption. assumption. subst.
     destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
     apply IHHeval1 in H1.
-    apply IHHeval2 in H4. {
+    apply IHHeval2 in H5. {
       destruct L; destruct l3; destruct l3'.
       + (* Bottom2, Bottom2, Bottom2 *)
         admit.
@@ -77,7 +72,11 @@ Proof.
         admit.
       + (* Top2, Top2, Top2 *)
         admit.
-    } assumption. assumption.
+    } assumption. assumption. assumption. assumption.
+  - (* Eval_decl1 *)
+    admit.
+  - (* Eval_decl2 *)
+    admit.
 Qed.
 
 End NI.
