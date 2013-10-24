@@ -84,7 +84,7 @@ Proof.
         (apply term_equiv_eq; symmetry; auto).
     subst. clear H. clear H0. clear Ht.
     assert (l1' = l1).
-      apply IHHeval1 in H3. apply atom_Lequiv_lab_inv in H3.
+      apply IHHeval1 in H3. apply atom_LPequiv_lab_inv in H3.
         symmetry. assumption. reflexivity. assumption. reflexivity. subst.
     destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
     apply IHHeval1 in H3.

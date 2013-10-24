@@ -123,11 +123,3 @@ Lemma env_LPequiv_Lequiv :
   forall L P e1 e2,
     env_LPequiv L P e1 e2 -> env_Lequiv L e1 e2.
 Proof. apply atom_value_env_LPequiv_Lequiv. Qed.
-
-Lemma atom_Lequiv_lab_inv :
-  forall L v1 v2 l1 l2,
-    atom_Lequiv L (Atom v1 l1) (Atom v2 l2) ->
-    l1 = l2.
-Proof.
-  intros. inversion H; inversion H0; destruct_conjs; auto.
-Qed.
