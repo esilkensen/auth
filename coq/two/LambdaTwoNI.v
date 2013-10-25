@@ -31,10 +31,10 @@ Proof.
         (eapply list_forall2_atIndex; eassumption).
     assert (l = l0) by
         (eapply atom_LPequiv_lab_inv; eassumption).
-    subst.
+    symmetry in H1. subst.
     destruct pc.
       rewrite join_bot. eapply atom_LPequiv_Lequiv. eassumption.
-      rewrite join_top. destruct l0.
+      rewrite join_top. destruct l.
         apply atom_LPequiv_raise in H0. eapply atom_LPequiv_Lequiv. eassumption.
           assumption.
         eapply atom_LPequiv_Lequiv. eassumption.
@@ -53,26 +53,23 @@ Proof.
       apply IHHeval1 in H1. apply atom_LPequiv_lab_inv in H1.
         symmetry. assumption. assumption. assumption. subst.
     destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
-    apply IHHeval1 in H1.
-    apply IHHeval2 in H5. {
-      destruct L; destruct l3; destruct l3'.
-      + (* Bottom2, Bottom2, Bottom2 *)
-        admit.
-      + (* Bottom2, Bottom2, Top2 *)
-        admit.
-      + (* Bottom2, Top2, Bottom2 *)
-        admit.
-      + (* Bottom2, Top2, Top2 *)
-        destruct v3; destruct v3'; left; auto.
-      + (* Top2, Bottom2, Bottom2 *)
-        admit.
-      + (* Top2, Bottom2, Top2 *)
-        admit.
-      + (* Top2, Top2, Bottom2 *)
-        admit.
-      + (* Top2, Top2, Top2 *)
-        admit.
-    } assumption. assumption. assumption. assumption.
+    destruct L; destruct l3; destruct l3'.
+    + (* Bottom2, Bottom2, Bottom2 *)
+      admit.
+    + (* Bottom2, Bottom2, Top2 *)
+      admit.
+    + (* Bottom2, Top2, Bottom2 *)
+      admit.
+    + (* Bottom2, Top2, Top2 *)
+      destruct v3; destruct v3'; left; auto.
+    + (* Top2, Bottom2, Bottom2 *)
+      admit.
+    + (* Top2, Bottom2, Top2 *)
+      admit.
+    + (* Top2, Top2, Bottom2 *)
+      admit.
+    + (* Top2, Top2, Top2 *)
+      admit.
   - (* Eval_decl1 *)
     admit.
   - (* Eval_decl2 *)
