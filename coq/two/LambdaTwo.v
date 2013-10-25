@@ -25,16 +25,6 @@ Inductive eval :
     P, pc; e ⊢ TApp t1 t2 ⇓ Atom v Bottom2 ->
 (* ----------------------------------------- *)
     P, pc; e ⊢ TDecl t1 t2 ⇓ Atom v Bottom2
-| Eval_decl2 : forall P pc e t1 t2 e1' t1' l1 a2 v3,
-    P, pc; e ⊢ t1 ⇓ Atom (VClos e1' t1') l1 ->
-    P, pc; e ⊢ t2 ⇓ a2 ->
-    P, l1; a2 :: e1' ⊢ t1' ⇓ Atom v3 Top2 ->
-    forall L a2' v3',
-      atom_LPequiv L P a2 a2' ->
-      P, pc; a2' :: e1' ⊢ t1' ⇓ Atom v3' Top2 ->
-      value_Lequiv L v3 v3' ->
-(* ----------------------------------------- *)
-    P, pc; e ⊢ TDecl t1 t2 ⇓ Atom v3 Bottom2
 where "P , pc ; e ⊢ t ⇓ a" := (eval P pc e t a).
 
 Hint Constructors eval.
