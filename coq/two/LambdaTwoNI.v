@@ -15,9 +15,9 @@ Proof.
   generalize dependent a2.
   generalize dependent e2.
   induction Heval; intros e2 He a3' Heval2'; inversion Heval2'; subst.
-  - (* Eval_nat *)
+  - (* E_Nat *)
     destruct pc; right; right; auto.
-  - (* Eval_var *)
+  - (* E_Var *)
     rename e into e1.
     rename v into v1. rename l into l1.
     rename v0 into v2. rename l0 into l2.
@@ -31,14 +31,26 @@ Proof.
     + rewrite join_bot. eapply atom_LPequiv_Lequiv. eassumption.
     + rewrite join_top. destruct l1; auto.
       eapply atom_LPequiv_raise; eauto.
-  - (* Eval_lam *)
+  - (* E_Abs *)
     rename e into e1. 
     unfold env_Lequiv in He. 
     apply env_LPequiv_Lequiv in He.
     destruct pc; right; right; auto.
-  - (* Eval_app *)
-    admit.
-  - (* Eval_decl1 *)
+  - (* E_App *)
+    rename e into e1. rename a0 into a2'.
+    rename e1'0 into e2'. rename t1'0 into t2'. rename l0 into l2.
+    destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
+    apply IHHeval1 in H1.
+    apply IHHeval2 in H5. {
+      assert (l2 = l1) by
+          (apply atom_LPequiv_lab_inv in H1; subst; reflexivity). subst.
+      destruct l1;
+        assert (t2' = t1' /\ env_Lequiv Top2 e1' e2') by
+          (split; destruct H1; destruct H; destruct_conjs; inversion H; auto);
+        destruct_conjs; subst;
+        eapply IHHeval3; eauto; split; assumption.
+    } assumption. assumption. assumption. assumption.
+  - (* E_Decl1 *)
     rename v into v1. rename v0 into v2. rename e into e1.
     eapply IHHeval; eauto.
 Qed.
@@ -55,9 +67,9 @@ Proof.
   generalize dependent a2.
   generalize dependent e2.
   induction Heval; intros e2 He a3' Heval2'; inversion Heval2'; subst.
-  - (* Eval_nat *)
+  - (* E_Nat *)
     destruct pc; [right; left; auto | left; auto].
-  - (* Eval_var *)
+  - (* E_Var *)
     rename e into e1.
     rename v into v1. rename l into l1.
     rename v0 into v2. rename l0 into l2.
@@ -73,13 +85,13 @@ Proof.
           eapply atom_LPequiv_Lequiv. eassumption.
         assumption.
       * eapply atom_LPequiv_Lequiv. eassumption.
-  - (* Eval_lam *)
+  - (* E_Abs *)
     rename e into e1.
     apply env_LPequiv_Lequiv in He.
     destruct pc; [right; left; auto | left; auto].
-  - (* Eval_app *)
+  - (* E_App *)
     admit.
-  - (* Eval_decl1 *)
+  - (* E_Decl1 *)
     rename e into e1.
     rename v into v1. rename v0 into v2.
     eapply IHHeval; eauto.
