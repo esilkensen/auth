@@ -121,29 +121,3 @@ Lemma env_LPequiv_Lequiv :
   forall L P e1 e2,
     env_LPequiv L P e1 e2 -> env_Lequiv L e1 e2.
 Proof. apply atom_value_env_LPequiv_Lequiv. Qed.
-
-Lemma atom_value_env_Lequiv_LPequiv :
-  forall L P,
-    (forall a1 a2,
-       atom_Lequiv L a1 a2 -> atom_LPequiv L P a1 a2)
-    /\ (forall v1 v2,
-          value_Lequiv L v1 v2 -> value_LPequiv L P v1 v2)
-    /\ (forall e1 e2,
-          env_Lequiv L e1 e2 -> env_LPequiv L P e1 e2).
-Proof.
-  Admitted. (* TODO *)
-
-Lemma atom_Lequiv_LPequiv :
-  forall L P a1 a2,
-    atom_Lequiv L a1 a2 -> atom_LPequiv L P a1 a2.
-Proof. apply atom_value_env_Lequiv_LPequiv. Qed.
-
-Lemma value_Lequiv_LPequiv :
-  forall L P v1 v2,
-    value_Lequiv L v1 v2 -> value_LPequiv L P v1 v2.
-Proof. apply atom_value_env_Lequiv_LPequiv. Qed.
-
-Lemma env_Lequiv_LPequiv :
-  forall L P e1 e2,
-    env_Lequiv L e1 e2 -> env_LPequiv L P e1 e2.
-Proof. apply atom_value_env_Lequiv_LPequiv. Qed.
