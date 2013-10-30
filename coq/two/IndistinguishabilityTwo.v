@@ -172,3 +172,21 @@ Lemma env_Top2equiv_Top2Pequiv :
   forall P e1 e2,
     env_Lequiv Top2 e1 e2 -> env_LPequiv Top2 P e1 e2.
 Proof. apply atom_value_env_Top2equiv_Top2Pequiv. Qed.
+
+Lemma atom_Top2Pequiv_lower :
+  forall P v1 v2,
+    atom_LPequiv Top2 P (Atom v1 Top2) (Atom v2 Top2) ->
+    atom_LPequiv Top2 P (Atom v1 Bottom2) (Atom v2 Bottom2).
+Proof.
+  intros.
+  destruct v1 as [n1 | e1 t1]; destruct v2 as [n2 | e2 t2].
+  + destruct H; destruct H; destruct_conjs;
+    inversion H; subst; right; right; auto.
+  + destruct H; destruct H; destruct_conjs;
+    inversion H; inversion H1.
+  + destruct H; destruct H; destruct_conjs;
+    inversion H; inversion H1.
+  + destruct H; destruct H; destruct_conjs;
+    inversion H; subst; right; right; auto.
+Qed.
+  
