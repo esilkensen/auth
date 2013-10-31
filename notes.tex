@@ -24,6 +24,7 @@
 
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
 
@@ -77,7 +78,7 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and with respect to some reflexive predicate
+  atoms for observers at label $L$ and with respect to some reflexive relation
   $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item $L = \bot$ and
@@ -127,12 +128,12 @@
   \label{lem:lp-equiv-raise}
 \end{lemma}
 
-\begin{lemma}
-  If $v_1 \at \top \approx^{\top}_{P} v_2 \at \top$, then
-  $v_1 \at \bot \approx^{\top}_{P} v_2 \at \bot$.
-  \Coqed
-  \label{lem:lp-equiv-lower}
-\end{lemma}
+% \begin{lemma}
+%   If $v_1 \at \top \approx^{\top}_{P} v_2 \at \top$, then
+%   $v_1 \at \bot \approx^{\top}_{P} v_2 \at \bot$.
+%   \Coqed
+%   \label{lem:lp-equiv-lower}
+% \end{lemma}
 
 \begin{lemma}
   $\approx^{L}_{P}$ implies $\approx^{L}$.
@@ -209,12 +210,11 @@
           \\
           L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
           \\
-          \forall{a, a' \text{ s.t. } a \approx^{L}_{P} a'}.\,
+          \forall{\rho_1', a_2', k' \text{ s.t. }
+            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
           \\\quad
-          L_1, (\rho_1, x = a) |- e \Downarrow^{k} v \at \top \land
-          \\\quad
-          L_1, (\rho_1, x = a') |- e \Downarrow^{k} v' \at \top =>
-          v \approx^{L} v'
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top =>
+          v_3 \approx^{L}_{P} v_3'
         \end{array}}
     }{
       \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1} v_3 \at \bot
@@ -228,102 +228,170 @@
 
 \begin{theorem}
   If $\pc, \rho |- e \Downarrow^{k} a$ and
-  $\pc, \rho' |- e \Downarrow^{k} a'$
+  $\pc, \rho' |- e \Downarrow^{k'} a'$
   and $\rho \approx^{L}_{P} \rho'$, then
   $a \approx^{L}_{P} a'$.
 \end{theorem}
-\begin{proof}\renewcommand{\qedsymbol}{}
+\begin{proof}
   By induction on a derivation of $\pc, \rho |- e \Downarrow^{k} a$.
   \begin{description}
-  \item[\emph{Case} \textsc{E-Decl2}:]\ \\[1ex]
-    \begin{array}[t]{l @{\quad} l}
-      \begin{array}[t]{l}
-        \pc, \rho |- e_1 \Downarrow^{k}
-        \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-        \\
-        \pc, \rho |- e_2 \Downarrow^{k} a_2
-        \\
-        L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
-        \\
-        \forall{a, a' \text{ s.t. } a \approx^{L}_{P} a'}.\,
-        \\\quad
-        L_1, (\rho_1, x = a) |- e \Downarrow^{k} v \at \top \land
-        \\\quad
-        L_1, (\rho_1, x = a') |- e \Downarrow^{k} v' \at \top =>
-        v \approx^{L} v'
-        \\[0.3ex]\hline\\[-2.2ex]
+  % \item[\emph{Case} \textsc{E-Nat}:]
+  %   \begin{gather*}
+  %     \inference{}{
+  %       \pc, \rho |- n \Downarrow^{0} n \at \pc
+  %     }
+  %     \quad
+  %     \inference{}{
+  %       \pc, \rho' |- n \Downarrow^{0} n \at \pc
+  %     }
+  %   \end{gather*}
+  % \item[\emph{Case} \textsc{E-Var}:]
+  %   \begin{gather*}
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \rho(x) = v \at L
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho |- x \Downarrow^{0} v \at (\pc \sqcup L)
+  %     }
+  %     \quad
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \rho'(x) = v' \at L'
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho' |- x \Downarrow^{0} v' \at (\pc \sqcup L')
+  %     }
+  %   \end{gather*}
+  % \item[\emph{Case} \textsc{E-Abs}:]
+  %   \begin{gather*}
+  %     \inference{}{
+  %       \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{0}
+  %       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+  %     }
+  %     \quad
+  %     \inference{}{
+  %       \pc, \rho' |- (\lambda{x}.\, e) \Downarrow^{0}
+  %       \langle{\rho', \lambda{x}.\, e\rangle} \at \pc
+  %     }
+  %   \end{gather*}
+  % \item[\emph{Case} \textsc{E-App}:]
+  %   \begin{gather*}
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \pc, \rho |- e_1 \Downarrow^{k}
+  %           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+  %           \\
+  %           \pc, \rho |- e_2 \Downarrow^{k} a_2
+  %           \\
+  %           L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
+  %     }
+  %     \quad
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \pc, \rho' |- e_1 \Downarrow^{k'}
+  %           \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
+  %           \\
+  %           \pc, \rho' |- e_2 \Downarrow^{k'} a_2'
+  %           \\
+  %           L_1', (\rho_1', x' = a_2') |- e' \Downarrow^{k'} a_3'
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'+1} a_3'
+  %     }
+  %   \end{gather*}
+  % \item[\emph{Case} \textsc{E-Decl1}:]
+  %   \begin{gather*}
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k}
+  %       v \at \bot
+  %     }
+  %     \quad
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'} v' \at \bot
+  %         \end{array}}
+  %     }{
+  %       \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k'}
+  %       v' \at \bot
+  %     }
+  %   \end{gather*}
+  \item[\emph{Case} \textsc{E-Decl2}:]
+    \begin{small}
+    \begin{gather*}
+      \inference{
+        {\begin{array}{l}
+            \pc, \rho |- e_1 \Downarrow^{k}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            \\
+            \pc, \rho |- e_2 \Downarrow^{k} a_2
+            \\
+            L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
+            \\
+            \forall{\rho_1', a_2', k' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
+            \\\quad
+            L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'
+          \end{array}}
+      }{
         \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
         v_3 \at \bot
-      \end{array}
-      &
-      \begin{array}[t]{l}
-        \pc, \rho' |- e_1 \Downarrow^{k}
-        \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
-        \\
-        \pc, \rho' |- e_2 \Downarrow^{k} a_2'
-        \\
-        L_1',  (\rho_1', x' = a_2') |- e' \Downarrow^{k} v_3' \at \top
-        \\
-        \forall{a, a' \text{ s.t. } a \approx^{L}_{P} a'}.\,
-        \\\quad
-        L_1', (\rho_1', x' = a) |- e' \Downarrow^{k} v \at \top \land
-        \\\quad
-        L_1', (\rho_1', x' = a') |- e' \Downarrow^{k} v' \at \top =>
-        v \approx^{L} v'
-        \\[0.3ex]\hline\\[-2.2ex]
-        \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+      }
+      \\[1ex]
+      \inference{
+        {\begin{array}{l}
+            \pc, \rho' |- e_1 \Downarrow^{k'}
+            \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
+            \\
+            \pc, \rho' |- e_2 \Downarrow^{k'} a_2'
+            \\
+            L_1',  (\rho_1', x' = a_2') |- e' \Downarrow^{k'} v_3' \at \top
+            \\
+            \forall{\rho_1'', a_2'', k'' \text{ s.t. }
+              (\rho_1', x' = a_2') \approx^{L}_{P} (\rho_1'', x' = a_2'')}.
+            \\\quad
+            L_1', (\rho_1'', x' = a_2'') |- e' \Downarrow^{k''} v_3'' \at \top =>
+            v_3' \approx^{L}_{P} v_3''
+          \end{array}}
+      }{
+        \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k'+1}
         v_3' \at \bot
-      \end{array}
-    \end{array}\\
-    
+      }
+    \end{gather*}
+    \end{small}
+  
     By the induction hypothesis,
-    \begin{description}
-    \item
-      \quad
-      $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-      \approx^{L}_{P}
-      \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$
-      \quad and \quad
-      $a_2 \approx^{L}_{P} a_2'$.
-    \end{description}
-    Therefore $\rho_1 \approx^{L}_{P} \rho_1'$ and
+    $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+    \approx^{L}_{P}
+    \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$
+    and
+    $a_2 \approx^{L}_{P} a_2'$.
+    By inversion of the definition of $\approx^{L}_{P}$,
+    $L_1 = L_1'$ and
     $\lambda{x}.\, e = \lambda{x'}.\, e'$ and
-    $L_1 = L_1'$.
-    It follows that
-    \begin{description}
-    \item
-      \quad
-      $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$
-      \quad\quad\quad and \quad
-      $v_3 \at \top \approx^{L}_{P} v_3' \at \top$.
-    \end{description}
-    If $L = \top$, then $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$ follows
-    from Lemma~\ref{lem:lp-equiv-lower}, and the case is completed; however,
-    (I think) the proof fails if $L = \bot$, e.g., if $v_3 = n_3$ and
-    $v_3' = n_3'$ and $n_3 \not= n_3'$.
-
-    Another definition of \textsc{E-Decl2}?
-    \[
-    \inference{
-      {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k}
-          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-          \\
-          \pc, \rho |- e_2 \Downarrow^{k} a_2
-          \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
-          \\
-          \forall{\rho_1', a_2' \text{ s.t. }
-            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
-          \\\quad
-          L_1, (\rho_1', x = a_2') |- e \Downarrow^{k} v_3' \at \top =>
-          v_3 \approx^{L}_{P} v_3'
-        \end{array}}
-    }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1} v_3 \at \bot
-    }[\textsc{E-Decl2}]
-    \]
+    $\rho_1 \approx^{L}_{P} \rho_1'$.
+    By the definition of $\approx^{L}_{P}$,
+    $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
+    Since $L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top$,
+    it follows that $v_3 \approx^{L}_{P} v_3'$ and therefore
+    $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
+    \qedhere
   \end{description}
 \end{proof}
+
+% \begin{corollary}
+%   If $\pc, \rho |- e \Downarrow^{k} a$ and
+%   $\pc, \rho' |- e \Downarrow^{k'} a'$
+%   and $\rho \approx^{L}_{P} \rho'$, then
+%   $a \approx^{L} a'$.
+% \end{corollary}
 
 \end{document}

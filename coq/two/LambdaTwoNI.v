@@ -4,17 +4,18 @@ Require Import LambdaTwo.
 Section NI.
 
 Theorem non_interference_strong_observer :
-  forall L (P : value -> value -> Prop) k pc e1 e2 t a1 a2,
+  forall L (P : value -> value -> Prop) k k' pc e1 e2 t a1 a2,
     (forall x, P x x) ->
     env_LPequiv L P e1 e2 ->
     [L, P, k] pc; e1 ⊢ t ⇓ a1 ->
-    [L, P, k] pc; e2 ⊢ t ⇓ a2 ->
+    [L, P, k'] pc; e2 ⊢ t ⇓ a2 ->
     atom_LPequiv L P a1 a2.
 Proof.
-  intros L P k pc e1 e2 t a1 a2 Prefl He Heval.
+  intros L P k k' pc e1 e2 t a1 a2 Prefl He Heval.
   generalize dependent a2.
   generalize dependent e2.
-  induction Heval; intros e2 He a3' Heval2';
+  generalize dependent k'.
+  induction Heval; intros k' e2 He a3' Heval2';
   inversion Heval2'; rename e into e1; subst.
   - (* E_Nat *) 
     destruct L; destruct pc.
@@ -27,7 +28,7 @@ Proof.
     rename v0 into v2. rename l0 into l2.
     destruct pc.
     + rewrite 2! join_bot in *.
-      eapply list_forall2_atIndex in H3; eauto.
+      eapply list_forall2_atIndex in H6; eauto.
     + rewrite 2! join_top in *.
       assert (atom_LPequiv L P (Atom v1 l1) (Atom v2 l2)) by
           (eapply list_forall2_atIndex; eassumption).
@@ -45,12 +46,12 @@ Proof.
     rename a0 into a2'.
     rename e1'0 into e2'. rename t1'0 into t2'. rename l0 into l2.
     destruct a3 as [v3 l3]; destruct a3' as [v3' l3'].
-    apply IHHeval1 in H4.
+    apply IHHeval1 in H1.
     apply IHHeval2 in H7. {
       assert (l2 = l1) by
-          (apply atom_LPequiv_lab_inv in H4; subst; reflexivity). subst.
+          (apply atom_LPequiv_lab_inv in H1; subst; reflexivity). subst.
       assert (t2' = t1' /\ env_LPequiv L P e1' e2') by
-          (split; destruct H4; destruct H; destruct_conjs;
+          (split; destruct H1; destruct H; destruct_conjs;
            try inversion H1; subst; auto).
       destruct_conjs; subst. eapply IHHeval3; eauto. split; assumption.
     } assumption. assumption. assumption. assumption.
