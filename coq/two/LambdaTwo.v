@@ -1,7 +1,8 @@
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
 
-Fixpoint eval L P pc e t k a {struct k} :=
+Function eval (L : two) (P : value -> value -> Prop) (pc : two) (e : env)
+         (t : term) (k : nat) (a : atom) {struct k} :=
   match t with
     | TNat n =>
       a = Atom (VNat n) pc
@@ -13,7 +14,7 @@ Fixpoint eval L P pc e t k a {struct k} :=
       end
     | TLam t' =>
       a = Atom (VClos e t') pc
-    | TApp t1 t2 =>
+    (*| TApp t1 t2 =>
       match k with
         | S k' =>
           forall e1' t1' l1 a2 a3,
@@ -22,8 +23,8 @@ Fixpoint eval L P pc e t k a {struct k} :=
             eval L P l1 (a2 :: e1') t1' k' a3 ->
             a = a3
         | 0 => False
-      end
-    | TDecl t1 t2 =>
+      end*)
+    (*| TDecl t1 t2 =>
       match k with
         | S k' =>
           forall e1' t1' l1 a2 v3 l3,
@@ -41,5 +42,6 @@ Fixpoint eval L P pc e t k a {struct k} :=
                 a = (Atom v3 Bottom2)
             end
         | 0 => False
-      end
+      end*)
+    | _ => False
   end.
