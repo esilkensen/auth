@@ -85,6 +85,7 @@ VFILES:=UnitLattice.v\
   PreLattice.v\
   MyTactics.v\
   MyList.v\
+  LibTactics.v\
   LambdaTwoSyntax.v\
   LambdaTwoNI.v\
   LambdaTwo.v\

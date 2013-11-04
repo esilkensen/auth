@@ -8,7 +8,7 @@ Set Implicit Arguments.
 Inductive term : Type :=
   | TNat : nat -> term
   | TVar : nat -> term
-  | TLam : term -> term
+  | TAbs : term -> term
   | TApp : term -> term -> term
   | TDecl : term -> term -> term.
 
