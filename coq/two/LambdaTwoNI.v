@@ -4,89 +4,122 @@ Require Import LibTactics.
 
 Section NI.
 
-Lemma non_interference_nat :
-  forall L P k pc e1 e2 t a1 a2,
-    forall n,
-      t = TNat n ->
-      env_LPequiv L P e1 e2 ->
-      eval L P pc e1 t k a1 ->
-      eval L P pc e2 t k a2 ->
-      (forall x, P x x) ->
-      atom_LPequiv L P a1 a2.
-Proof.
-  introv Ht He Heval1 Heval2 Prefl. subst.
-  assert (Ha1: a1 = (Atom (VNat n) pc)) by (eapply eval_nat_inv; eauto).
-  assert (Ha2: a2 = (Atom (VNat n) pc)) by (eapply eval_nat_inv; eauto).
-  destruct L; destruct pc; subst.
-  - right. left. auto.
-  - left. auto.
-  - right. right. auto.
-  - right. right. auto.
-Qed.
-
-Lemma non_interference_var :
-  forall L P k pc e1 e2 t a1 a2,
-    forall n,
-      t = TVar n ->
-      env_LPequiv L P e1 e2 ->
-      eval L P pc e1 t k a1 ->
-      eval L P pc e2 t k a2 ->
-      (forall x, P x x) ->
-      atom_LPequiv L P a1 a2.
-Proof.
-  introv Ht He Heval1 Heval2 Prefl. subst.
-  remember (atIndex e1 n) as o1.
-  remember (atIndex e2 n) as o2.
-  destruct o1 as [[v1 l1] |];
-  destruct o2 as [[v2 l2] |].
-  - assert (atom_LPequiv L P (Atom v1 l1) (Atom v2 l2)) by
-        (eapply list_forall2_atIndex; eauto).
-    assert (l2 = l1) by
-        (apply atom_LPequiv_lab_inv in H; auto). subst.
-    destruct k; unfold eval in Heval1; unfold eval in Heval2;
-    repeat (rewrite <- Heqo1 in Heval1; rewrite <- Heqo2 in Heval2; subst;
-            destruct pc; [
-              rewrite join_bot; assumption |
-              rewrite join_top; destruct l1; try assumption;
-              apply atom_LPequiv_raise; auto
-           ]).
-  - destruct k; unfold eval in Heval2;
-    rewrite <- Heqo2 in Heval2; inversion Heval2.
-  - destruct k; unfold eval in Heval1;
-    rewrite <- Heqo1 in Heval1; inversion Heval1.
-  - destruct k; unfold eval in Heval1;
-    rewrite <- Heqo1 in Heval1; inversion Heval1.
-Qed.
-
-Lemma non_interference_abs :
-  forall L P k pc e1 e2 t a1 a2,
-    forall t',
-      t = TAbs t' ->
-      env_LPequiv L P e1 e2 ->
-      eval L P pc e1 t k a1 ->
-      eval L P pc e2 t k a2 ->
-      (forall x, P x x) ->
-      atom_LPequiv L P a1 a2.
-Proof.
-  introv Ht He Heval1 Heval2 Prefl. subst.
-  assert (Ha1: a1 = (Atom (VClos e1 t') pc)) by (eapply eval_abs_inv; eauto).
-  assert (Ha2: a2 = (Atom (VClos e2 t') pc)) by (eapply eval_abs_inv; eauto).
-  destruct L; destruct pc; subst.
-  - right. left. auto.
-  - left. auto.
-  - right. right. auto.
-  - right. right. auto.
-Qed.
-
 Theorem non_interference_strong_observer :
-  forall L (P : value -> value -> Prop) k pc e1 e2 t a1 a2,
-    (forall x, P x x) ->
+  forall L P k pc e1 e2 t a1 a2,
     env_LPequiv L P e1 e2 ->
     eval L P pc e1 t k a1 -> 
     eval L P pc e2 t k a2 -> 
+    (forall x, P x x) ->
     atom_LPequiv L P a1 a2.
 Proof.
-  Admitted.
+  introv He Heval1 Heval2 Prefl.
+  gen pc e1 e2 t a1 a2. 
+  induction k as [| k']; intros; destruct t; auto.
+  - (* E_Nat *)
+    apply eval_nat_inv in Heval1.
+    apply eval_nat_inv in Heval2.
+    destruct L; destruct pc; subst.
+    + right. left. auto.
+    + left. auto.
+    + right. right. auto.
+    + right. right. auto.
+  - (* E_Var *)
+    apply eval_var_inv in Heval1.
+    apply eval_var_inv in Heval2.
+    destruct Heval1 as [v1 Heval1];
+      destruct Heval1 as [l1 Heval1].
+    destruct Heval2 as [v2 Heval2];
+      destruct Heval2 as [l2 Heval2].
+    destruct_conjs; subst.
+    assert (Ha: atom_LPequiv L P (Atom v1 l1) (Atom v2 l2)) by
+        (eapply list_forall2_atIndex; eauto).
+    assert (l2 = l1) by
+        (apply atom_LPequiv_lab_inv in Ha; auto).
+    destruct pc; subst.
+    + rewrite join_bot. assumption.
+    + rewrite join_top. destruct l1; auto.
+      apply atom_LPequiv_raise; assumption.
+  - (* E_Abs *)
+    apply eval_abs_inv in Heval1.
+    apply eval_abs_inv in Heval2.
+    destruct L; destruct pc; subst.
+    + right. left. auto.
+    + left. auto.
+    + right. right. auto.
+    + right. right. auto.
+  - (* E_App *)
+    rename a1 into a. rename a2 into a'.
+    rename e1 into e. rename e2 into e'.
+    apply eval_app_inv in Heval1.
+    apply eval_app_inv in Heval2.
+    destruct Heval1 as [e1' Heval1];
+      destruct Heval1 as [t1' Heval1];
+      destruct Heval1 as [l1 Heval1];
+      destruct Heval1 as [a2 Heval1];
+      destruct Heval1 as [a3 Heval1].
+    destruct Heval2 as [e2' Heval2];
+      destruct Heval2 as [t2' Heval2];
+      destruct Heval2 as [l2 Heval2];
+      destruct Heval2 as [a2' Heval2];
+      destruct Heval2 as [a3' Heval2].
+    destruct_conjs; subst.
+    remember (Atom (VClos e1' t1') l1) as a1.
+    remember (Atom (VClos e2' t2') l2) as a1'.
+    assert (IH1: atom_LPequiv L P a1 a1') by
+        (eapply IHk'; eauto).
+    assert (l2 = l1) by
+        (subst; apply atom_LPequiv_lab_inv in IH1; auto).
+    assert (t2' = t1' /\ env_LPequiv L P e1' e2') by
+        (split; subst; destruct IH1; destruct H2; destruct_conjs; auto).
+    destruct_conjs; subst.
+    assert (IH2: atom_LPequiv L P a2 a2') by
+        (apply (IHk' pc e e' He t2); auto).
+    assert (env_LPequiv L P (a2 :: e1') (a2' :: e2')) by
+        (split; auto).
+    eapply IHk'; eauto.
+  - (* E_Decl *)
+    rename a1 into a. rename a2 into a'.
+    rename e1 into e. rename e2 into e'.
+    apply eval_decl_inv in Heval1.
+    apply eval_decl_inv in Heval2.
+    destruct Heval1 as [e1' Heval1];
+      destruct Heval1 as [t1' Heval1];
+      destruct Heval1 as [l1 Heval1];
+      destruct Heval1 as [a2 Heval1];
+      destruct Heval1 as [v3 Heval1];
+      destruct Heval1 as [l3 Heval1].
+    destruct Heval2 as [e2' Heval2];
+      destruct Heval2 as [t2' Heval2];
+      destruct Heval2 as [l2 Heval2];
+      destruct Heval2 as [a2' Heval2];
+      destruct Heval2 as [v3' Heval2];
+      destruct Heval2 as [l3' Heval2].
+    destruct_conjs.
+    remember (Atom (VClos e1' t1') l1) as a1.
+    remember (Atom (VClos e2' t2') l2) as a1'.
+    assert (IH1: atom_LPequiv L P a1 a1') by
+        (eapply IHk'; eauto).
+    assert (l2 = l1) by
+        (subst; apply atom_LPequiv_lab_inv in IH1; auto).
+    assert (t2' = t1' /\ env_LPequiv L P e1' e2') by
+        (split; subst; destruct IH1; destruct H7; destruct_conjs; auto).
+    destruct_conjs; subst.
+    assert (IH2: atom_LPequiv L P a2 a2') by
+        (apply (IHk' pc e e' He t2); auto).
+    assert (env_LPequiv L P (a2 :: e1') (a2' :: e2')) by
+        (split; auto).
+    assert (IH3: atom_LPequiv L P (Atom v3 l3) (Atom v3' l3')) by
+        (eapply IHk'; eauto).
+    assert (l3' = l3) by
+        (apply atom_LPequiv_lab_inv in IH3; auto). subst.
+    destruct l3; destruct H6; destruct H2; destruct_conjs; 
+    inversion H2; inversion H6; subst; auto.
+    assert (value_LPequiv L P v3 v3') by
+        (eapply H11; eauto).
+    destruct L.
+    + right. left. auto.
+    + right. right. auto.
+Qed.
 
 Theorem non_interference :
   forall L (P : value -> value -> Prop) k pc e1 e2 t a1 a2,
