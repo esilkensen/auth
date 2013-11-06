@@ -1,7 +1,5 @@
-Require Import Program.Tactics.
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
-Require Import LibTactics.
 
 Fixpoint eval (L : two) (P : value -> value -> Prop)
          (pc : two) (e : env) (t : term) (k : nat) (a : atom)
