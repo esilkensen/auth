@@ -1,14 +1,21 @@
 \documentclass{article}
 
+\usepackage[includeheadfoot,margin=1in,foot=1.25in]{geometry}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage{units}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{44pt}
+\setlength{\headsep}{12pt}
+\setlength{\footskip}{0.75in}
+
 \usepackage{alltt}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{array}
-\usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{semantic}
-\usepackage[T1]{fontenc}
 
 \renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
 
@@ -28,11 +35,12 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
 
+\lhead{Notes: ``A Semantic Notion of Authority''}
+\rhead{\today}
+
 \begin{document}
 
-\begin{flushright}
-  \today
-\end{flushright}
+\thispagestyle{fancy}
 
 \begin{figure}[ht]
   \centering
@@ -116,9 +124,9 @@
 \end{definition}
 
 \begin{lemma}
-  If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
-  \Coqed
-  \label{lem:lp-equiv-lab-inv}
+ If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
+ \Coqed
+ \label{lem:lp-equiv-lab-inv}
 \end{lemma}
 
 \begin{lemma}
@@ -147,24 +155,24 @@
   \label{lem:lp-equiv-l-equiv}
 \end{lemma}
 
-\begin{lemma}
-  $\approx^{\top}$ implies $\approx^{\top}_{P}$.
-  \Coqed
-  % \begin{enumerate}
-  % \item If $a_1 \approx^{\top} a_2$, then $a_1 \approx^{\top}_{P} a_2$.
-  % \item If $v_1 \approx^{\top} v_2$, then $v_1 \approx^{\top}_{P} v_2$.
-  % \item If $\rho_1 \approx^{\top} \rho_2$, then
-  %   $\rho_1 \approx^{\top}_{P} \rho_2$.
-  %   \Coqed
-  % \end{enumerate}
-  \label{lem:l-equiv-lp-equiv}
-\end{lemma}
+% \begin{lemma}
+%   $\approx^{\top}$ implies $\approx^{\top}_{P}$.
+%   \Coqed
+%   % \begin{enumerate}
+%   % \item If $a_1 \approx^{\top} a_2$, then $a_1 \approx^{\top}_{P} a_2$.
+%   % \item If $v_1 \approx^{\top} v_2$, then $v_1 \approx^{\top}_{P} v_2$.
+%   % \item If $\rho_1 \approx^{\top} \rho_2$, then
+%   %   $\rho_1 \approx^{\top}_{P} \rho_2$.
+%   %   \Coqed
+%   % \end{enumerate}
+%   \label{lem:l-equiv-lp-equiv}
+% \end{lemma}
 
 \begin{figure}[ht]
   \centering
   \begin{gather*}
     \inference{}{
-      \pc, \rho |- n \Downarrow^{0} n \at \pc
+      \pc, \rho |- n \Downarrow^{k} n \at \pc
     }[\textsc{E-Nat}]
     \qquad
     \inference{
@@ -172,11 +180,11 @@
           \rho(x) = v \at L
         \end{array}}
     }{
-      \pc, \rho |- x \Downarrow^{0} v \at (\pc \sqcup L)
+      \pc, \rho |- x \Downarrow^{k} v \at (\pc \sqcup L)
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{0}
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}
       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
     }[\textsc{E-Abs}]
     \qquad
@@ -202,19 +210,21 @@
     }[\textsc{E-Decl1}]
     \\[3ex]
     \inference{
-      {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k}
+      {\begin{array}[b]{l}
+          \pc, \rho |- e_1 \Downarrow^{k'}
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \pc, \rho |- e_2 \Downarrow^{k} a_2
+          \pc, \rho |- e_2 \Downarrow^{k'} a_2
           \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k'} v_3 \at \top
           \\
-          \forall{\rho_1', a_2', k' \text{ s.t. }
+          \forall{\rho_1', a_2' \text{ s.t. }
             (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
           \\\quad
           L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top =>
           v_3 \approx^{L}_{P} v_3'
+          \\
+          k' \leq k
         \end{array}}
     }{
       \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1} v_3 \at \bot
@@ -224,107 +234,82 @@
   \label{fig:semantics}
 \end{figure}
 
-\pagebreak
+% \pagebreak
 
-\begin{theorem}
+\begin{lemma}
+  If $\pc, \rho |- e \Downarrow^{k} a$, then
+  $\pc, \rho |- e \Downarrow^{k+1} a$.
+  \label{lem:semantics-ind}
+\end{lemma}
+\begin{proof}
+  By induction on $k$.
+  %The base case is trivial: if $k=0$, then a derivation
+  %of $\pc, \rho |- e \Downarrow^{k} a$ must be from either
+  %\textsc{E-Nat}, \textsc{E-Var}, or \textsc{E-Abs}, and
+  %$\pc, \rho |- e \Downarrow^{k+1} a$ follows by definition for all three.
+  % 
+  % For the inductive case, suppose $\pc, \rho |- e \Downarrow^{k} a$ implies
+  % $\pc, \rho |- e \Downarrow^{k+1} a$ for some $k$. By case analysis on a
+  % derivation of $\pc, \rho |- e \Downarrow^{k} a$, we have
+  % $\pc, \rho |- e \Downarrow^{k+2} a$ by definition for
+  % \textsc{E-Nat}, \textsc{E-Var}, \textsc{E-Abs}, and \textsc{E-Decl2},
+  % and by the induction hypothesis for \textsc{E-App} and \textsc{E-Decl1}.
+\end{proof}
+
+\begin{lemma}
   If $\pc, \rho |- e \Downarrow^{k} a$ and
-  $\pc, \rho' |- e \Downarrow^{k'} a'$
+  $\pc, \rho' |- e \Downarrow^{k} a'$
   and $\rho \approx^{L}_{P} \rho'$, then
   $a \approx^{L}_{P} a'$.
-\end{theorem}
+\end{lemma}
 \begin{proof}
   By induction on a derivation of $\pc, \rho |- e \Downarrow^{k} a$.
   \begin{description}
-  % \item[\emph{Case} \textsc{E-Nat}:]
-  %   \begin{gather*}
-  %     \inference{}{
-  %       \pc, \rho |- n \Downarrow^{0} n \at \pc
-  %     }
-  %     \quad
-  %     \inference{}{
-  %       \pc, \rho' |- n \Downarrow^{0} n \at \pc
-  %     }
-  %   \end{gather*}
-  % \item[\emph{Case} \textsc{E-Var}:]
-  %   \begin{gather*}
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \rho(x) = v \at L
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho |- x \Downarrow^{0} v \at (\pc \sqcup L)
-  %     }
-  %     \quad
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \rho'(x) = v' \at L'
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho' |- x \Downarrow^{0} v' \at (\pc \sqcup L')
-  %     }
-  %   \end{gather*}
-  % \item[\emph{Case} \textsc{E-Abs}:]
-  %   \begin{gather*}
-  %     \inference{}{
-  %       \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{0}
-  %       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
-  %     }
-  %     \quad
-  %     \inference{}{
-  %       \pc, \rho' |- (\lambda{x}.\, e) \Downarrow^{0}
-  %       \langle{\rho', \lambda{x}.\, e\rangle} \at \pc
-  %     }
-  %   \end{gather*}
-  % \item[\emph{Case} \textsc{E-App}:]
-  %   \begin{gather*}
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \pc, \rho |- e_1 \Downarrow^{k}
-  %           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-  %           \\
-  %           \pc, \rho |- e_2 \Downarrow^{k} a_2
-  %           \\
-  %           L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
-  %     }
-  %     \quad
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \pc, \rho' |- e_1 \Downarrow^{k'}
-  %           \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
-  %           \\
-  %           \pc, \rho' |- e_2 \Downarrow^{k'} a_2'
-  %           \\
-  %           L_1', (\rho_1', x' = a_2') |- e' \Downarrow^{k'} a_3'
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'+1} a_3'
-  %     }
-  %   \end{gather*}
-  % \item[\emph{Case} \textsc{E-Decl1}:]
-  %   \begin{gather*}
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k}
-  %       v \at \bot
-  %     }
-  %     \quad
-  %     \inference{
-  %       {\begin{array}{l}
-  %           \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'} v' \at \bot
-  %         \end{array}}
-  %     }{
-  %       \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k'}
-  %       v' \at \bot
-  %     }
-  %   \end{gather*}
-  \item[\emph{Case} \textsc{E-Decl2}:]
-    \begin{small}
+  \item[\emph{Case} \textsc{E-Nat}:]
+    \begin{gather*}
+      \inference{}{
+        \pc, \rho |- n \Downarrow^{k} n \at \pc
+      }
+      \quad
+      \inference{}{
+        \pc, \rho' |- n \Downarrow^{k} n \at \pc
+      }
+    \end{gather*}
+    By case analysis on $L$ and $\pc$.
+  \item[\emph{Case} \textsc{E-Var}:]
+    \begin{gather*}
+      \inference{
+        {\begin{array}{l}
+            \rho(x) = v \at L_1
+          \end{array}}
+      }{
+        \pc, \rho |- x \Downarrow^{k} v \at (\pc \sqcup L_1)
+      }
+      \quad
+      \inference{
+        {\begin{array}{l}
+            \rho'(x) = v' \at L_1'
+          \end{array}}
+      }{
+        \pc, \rho' |- x \Downarrow^{k} v' \at (\pc \sqcup L_1')
+      }
+    \end{gather*}
+    By case analysis on $\pc$ and $L_1$,
+    using Lemmas~\ref{lem:lp-equiv-lab-inv}~and~\ref{lem:lp-equiv-raise}.
+  \item[\emph{Case} \textsc{E-Abs}:]
+    \begin{gather*}
+      \inference{}{
+        \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}
+        \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+      }
+      \quad
+      \inference{}{
+        \pc, \rho' |- (\lambda{x}.\, e) \Downarrow^{k}
+        \langle{\rho', \lambda{x}.\, e\rangle} \at \pc
+      }
+    \end{gather*}
+    By case analysis on $L$ and $\pc$.
+  \item[\emph{Case} \textsc{E-App}:]
     \begin{gather*}
       \inference{
         {\begin{array}{l}
@@ -333,21 +318,72 @@
             \\
             \pc, \rho |- e_2 \Downarrow^{k} a_2
             \\
+            L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
+          \end{array}}
+      }{
+        \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
+      }
+      \quad
+      \inference{
+        {\begin{array}{l}
+            \pc, \rho' |- e_1 \Downarrow^{k}
+            \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
+            \\
+            \pc, \rho' |- e_2 \Downarrow^{k} a_2'
+            \\
+            L_1', (\rho_1', x' = a_2') |- e' \Downarrow^{k} a_3'
+          \end{array}}
+      }{
+        \pc, \rho' |- (e_1\ e_2) \Downarrow^{k+1} a_3'
+      }
+    \end{gather*}
+  \item[\emph{Case} \textsc{E-Decl1}:]
+    \begin{gather*}
+      \inference{
+        {\begin{array}{l}
+            \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
+          \end{array}}
+      }{
+        \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+        v \at \bot
+      }
+      \quad
+      \inference{
+        {\begin{array}{l}
+            \pc, \rho' |- (e_1\ e_2) \Downarrow^{k} v' \at \bot
+          \end{array}}
+      }{
+        \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+        v' \at \bot
+      }
+    \end{gather*}
+  \item[\emph{Case} \textsc{E-Decl2}:]
+    \begin{small}
+    \begin{gather*}
+      \inference{
+        {\begin{array}[b]{l}
+            \pc, \rho |- e_1 \Downarrow^{k'}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            \\
+            \pc, \rho |- e_2 \Downarrow^{k'} a_2
+            \\
             L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
             \\
-            \forall{\rho_1', a_2', k' \text{ s.t. }
+            \forall{\rho_1', a_2' \text{ s.t. }
               (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
             \\\quad
             L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top =>
             v_3 \approx^{L}_{P} v_3'
+            \\
+            k' \leq k
           \end{array}}
       }{
         \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
         v_3 \at \bot
       }
-      \\[1ex]
+      \quad
       \inference{
-        {\begin{array}{l}
+        {\begin{array}[b]{l}
             \pc, \rho' |- e_1 \Downarrow^{k'}
             \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
             \\
@@ -355,43 +391,37 @@
             \\
             L_1',  (\rho_1', x' = a_2') |- e' \Downarrow^{k'} v_3' \at \top
             \\
-            \forall{\rho_1'', a_2'', k'' \text{ s.t. }
+            \forall{\rho_1'', a_2'' \text{ s.t. }
               (\rho_1', x' = a_2') \approx^{L}_{P} (\rho_1'', x' = a_2'')}.
             \\\quad
-            L_1', (\rho_1'', x' = a_2'') |- e' \Downarrow^{k''} v_3'' \at \top =>
+            L_1', (\rho_1'', x' = a_2'') |- e' \Downarrow^{k'} v_3'' \at \top =>
             v_3' \approx^{L}_{P} v_3''
+            \\
+            k' \leq k
           \end{array}}
       }{
-        \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k'+1}
+        \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
         v_3' \at \bot
       }
     \end{gather*}
     \end{small}
-  
-    By the induction hypothesis,
-    $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-    \approx^{L}_{P}
-    \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$
-    and
-    $a_2 \approx^{L}_{P} a_2'$.
-    By inversion of the definition of $\approx^{L}_{P}$,
-    $L_1 = L_1'$ and
-    $\lambda{x}.\, e = \lambda{x'}.\, e'$ and
-    $\rho_1 \approx^{L}_{P} \rho_1'$.
-    By the definition of $\approx^{L}_{P}$,
-    $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
-    Since $L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top$,
-    it follows that $v_3 \approx^{L}_{P} v_3'$ and therefore
-    $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
-    \qedhere
+    % 
+    % By the induction hypothesis,
+    % $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+    % \approx^{L}_{P}
+    % \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$
+    % and
+    % $a_2 \approx^{L}_{P} a_2'$.
+    % By inversion of the definition of $\approx^{L}_{P}$,
+    % $L_1 = L_1'$ and
+    % $\lambda{x}.\, e = \lambda{x'}.\, e'$ and
+    % $\rho_1 \approx^{L}_{P} \rho_1'$.
+    % By the definition of $\approx^{L}_{P}$,
+    % $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
+    % Since $L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top$,
+    % it follows that $v_3 \approx^{L}_{P} v_3'$ and therefore
+    % $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
   \end{description}
 \end{proof}
-
-% \begin{corollary}
-%   If $\pc, \rho |- e \Downarrow^{k} a$ and
-%   $\pc, \rho' |- e \Downarrow^{k'} a'$
-%   and $\rho \approx^{L}_{P} \rho'$, then
-%   $a \approx^{L} a'$.
-% \end{corollary}
 
 \end{document}
