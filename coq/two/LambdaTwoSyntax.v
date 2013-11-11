@@ -6,11 +6,12 @@ Set Implicit Arguments.
 
 (** * A small lambda calculus, in de Bruijn notation. *)
 Inductive term : Type :=
+  | TBool : bool -> term
   | TNat : nat -> term
   | TVar : nat -> term
   | TAbs : term -> term
   | TApp : term -> term -> term
-  | TDecl : term -> term -> term.
+  | TDecl : term -> term.
 
 (** * Atoms, values. *)
 Section Atoms.
@@ -18,6 +19,7 @@ Section Atoms.
 Inductive atom : Type :=
   | Atom : value -> two -> atom
 with value : Type :=
+     | VBool : bool -> value
      | VNat : nat -> value
      | VClos : list atom -> term -> value.
 
@@ -33,6 +35,8 @@ Hypothesis
   (Penv : list atom -> Type).
 Hypothesis
   (Hatom : forall v, Pvalue v -> forall l, Patom (Atom v l)).
+Hypothesis
+  (Hbool : forall b, Pvalue (VBool b)).
 Hypothesis
   (Hnat : forall n, Pvalue (VNat n)).
 Hypothesis
@@ -71,6 +75,7 @@ match a with
 end
 with value_fold (v : value) : Pvalue v :=
        match v with
+         | VBool b => Hbool b
          | VNat n => Hnat n
          | VClos e t => Hclos (env_fold' atom_fold e) t
        end.
@@ -97,6 +102,8 @@ Hypothesis
 Hypothesis
   (Hatom : forall v, Pvalue v -> forall l, Patom (Atom v l)).
 Hypothesis
+  (Hbool : forall b, Pvalue (VBool b)).
+Hypothesis
   (Hnat : forall n, Pvalue (VNat n)).
 Hypothesis
   (Hclos : forall l, Penv l -> forall t, Pvalue (VClos l t)).
@@ -107,9 +114,9 @@ Definition atom_value_env_mutind :
   (forall a, Patom a)
   /\ (forall v, Pvalue v)
   /\ (forall e, Penv e) :=
-  conj (atom_fold Patom Pvalue Penv Hatom Hnat Hclos Henv)
-       (conj (value_fold Patom Pvalue Penv Hatom Hnat Hclos Henv)
-             (env_fold Patom Pvalue Penv Hatom Hnat Hclos Henv)).
+  conj (atom_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)
+       (conj (value_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)
+             (env_fold Patom Pvalue Penv Hatom Hbool Hnat Hclos Henv)).
 
 End mutind.
 
