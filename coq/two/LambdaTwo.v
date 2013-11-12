@@ -1,8 +1,8 @@
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
 
-Fixpoint eval (L : two) (P : value -> value -> Prop)
-         (pc : two) (e : env) (t : term) (k : nat) (a : atom)
+Fixpoint eval_k (k : nat) (L : two) (P : value -> value -> Prop)
+         (pc : two) (e : env) (t : term) (a : atom)
          {struct k} : Prop :=
   match t with
     | TBool b =>
@@ -19,9 +19,9 @@ Fixpoint eval (L : two) (P : value -> value -> Prop)
       match k with
         | S k' =>
           exists e1' t1' l1 a2 a3,
-            eval L P pc e t1 k' (Atom (VClos e1' t1') l1) /\
-            eval L P pc e t2 k' a2 /\
-            eval L P l1 (a2 :: e1') t1' k' a3 /\
+            eval_k k' L P pc e t1 (Atom (VClos e1' t1') l1) /\
+            eval_k k' L P pc e t2 a2 /\
+            eval_k k' L P l1 (a2 :: e1') t1' a3 /\
             a = a3
         | 0 => False
       end
@@ -29,19 +29,23 @@ Fixpoint eval (L : two) (P : value -> value -> Prop)
       match k with
         | S k' =>
           exists e1' t1' l1 a2 v3 l3,
-            eval L P pc e t1 k' (Atom (VClos e1' t1') l1) /\
-            eval L P pc e t2 k' a2 /\
-            eval L P l1 (a2 :: e1') t1' k' (Atom v3 l3) /\
+            eval_k k' L P pc e t1 (Atom (VClos e1' t1') l1) /\
+            eval_k k' L P pc e t2 a2 /\
+            eval_k k' L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
             match l3 with
               | Bottom2 =>
                 a = Atom v3 Bottom2
               | Top2 =>
                 (forall a2' e2' v3',
                    env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                   eval L P l1 (a2' :: e2') t1' k' (Atom v3' Top2) ->
+                   eval_k k' L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
                    value_LPequiv L P v3 v3') /\
                 a = Atom v3 Bottom2
             end
         | 0 => False
       end
   end.
+
+Definition eval (L : two) (P : value -> value -> Prop)
+           (pc : two) (e : env) (t : term) (a : atom) : Prop :=
+  forall k, eval_k k L P pc e t a.
