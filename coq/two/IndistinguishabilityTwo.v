@@ -6,14 +6,16 @@ Require Import LambdaTwoSyntax.
 (** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
 
-Context (L : two) (P : nat -> Prop).
+Context (L : two)
+        (P : value -> value -> Prop)
+        (Prefl : forall x, P x x).
 
 Fixpoint atom_LPequiv a1 a2 : Prop :=
   match a1, a2 with
     | Atom v1 l1, Atom v2 l2 =>
       (L = Bottom2 /\ l1 = l2 /\ l1 = Top2 /\
        match v1, v2 with
-         | VNat n1, VNat n2 => P n1 = P n2
+         | VNat n1, VNat n2 => P v1 v2
          | VClos e1 t1, VClos e2 t2 => value_LPequiv v1 v2
          | _, _ => True
        end) \/
@@ -50,7 +52,7 @@ Proof.
         inversion H; try inversion H1; subst; auto.
     + destruct H2. left. auto.
     + right. right. auto.
-    + left. auto.
+    + destruct H2. left. auto.
     + right. right. auto.
     + left. auto.
     + right. right. auto.
@@ -66,11 +68,11 @@ Qed.
 
 End IndistinguishabilityTwo.
 
-Definition atom_Lequiv := fun L => atom_LPequiv L (fun _ => True).
+Definition atom_Lequiv := fun L => atom_LPequiv L (fun _ _ => True).
 
-Definition value_Lequiv := fun L => value_LPequiv L (fun _ => True).
+Definition value_Lequiv := fun L => value_LPequiv L (fun _ _ => True).
 
-Definition env_Lequiv := fun L => env_LPequiv L (fun _ => True).
+Definition env_Lequiv := fun L => env_LPequiv L (fun _ _ => True).
 
 Lemma atom_value_env_LPequiv_Lequiv :
   forall L P,
