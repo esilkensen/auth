@@ -3,7 +3,6 @@ Require Import MyTactics.
 Require Import LabelAlgebra.
 Require Import LambdaTwoSyntax.
 
-(** * Indistinguishability relations. *) 
 Section IndistinguishabilityTwo.
 
 Context (L : two)
