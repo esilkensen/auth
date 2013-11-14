@@ -34,6 +34,21 @@
   \today
 \end{flushright}
 
+% \begin{figure}[ht]
+%   \centering
+%   \[
+%   \mathcal{L} = \{ \bot, \top \}
+%   \qquad
+%   \bot \sqsubseteq \top
+%   \qquad
+%   L^{\mathit{def}} = \bot
+%   \qquad
+%   \mathcal{A} = \mathbf{1}
+%   \]
+%   \caption{Label algebra $\mathbf{2}$.}
+%   \label{fig:two}
+% \end{figure}
+
 \begin{figure}[ht]
   \centering
   \[
@@ -45,13 +60,6 @@
   \qquad
   \mathcal{A} = \mathbf{1}
   \]
-  \caption{Label algebra $\mathbf{2}$.}
-  \label{fig:two}
-\end{figure}
-
-\begin{figure}[ht]
-  \centering
-  \[
   \begin{array}[t]{lcl}
     b & ::= &
     \mathit{tt}\;\; |\;\;
@@ -66,7 +74,7 @@
     x\;\; |\;\;
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
-    \mathsf{declassify}\ e
+    \mathsf{declassify}\ e\ e
     \\[0.3ex]
     v & ::= &
     c\;\; |\;\;
@@ -79,7 +87,6 @@
     \bullet\;\; |\;\;
     \rho, x = a
   \end{array}
-  \]
   \caption{Syntax of $\lambda_{\mathbf{2}}$.}
   \label{fig:syntax}
 \end{figure}
@@ -88,7 +95,7 @@
   \centering
   \begin{gather*}
     \inference{}{
-      \pc, \rho |- c \Downarrow c \at \pc
+      \pc, \rho |- c \Downarrow^{k} c \at \pc
     }[\textsc{E-Const}]
     \qquad
     \inference{
@@ -96,47 +103,54 @@
           \rho(x) = v \at L
         \end{array}}
     }{
-      \pc, \rho |- x \Downarrow v \at (\pc \sqcup L)
+      \pc, \rho |- x \Downarrow^{k} v \at (\pc \sqcup L)
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}
       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
     }[\textsc{E-Abs}]
     \qquad
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow
+          \pc, \rho |- e_1 \Downarrow^{k}
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \pc, \rho |- e_2 \Downarrow a_2
+          \pc, \rho |- e_2 \Downarrow^{k} a_2
           \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow a_3
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
         \end{array}}
     }{
-      \pc, \rho |- (e_1\ e_2) \Downarrow a_3
+      \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
     }[\textsc{E-App}]
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e \Downarrow n \at L
+          \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
         \end{array}}
-      &
-      P(n)
     }{
-      \pc, \rho |- (\mathsf{declassify}\ e) \Downarrow
-      \mathit{tt} \at \bot
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+      v \at \bot
     }[\textsc{E-Decl1}]
-    \qquad
+    \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e \Downarrow n \at L
+          \pc, \rho |- e_1 \Downarrow^{k}
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          \\
+          \pc, \rho |- e_2 \Downarrow^{k} a_2
+          \\
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
+          \\
+          \forall{\rho_1', a_2' \text{ s.t. }
+            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+          \\\quad
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{k} v_3' \at \top =>
+          v_3 \approx^{L}_{P} v_3'
         \end{array}}
-      &
-      \lnot P(n)
     }{
-      \pc, \rho |- (\mathsf{declassify}\ e) \Downarrow
-      \mathit{ff} \at \bot
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+      v_3 \at \bot
     }[\textsc{E-Decl2}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathbf{2}}$.}
@@ -147,8 +161,8 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and with respect to some predicate $P$,
-  where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
+  atoms for observers at label $L$ and with respect to some reflexive relation
+  $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item
     $L = \bot$ and
@@ -157,7 +171,7 @@
     \item
       $v_1 = n_1$ and
       $v_2 = n_2$ and
-      $P(n_1) = P(n_2)$, or
+      $P(v_1, v_2)$, or
     \item
       $v_1 = \langle{\rho_1, \lambda{x_1}.\, e_1\rangle}$ and
       $v_2 = \langle{\rho_2, \lambda{x_2}.\, e_2\rangle}$ and
@@ -185,7 +199,9 @@
     $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
     $x \in \mathrm{dom}\; \rho_1$.
   \end{itemize}
-  We write $\approx^{L}$ when $P$ is the everywhere-true predicate.
+  We write $\approx^{L}$ when $P$ is the
+  everywhere-true or everywhere-false
+  predicate.
   \label{def:lp-equiv}
 \end{definition}
 
@@ -257,18 +273,18 @@
 % \end{proof}
 
 \begin{theorem}
-  If $\pc, \rho |- e \Downarrow a$ and
-  $\pc, \rho' |- e \Downarrow a'$ and
-  $\rho \approx^{L}_{P} \rho'$, then
-  $a \approx^{L}_{P} a'$.
+  If $\pc, \rho_1 |- e \Downarrow^{k} a_1$ and
+  $\pc, \rho_2 |- e \Downarrow^{k} a_2$ and
+  $\rho_1 \approx^{L}_{P} \rho_2$, then
+  $a_1 \approx^{L}_{P} a_2$.
   \Coqed
 \end{theorem}
 
 \begin{corollary}
-  If $\pc, \rho |- e \Downarrow a$ and
-  $\pc, \rho' |- e \Downarrow a'$ and
-  $\rho \approx^{L}_{P} \rho'$, then
-  $a \approx^{L} a'$.
+  If $\pc, \rho_1 |- e \Downarrow^{k} a_1$ and
+  $\pc, \rho_2 |- e \Downarrow^{k} a_2$ and
+  $\rho_1 \approx^{L}_{P} \rho_2$, then
+  $a_1 \approx^{L} a_2$.
 \end{corollary}
 
 % \begin{lemma}
