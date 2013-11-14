@@ -1,6 +1,5 @@
 \documentclass{article}
 
-\usepackage{alltt}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -10,44 +9,26 @@
 \usepackage{graphicx}
 \usepackage{semantic}
 
-\renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
-
-\newcommand{\at}{\ensuremath{{\scriptstyle{@}}}}
-\newcommand{\pc}{\ensuremath{{\mathit{pc}}}}
-
-\newcommand{\twoheadlongmapsto}{\mapstochar\relbar\joinrel\twoheadrightarrow}
-
-\renewcommand*\descriptionlabel[1]{\hspace\labelsep\normalfont #1}
-
-\newcommand{\CoqSymbol}{\raisebox{-.2ex}{\includegraphics[height=0.9em]{coq.pdf}}\,}
-\newcommand{\Coqed}{\hfill\CoqSymbol}
-
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
 
+\newcommand{\at}{\ensuremath{{\scriptstyle{@}}}}
+\newcommand{\pc}{\ensuremath{{\mathit{pc}}}}
+
+\newcommand{\CoqSymbol}
+{\raisebox{-.2ex}{\includegraphics[height=0.9em]{coq.pdf}}\,}
+\newcommand{\Coqed}{\hfill\CoqSymbol}
+
+\renewcommand*{\descriptionlabel}[1]{\hspace\labelsep\normalfont #1}
+
 \begin{document}
 
 \begin{flushright}
   \today
 \end{flushright}
-
-% \begin{figure}[ht]
-%   \centering
-%   \[
-%   \mathcal{L} = \{ \bot, \top \}
-%   \qquad
-%   \bot \sqsubseteq \top
-%   \qquad
-%   L^{\mathit{def}} = \bot
-%   \qquad
-%   \mathcal{A} = \mathbf{1}
-%   \]
-%   \caption{Label algebra $\mathbf{2}$.}
-%   \label{fig:two}
-% \end{figure}
 
 \begin{figure}[ht]
   \centering
@@ -199,15 +180,13 @@
     $\rho_1(x) \approx^{L}_{P} \rho_2(x)$ for every
     $x \in \mathrm{dom}\; \rho_1$.
   \end{itemize}
-  We write $\approx^{L}$ when $P$ is the
-  everywhere-true or everywhere-false
+  We write $\approx^{L}$ when $P$ is the everywhere-true or everywhere-false
   predicate.
   \label{def:lp-equiv}
 \end{definition}
 
 \begin{lemma}
   $\approx^{L}_{P}$ implies $\approx^{L}$.
-  % \Coqed
   \begin{enumerate}
   \item If $a_1 \approx^{L}_{P} a_2$, then $a_1 \approx^{L} a_2$.
   \item If $v_1 \approx^{L}_{P} v_2$, then $v_1 \approx^{L} v_2$.
@@ -230,229 +209,13 @@
   \label{lem:lp-equiv-raise}
 \end{lemma}
 
-% \begin{lemma}
-%   If $v_1 \at \top \approx^{\top}_{P} v_2 \at \top$, then
-%   $v_1 \at \bot \approx^{\top}_{P} v_2 \at \bot$.
-%   \Coqed
-%   \label{lem:lp-equiv-lower}
-% \end{lemma}
-
-% \begin{lemma}
-%   $\approx^{\top}$ implies $\approx^{\top}_{P}$.
-%   \Coqed
-%   % \begin{enumerate}
-%   % \item If $a_1 \approx^{\top} a_2$, then $a_1 \approx^{\top}_{P} a_2$.
-%   % \item If $v_1 \approx^{\top} v_2$, then $v_1 \approx^{\top}_{P} v_2$.
-%   % \item If $\rho_1 \approx^{\top} \rho_2$, then
-%   %   $\rho_1 \approx^{\top}_{P} \rho_2$.
-%   %   \Coqed
-%   % \end{enumerate}
-%   \label{lem:l-equiv-lp-equiv}
-% \end{lemma}
-
-% \pagebreak
-
-% \begin{lemma}
-%   If $\pc, \rho |- e \Downarrow^{k} a$, then
-%   $\pc, \rho |- e \Downarrow^{k+1} a$.
-%   \label{lem:semantics-ind}
-% \end{lemma}
-% \begin{proof}
-%   By induction on $k$.
-%   %The base case is trivial: if $k=0$, then a derivation
-%   %of $\pc, \rho |- e \Downarrow^{k} a$ must be from either
-%   %\textsc{E-Nat}, \textsc{E-Var}, or \textsc{E-Abs}, and
-%   %$\pc, \rho |- e \Downarrow^{k+1} a$ follows by definition for all three.
-%   % 
-%   % For the inductive case, suppose $\pc, \rho |- e \Downarrow^{k} a$ implies
-%   % $\pc, \rho |- e \Downarrow^{k+1} a$ for some $k$. By case analysis on a
-%   % derivation of $\pc, \rho |- e \Downarrow^{k} a$, we have
-%   % $\pc, \rho |- e \Downarrow^{k+2} a$ by definition for
-%   % \textsc{E-Nat}, \textsc{E-Var}, \textsc{E-Abs}, and \textsc{E-Decl2},
-%   % and by the induction hypothesis for \textsc{E-App} and \textsc{E-Decl1}.
-% \end{proof}
-
 \begin{theorem}
-  If $\pc, \rho_1 |- e \Downarrow^{k} a_1$ and
-  $\pc, \rho_2 |- e \Downarrow^{k} a_2$ and
-  $\rho_1 \approx^{L}_{P} \rho_2$, then
-  $a_1 \approx^{L}_{P} a_2$.
+  If $\pc, \rho |- e \Downarrow^{k} a$ and
+  $\pc, \rho' |- e \Downarrow^{k} a'$
+  and $\rho \approx^{L}_{P} \rho'$, then
+  $a \approx^{L}_{P} a'$.
   \Coqed
+  \label{them:non-interference}
 \end{theorem}
-
-\begin{corollary}
-  If $\pc, \rho_1 |- e \Downarrow^{k} a_1$ and
-  $\pc, \rho_2 |- e \Downarrow^{k} a_2$ and
-  $\rho_1 \approx^{L}_{P} \rho_2$, then
-  $a_1 \approx^{L} a_2$.
-\end{corollary}
-
-% \begin{lemma}
-%   If $\pc, \rho |- e \Downarrow^{k} a$ and
-%   $\pc, \rho' |- e \Downarrow^{k} a'$
-%   and $\rho \approx^{L}_{P} \rho'$, then
-%   $a \approx^{L}_{P} a'$.
-% \end{lemma}
-% \begin{proof}
-%   By induction on a derivation of $\pc, \rho |- e \Downarrow^{k} a$.
-%   \begin{description}
-%   \item[\emph{Case} \textsc{E-Nat}:]
-%     \begin{gather*}
-%       \inference{}{
-%         \pc, \rho |- n \Downarrow^{k} n \at \pc
-%       }
-%       \quad
-%       \inference{}{
-%         \pc, \rho' |- n \Downarrow^{k} n \at \pc
-%       }
-%     \end{gather*}
-%     By case analysis on $L$ and $\pc$.
-%   \item[\emph{Case} \textsc{E-Var}:]
-%     \begin{gather*}
-%       \inference{
-%         {\begin{array}{l}
-%             \rho(x) = v \at L_1
-%           \end{array}}
-%       }{
-%         \pc, \rho |- x \Downarrow^{k} v \at (\pc \sqcup L_1)
-%       }
-%       \quad
-%       \inference{
-%         {\begin{array}{l}
-%             \rho'(x) = v' \at L_1'
-%           \end{array}}
-%       }{
-%         \pc, \rho' |- x \Downarrow^{k} v' \at (\pc \sqcup L_1')
-%       }
-%     \end{gather*}
-%     By case analysis on $\pc$ and $L_1$,
-%     using Lemmas~\ref{lem:lp-equiv-lab-inv}~and~\ref{lem:lp-equiv-raise}.
-%   \item[\emph{Case} \textsc{E-Abs}:]
-%     \begin{gather*}
-%       \inference{}{
-%         \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}
-%         \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
-%       }
-%       \quad
-%       \inference{}{
-%         \pc, \rho' |- (\lambda{x}.\, e) \Downarrow^{k}
-%         \langle{\rho', \lambda{x}.\, e\rangle} \at \pc
-%       }
-%     \end{gather*}
-%     By case analysis on $L$ and $\pc$.
-%   \item[\emph{Case} \textsc{E-App}:]
-%     \begin{gather*}
-%       \inference{
-%         {\begin{array}{l}
-%             \pc, \rho |- e_1 \Downarrow^{k}
-%             \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-%             \\
-%             \pc, \rho |- e_2 \Downarrow^{k} a_2
-%             \\
-%             L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
-%           \end{array}}
-%       }{
-%         \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
-%       }
-%       \quad
-%       \inference{
-%         {\begin{array}{l}
-%             \pc, \rho' |- e_1 \Downarrow^{k}
-%             \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
-%             \\
-%             \pc, \rho' |- e_2 \Downarrow^{k} a_2'
-%             \\
-%             L_1', (\rho_1', x' = a_2') |- e' \Downarrow^{k} a_3'
-%           \end{array}}
-%       }{
-%         \pc, \rho' |- (e_1\ e_2) \Downarrow^{k+1} a_3'
-%       }
-%     \end{gather*}
-%   \item[\emph{Case} \textsc{E-Decl1}:]
-%     \begin{gather*}
-%       \inference{
-%         {\begin{array}{l}
-%             \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
-%           \end{array}}
-%       }{
-%         \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
-%         v \at \bot
-%       }
-%       \quad
-%       \inference{
-%         {\begin{array}{l}
-%             \pc, \rho' |- (e_1\ e_2) \Downarrow^{k} v' \at \bot
-%           \end{array}}
-%       }{
-%         \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
-%         v' \at \bot
-%       }
-%     \end{gather*}
-%   \item[\emph{Case} \textsc{E-Decl2}:]
-%     \begin{small}
-%     \begin{gather*}
-%       \inference{
-%         {\begin{array}[b]{l}
-%             \pc, \rho |- e_1 \Downarrow^{k'}
-%             \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-%             \\
-%             \pc, \rho |- e_2 \Downarrow^{k'} a_2
-%             \\
-%             L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
-%             \\
-%             \forall{\rho_1', a_2' \text{ s.t. }
-%               (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.\,
-%             \\\quad
-%             L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top =>
-%             v_3 \approx^{L}_{P} v_3'
-%             \\
-%             k' \leq k
-%           \end{array}}
-%       }{
-%         \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
-%         v_3 \at \bot
-%       }
-%       \quad
-%       \inference{
-%         {\begin{array}[b]{l}
-%             \pc, \rho' |- e_1 \Downarrow^{k'}
-%             \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'
-%             \\
-%             \pc, \rho' |- e_2 \Downarrow^{k'} a_2'
-%             \\
-%             L_1',  (\rho_1', x' = a_2') |- e' \Downarrow^{k'} v_3' \at \top
-%             \\
-%             \forall{\rho_1'', a_2'' \text{ s.t. }
-%               (\rho_1', x' = a_2') \approx^{L}_{P} (\rho_1'', x' = a_2'')}.
-%             \\\quad
-%             L_1', (\rho_1'', x' = a_2'') |- e' \Downarrow^{k'} v_3'' \at \top =>
-%             v_3' \approx^{L}_{P} v_3''
-%             \\
-%             k' \leq k
-%           \end{array}}
-%       }{
-%         \pc, \rho' |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
-%         v_3' \at \bot
-%       }
-%     \end{gather*}
-%     \end{small}
-    % 
-    % By the induction hypothesis,
-    % $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-    % \approx^{L}_{P}
-    % \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$
-    % and
-    % $a_2 \approx^{L}_{P} a_2'$.
-    % By inversion of the definition of $\approx^{L}_{P}$,
-    % $L_1 = L_1'$ and
-    % $\lambda{x}.\, e = \lambda{x'}.\, e'$ and
-    % $\rho_1 \approx^{L}_{P} \rho_1'$.
-    % By the definition of $\approx^{L}_{P}$,
-    % $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
-    % Since $L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'} v_3' \at \top$,
-    % it follows that $v_3 \approx^{L}_{P} v_3'$ and therefore
-    % $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
-    % \end{description}
-%\end{proof}
 
 \end{document}
