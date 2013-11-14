@@ -156,14 +156,15 @@ Proof.
 Qed.
 
 Theorem non_interference :
-  forall k L P pc e1 e2 t a1 a2,
+  forall (k : nat) (L : two) (P : value -> value -> Prop)
+         (pc : two) (e1 e2 : env) (t : term) (a1 a2 : atom),
+    (forall v, P v v) ->
     env_LPequiv L P e1 e2 ->
-    eval_k k L P pc e1 t a1 ->
-    eval_k k L P pc e2 t a2 ->
-    (forall x, P x x) ->
+    eval_k k L P pc e1 t a1 -> 
+    eval_k k L P pc e2 t a2 -> 
     atom_Lequiv L a1 a2.
 Proof.
-  introv He Heval1 Heval2 Prefl.
+  introv Prefl He Heval1 Heval2.
   eapply non_interference_strong_observer in Heval2; eauto.
   eapply atom_LPequiv_Lequiv. eassumption.
 Qed.
