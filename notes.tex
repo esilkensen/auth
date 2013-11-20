@@ -76,7 +76,7 @@
   \centering
   \begin{gather*}
     \inference{}{
-      \pc, \rho |- c \Downarrow^{k} c \at \pc
+      \pc, \rho |- c \Downarrow^{k,l} c \at \pc
     }[\textsc{E-Const}]
     \qquad
     \inference{
@@ -84,53 +84,53 @@
           \rho(x) = v \at L
         \end{array}}
     }{
-      \pc, \rho |- x \Downarrow^{k} v \at (\pc \sqcup L)
+      \pc, \rho |- x \Downarrow^{k,l} v \at (\pc \sqcup L)
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k,l}
       \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
     }[\textsc{E-Abs}]
     \qquad
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k}
+          \pc, \rho |- e_1 \Downarrow^{k,l}
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \pc, \rho |- e_2 \Downarrow^{k} a_2
+          \pc, \rho |- e_2 \Downarrow^{k,l} a_2
           \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} a_3
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k,l} a_3
         \end{array}}
     }{
-      \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1} a_3
+      \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1,l} a_3
     }[\textsc{E-App}]
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- (e_1\ e_2) \Downarrow^{k} v \at \bot
+          \pc, \rho |- (e_1\ e_2) \Downarrow^{k,l} v \at \bot
         \end{array}}
     }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1,l}
       v \at \bot
     }[\textsc{E-Decl1}]
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k}
+          \pc, \rho |- e_1 \Downarrow^{k,l}
           \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
           \\
-          \pc, \rho |- e_2 \Downarrow^{k} a_2
+          \pc, \rho |- e_2 \Downarrow^{k,l} a_2
           \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k} v_3 \at \top
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k,l} v_3 \at \top
           \\
           \forall{\rho_1', a_2' \text{ s.t. }
             (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
           \\\quad
-          L_1, (\rho_1', x = a_2') |- e \Downarrow^{k} v_3' \at \top =>
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l,k} v_3' \at \top =>
           v_3 \approx^{L}_{P} v_3'
         \end{array}}
     }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1,l}
       v_3 \at \bot
     }[\textsc{E-Decl2}]
   \end{gather*}
