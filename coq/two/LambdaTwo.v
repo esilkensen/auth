@@ -4,7 +4,7 @@ Require Export IndistinguishabilityTwo.
 
 Definition bottomp : forall l : two, {l = Bottom2} + {l = Top2} :=
   fun (l : two) =>
-    match l as l return ({l = Bottom2} + {l = Top2}) with
+    match l with
       | Bottom2 => left eq_refl
       | Top2 => right eq_refl
     end.
