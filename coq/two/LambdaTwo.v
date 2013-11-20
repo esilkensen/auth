@@ -1,7 +1,13 @@
-Require Import Omega.
 Require Import Recdef.
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
+
+Definition bottomp : forall l : two, {l = Bottom2} + {l = Top2} :=
+  fun (l : two) =>
+    match l as l return ({l = Bottom2} + {l = Top2}) with
+      | Bottom2 => left eq_refl
+      | Top2 => right eq_refl
+    end.
 
 Definition pair_add (a : nat * nat) : nat :=
   match a with
@@ -59,38 +65,29 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                          eval_kl (fst kl - 1, snd kl) _
                                  L P l1 (a2 :: e1') t1' a3 /\
                          a = a3
-                | _ => False
-              end)).
-  - assert (kl = (fst kl, snd kl)) by
-      (destruct kl; auto); rewrite H; simpl; clear H.
-    inversion _H; unfold pair_lt; auto.
-  - assert (kl = (fst kl, snd kl)) by
-      (destruct kl; auto); rewrite H; simpl; clear H.
-    inversion _H; unfold pair_lt; auto.
-  - assert (kl = (fst kl, snd kl)) by
-      (destruct kl; auto); rewrite H; simpl; clear H.
-    inversion _H; unfold pair_lt; auto.
+                | TDecl t1 t2 =>
+                  if Compare_dec.zerop (fst kl) then False
+                  else exists e1' t1' l1 a2 v3 l3,
+                         eval_kl (fst kl - 1, snd kl) _
+                                 L P pc e t1 (Atom (VClos e1' t1') l1) /\
+                         eval_kl (fst kl - 1, snd kl) _
+                                 L P pc e t2 a2 /\
+                         eval_kl (fst kl - 1, snd kl) _
+                                 L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
+                         if bottomp l3 then a = Atom v3 Bottom2 else
+                           (* refine: proof term contains metas in a product
+                           (forall a2' e2' v3',
+                              env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+                              eval_kl (snd kl, fst kl - 1) _
+                                      L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
+                              value_LPequiv L P v3 v3') /\
+                            *)
+                           a = Atom v3 Bottom2
+              end));
+  assert (kl = (fst kl, snd kl)) by
+      (destruct kl; auto); rewrite H; simpl; clear H;
+  inversion _H; unfold pair_lt; auto.
 Defined.
-
-    (*| TDecl t1 t2 =>
-      match kl with
-        | (S k', l) =>
-          exists e1' t1' l1 a2 v3 l3,
-            eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
-            eval_kl (k', l) L P pc e t2 a2 /\
-            eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
-            match l3 with
-              | Bottom2 =>
-                a = Atom v3 Bottom2
-              | Top2 =>
-                (forall a2' e2' v3',
-                   env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                   eval_kl (l, k') L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                   value_LPequiv L P v3 v3') /\
-                a = Atom v3 Bottom2
-            end
-        | (0, _) => False
-      end*)
 
 Definition eval (L : two) (P : value -> value -> Prop)
            (pc : two) (e : env) (t : term) (a : atom) : Prop :=
