@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage{alltt}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -7,6 +8,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
 \usepackage{graphicx}
+\usepackage{multicol}
 \usepackage{semantic}
 
 \theoremstyle{definition}
@@ -41,6 +43,7 @@
   \qquad
   \mathcal{A} = \mathbf{1}
   \]
+  \[
   \begin{array}[t]{lcl}
     b & ::= &
     \mathit{tt}\;\; |\;\;
@@ -68,77 +71,10 @@
     \bullet\;\; |\;\;
     \rho, x = a
   \end{array}
+  \]
   \caption{Syntax of $\lambda_{\mathbf{2}}$.}
   \label{fig:syntax}
 \end{figure}
-
-\begin{figure}[ht]
-  \centering
-  \begin{gather*}
-    \inference{}{
-      \pc, \rho |- c \Downarrow^{k,l} c \at \pc
-    }[\textsc{E-Const}]
-    \qquad
-    \inference{
-      {\begin{array}{l}
-          \rho(x) = v \at L
-        \end{array}}
-    }{
-      \pc, \rho |- x \Downarrow^{k,l} v \at (\pc \sqcup L)
-    }[\textsc{E-Var}]
-    \\[3ex]
-    \inference{}{
-      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k,l}
-      \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
-    }[\textsc{E-Abs}]
-    \qquad
-    \inference{
-      {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k,l}
-          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-          \\
-          \pc, \rho |- e_2 \Downarrow^{k,l} a_2
-          \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k,l} a_3
-        \end{array}}
-    }{
-      \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1,l} a_3
-    }[\textsc{E-App}]
-    \\[3ex]
-    \inference{
-      {\begin{array}{l}
-          \pc, \rho |- (e_1\ e_2) \Downarrow^{k,l} v \at \bot
-        \end{array}}
-    }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1,l}
-      v \at \bot
-    }[\textsc{E-Decl1}]
-    \\[3ex]
-    \inference{
-      {\begin{array}{l}
-          \pc, \rho |- e_1 \Downarrow^{k,l}
-          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-          \\
-          \pc, \rho |- e_2 \Downarrow^{k,l} a_2
-          \\
-          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k,l} v_3 \at \top
-          \\
-          \forall{\rho_1', a_2' \text{ s.t. }
-            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
-          \\\quad
-          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l,k} v_3' \at \top =>
-          v_3 \approx^{L}_{P} v_3'
-        \end{array}}
-    }{
-      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1,l}
-      v_3 \at \bot
-    }[\textsc{E-Decl2}]
-  \end{gather*}
-  \caption{Semantics of $\lambda_{\mathbf{2}}$.}
-  \label{fig:semantics}
-\end{figure}
-
-\pagebreak
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
@@ -208,13 +144,252 @@
   \label{lem:lp-equiv-raise}
 \end{lemma}
 
-\begin{theorem}
-  If $\pc, \rho |- e \Downarrow^{k} a$ and
-  $\pc, \rho' |- e \Downarrow^{k} a'$
-  and $\rho \approx^{L}_{P} \rho'$, then
-  $a \approx^{L}_{P} a'$.
-  \Coqed
-  \label{thm:non-interference}
-\end{theorem}
+\pagebreak
+
+\begin{figure}[ht]
+  \centering
+  \begin{gather*}
+    \inference{}{
+      \pc, \rho |- c \Downarrow^{k}_{l} c \at \pc
+    }[\textsc{E-Const}]
+    \qquad
+    \inference{
+      {\begin{array}{l}
+          \rho(x) = v \at L
+        \end{array}}
+    }{
+      \pc, \rho |- x \Downarrow^{k}_{l} v \at (\pc \sqcup L)
+    }[\textsc{E-Var}]
+    \\[3ex]
+    \inference{}{
+      \pc, \rho |- (\lambda{x}.\, e) \Downarrow^{k}_{l}
+      \langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+    }[\textsc{E-Abs}]
+    \qquad
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow^{k}_{l}
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          \\
+          \pc, \rho |- e_2 \Downarrow^{k}_{l} a_2
+          \\
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k}_{l} a_3
+        \end{array}}
+    }{
+      \pc, \rho |- (e_1\ e_2) \Downarrow^{k+1}_{l} a_3
+    }[\textsc{E-App}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot
+        \end{array}}
+    }{
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}_{l}
+      v \at \bot
+    }[\textsc{E-Decl1}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow^{k}_{l}
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          \\
+          \pc, \rho |- e_2 \Downarrow^{k}_{l} a_2
+          \\
+          L_1, (\rho_1, x = a_2) |- e \Downarrow^{k}_{l} v_3 \at \top
+          \\
+          \forall{\rho_1', a_2' \text{ s.t. }
+            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+          \\\quad
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k} v_3' \at \top =>
+          v_3 \approx^{L}_{P} v_3'
+        \end{array}}
+    }{
+      \pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}_{l}
+      v_3 \at \bot
+    }[\textsc{E-Decl2}]
+    \\[3ex]
+    \pc, \rho |- e \Downarrow a
+    \quad \triangleq \quad
+    \exists{k}.\, \forall{l}.\,
+    \pc, \rho |- e \Downarrow^{k}_{l} a
+  \end{gather*}
+  \caption{Semantics of $\lambda_{\mathbf{2}}$.}
+  \label{fig:semantics}
+\end{figure}
+
+\begin{lemma}
+  $\Downarrow^{k}_{l}\ \sqsubseteq\ \Downarrow^{k+1}_{l}$
+  and
+  $\Downarrow^{k}_{l+1}\ \sqsubseteq\ \Downarrow^{k}_{l}$.
+  \label{lem:semantics-step}
+\end{lemma}
+\begin{proof}%\renewcommand{\qedsymbol}{}
+  It suffices to show that for all $k$ and $l$ such that $k + l < n$, for
+  any $n$:
+  \begin{enumerate}
+  \item If $\pc, \rho |- e \Downarrow^{k}_{l} a$, then
+    $\pc, \rho |- e \Downarrow^{k+1}_{l} a$.
+  \item If $\pc, \rho |- e \Downarrow^{k}_{l+1} a$, then
+    $\pc, \rho |- e \Downarrow^{k}_{l} a$.
+  \end{enumerate}
+  The proof is by induction on $n$. Note that the claim is vacuously true
+  when $n = 0$. Assume the claim holds for all $k$ and $l$ such that
+  $k + l < n$ for some $n$. We must show that it is true for all
+  $k + l < n + 1$, that is, when $k + l = n$. We proceed by case analysis
+  on the structure of $e$.
+
+  The cases for constants $c$, variables $x$, and abstractions
+  $(\lambda{x}.\, e)$ are immediate, while the case for applications
+  $(e_1\ e_2)$ follows from a simple application of the induction hypothesis.
+  We consider the final case for declassification operations
+  $(\mathsf{declassify}\ e_1\ e_2)$ below.
+    \begin{enumerate}
+    \item By inversion, $k > 0$ and either:
+      \begin{itemize}
+      \item The derivation is by \textsc{E-Decl1}, in which case
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+        \Downarrow^{k}_{l}
+        v \at \bot$ and
+        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l} v \at \bot$.
+        By the induction hypothesis (1),
+        \[
+        \pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot
+        \]
+        By \textsc{E-Decl1},
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}_{l}
+        v \at \bot$.
+      \item The derivation is by \textsc{E-Decl2}, in which case
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+        \Downarrow^{k}_{l}
+        v_3 \at \bot$ and:
+        \[
+        {\begin{array}{l@{\qquad}l}
+            \pc, \rho |- e_1
+            \Downarrow^{k-1}_{l}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            &
+            \pc, \rho |- e_2
+            \Downarrow^{k-1}_{l}
+            a_2
+            \\[1.8ex]
+            L_1, (\rho_1, x = a_2) |- e
+            \Downarrow^{k-1}_{l}
+            v_3 \at \top
+            &
+            \forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+            \\ & \quad
+            L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'
+          \end{array}}
+        \]
+        By the induction hypothesis (1):
+        \[
+        {\begin{array}{l@{\qquad}l@{\qquad}l}
+            \pc, \rho |- e_1
+            \Downarrow^{k}_{l}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            &
+            \pc, \rho |- e_2
+            \Downarrow^{k}_{l}
+            a_2
+            &
+            L_1, (\rho_1, x = a_2) |- e
+            \Downarrow^{k}_{l}
+            v_3 \at \top
+          \end{array}}
+        \]
+        We need to show that
+        \[
+        {\begin{array}{l}
+            \forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+            \\\quad
+            L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'
+          \end{array}}
+        \]
+        \\[90ex]
+        By \textsc{E-Decl2},
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+        \Downarrow^{k+1}_{l}
+        v_3 \at \bot$.
+      \end{itemize}
+      \pagebreak
+    \item By inversion, $k > 0$ and either:
+      \begin{itemize}
+      \item The derivation is by \textsc{E-Decl1},
+        in which case
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+        \Downarrow^{k}_{l+1}
+        v \at \bot$ and
+        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l+1} v \at \bot$.
+        By the induction hypothesis (2),
+        \[
+        \pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l} v \at \bot
+        \]
+        By \textsc{E-Decl1},
+        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot$.
+      \item The derivation is by \textsc{E-Decl2}, %\ldots
+        in which case
+        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+        \Downarrow^{k}_{l+1}
+        v_3 \at \bot$ and:
+      \[
+      {\begin{array}{l@{\qquad}l}
+          \pc, \rho |- e_1
+          \Downarrow^{k-1}_{l+1}
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          &
+          \pc, \rho |- e_2
+          \Downarrow^{k-1}_{l+1}
+          a_2
+          \\[1.8ex]
+          L_1, (\rho_1, x = a_2) |- e
+          \Downarrow^{k-1}_{l+1}
+          v_3 \at \top
+          &
+          \forall{\rho_1', a_2' \text{ s.t. }
+            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+          \\ & \quad
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l+1}_{k-1} v_3' \at \top =>
+          v_3 \approx^{L}_{P} v_3'
+        \end{array}}
+      \]
+      By the induction hypothesis (2):
+      \[
+      {\begin{array}{l@{\qquad}l@{\qquad}l}
+          \pc, \rho |- e_1
+          \Downarrow^{k-1}_{l}
+          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+          &
+          \pc, \rho |- e_2
+          \Downarrow^{k-1}_{l}
+          a_2
+          &
+          L_1, (\rho_1, x = a_2) |- e
+          \Downarrow^{k-1}_{l}
+          v_3 \at \top
+        \end{array}}
+      \]
+      We need to show that
+      \[
+      {\begin{array}{l}
+          \forall{\rho_1', a_2' \text{ s.t. }
+            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
+          \\\quad
+          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
+          v_3 \approx^{L}_{P} v_3'
+        \end{array}}
+      \]
+      \\[70ex]
+      By \textsc{E-Decl2},
+      $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
+      \Downarrow^{k}_{l}
+      v_3 \at \bot$.
+      \qedhere
+      \end{itemize}
+    \end{enumerate}
+\end{proof}
 
 \end{document}
