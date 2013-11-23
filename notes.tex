@@ -10,6 +10,7 @@
 \usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{semantic}
+\usepackage{tabularx}
 
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}
@@ -223,15 +224,19 @@
   $\Downarrow^{k}_{l+1}\ \sqsubseteq\ \Downarrow^{k}_{l}$.
   \label{lem:semantics-step}
 \end{lemma}
-\begin{proof}%\renewcommand{\qedsymbol}{}
+\begin{proof}
   It suffices to show that for all $k$ and $l$ such that $k + l < n$, for
   any $n$:
-  \begin{enumerate}
-  \item If $\pc, \rho |- e \Downarrow^{k}_{l} a$, then
-    $\pc, \rho |- e \Downarrow^{k+1}_{l} a$.
-  \item If $\pc, \rho |- e \Downarrow^{k}_{l+1} a$, then
-    $\pc, \rho |- e \Downarrow^{k}_{l} a$.
-  \end{enumerate}
+  \begin{flalign}
+    & \quad
+    \text{If $\pc, \rho |- e \Downarrow^{k}_{l} a$, then
+      $\pc, \rho |- \Downarrow^{k+1}_{l} a$.}
+    \label{ih-k-k+1} & \\
+    & \quad
+    \text{If $\pc, \rho |- e \Downarrow^{k}_{l+1} a$, then
+      $\pc, \rho |- e \Downarrow^{k}_{l} a$.}
+    \label{ih-l+1-l} &
+  \end{flalign}
   The proof is by induction on $n$. Note that the claim is vacuously true
   when $n = 0$. Assume the claim holds for all $k$ and $l$ such that
   $k + l < n$ for some $n$. We must show that it is true for all
@@ -251,71 +256,80 @@
         \Downarrow^{k}_{l}
         v \at \bot$ and
         $\pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l} v \at \bot$.
-        By the induction hypothesis (1),
-        \[
-        \pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot
-        \]
-        By \textsc{E-Decl1},
-        $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}_{l}
-        v \at \bot$.
+        Since $k-1 + l < n$, we can apply the induction
+        hypothesis~(\ref{ih-k-k+1})
+        to get
+        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot$.
+        By \textsc{E-Decl1}, we have
+        \[\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2) \Downarrow^{k+1}_{l}
+        v \at \bot.\]
       \item The derivation is by \textsc{E-Decl2}, in which case
         $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
         \Downarrow^{k}_{l}
         v_3 \at \bot$ and:
-        \[
-        {\begin{array}{l@{\qquad}l}
-            \pc, \rho |- e_1
+        \begin{center}
+          \begin{tabular*}{1.0\linewidth}{ll}
+            a.
+            $\pc, \rho |- e_1
             \Downarrow^{k-1}_{l}
-            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1$
             &
-            \pc, \rho |- e_2
+            b.
+            $\pc, \rho |- e_2
             \Downarrow^{k-1}_{l}
-            a_2
+            a_2$
             \\[1.8ex]
-            L_1, (\rho_1, x = a_2) |- e
+            c.
+            $L_1, (\rho_1, x = a_2) |- e
             \Downarrow^{k-1}_{l}
-            v_3 \at \top
+            v_3 \at \top$
             &
-            \forall{\rho_1', a_2' \text{ s.t. }
-              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
-            \\ & \quad
-            L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
-            v_3 \approx^{L}_{P} v_3'
-          \end{array}}
-        \]
-        By the induction hypothesis (1):
-        \[
-        {\begin{array}{l@{\qquad}l@{\qquad}l}
-            \pc, \rho |- e_1
-            \Downarrow^{k}_{l}
-            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+            d.
+            $\forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.$
+            \\
             &
-            \pc, \rho |- e_2
+            \quad\quad
+            $L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'$
+          \end{tabular*}
+        \end{center}
+        Since $k-1 + l < n$, we can apply the induction
+        hypothesis~(\ref{ih-k-k+1}) to a, b, and c, getting a', b', and c';
+        and since $\Downarrow^{l}_{k}\ \sqsubseteq\ \Downarrow^{l}_{k-1}$ by
+        the induction hypothesis~(\ref{ih-l+1-l}), we also get d':
+        \begin{center}
+          \begin{tabular*}{1.0\linewidth}{l@{\qquad}l}
+            a'.
+            $\pc, \rho |- e_1
             \Downarrow^{k}_{l}
-            a_2
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1$
             &
-            L_1, (\rho_1, x = a_2) |- e
+            b'.
+            $\pc, \rho |- e_2
             \Downarrow^{k}_{l}
-            v_3 \at \top
-          \end{array}}
-        \]
-        We need to show that
-        \[
-        {\begin{array}{l}
-            \forall{\rho_1', a_2' \text{ s.t. }
-              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
-            \\\quad
-            L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k} v_3' \at \top =>
-            v_3 \approx^{L}_{P} v_3'
-          \end{array}}
-        \]
-        \\[90ex]
-        By \textsc{E-Decl2},
+            a_2$
+            \\[1.8ex]
+            c'.
+            $L_1, (\rho_1, x = a_2) |- e
+            \Downarrow^{k}_{l}
+            v_3 \at \top$
+            &
+            d'.
+            $\forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.$
+            \\
+            &
+            \quad\quad
+            $L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'$
+          \end{tabular*}
+        \end{center}
+        By \textsc{E-Decl2}, we have
         $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
         \Downarrow^{k+1}_{l}
         v_3 \at \bot$.
       \end{itemize}
-      \pagebreak
     \item By inversion, $k > 0$ and either:
       \begin{itemize}
       \item The derivation is by \textsc{E-Decl1},
@@ -324,66 +338,71 @@
         \Downarrow^{k}_{l+1}
         v \at \bot$ and
         $\pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l+1} v \at \bot$.
-        By the induction hypothesis (2),
-        \[
-        \pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l} v \at \bot
-        \]
-        By \textsc{E-Decl1},
-        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot$.
-      \item The derivation is by \textsc{E-Decl2}, %\ldots
+        Since $k-1 + l < n$, we can apply the induction
+        hypothesis~(\ref{ih-l+1-l}) to get
+        $\pc, \rho |- (e_1\ e_2) \Downarrow^{k-1}_{l} v \at \bot$.
+        By \textsc{E-Decl1}, we have
+        \[ \pc, \rho |- (e_1\ e_2) \Downarrow^{k}_{l} v \at \bot. \]
+      \item The derivation is by \textsc{E-Decl2},
         in which case
         $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
         \Downarrow^{k}_{l+1}
         v_3 \at \bot$ and:
-      \[
-      {\begin{array}{l@{\qquad}l}
-          \pc, \rho |- e_1
-          \Downarrow^{k-1}_{l+1}
-          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-          &
-          \pc, \rho |- e_2
-          \Downarrow^{k-1}_{l+1}
-          a_2
-          \\[1.8ex]
-          L_1, (\rho_1, x = a_2) |- e
-          \Downarrow^{k-1}_{l+1}
-          v_3 \at \top
-          &
-          \forall{\rho_1', a_2' \text{ s.t. }
-            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
-          \\ & \quad
-          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l+1}_{k-1} v_3' \at \top =>
-          v_3 \approx^{L}_{P} v_3'
-        \end{array}}
-      \]
-      By the induction hypothesis (2):
-      \[
-      {\begin{array}{l@{\qquad}l@{\qquad}l}
-          \pc, \rho |- e_1
-          \Downarrow^{k-1}_{l}
-          \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-          &
-          \pc, \rho |- e_2
-          \Downarrow^{k-1}_{l}
-          a_2
-          &
-          L_1, (\rho_1, x = a_2) |- e
-          \Downarrow^{k-1}_{l}
-          v_3 \at \top
-        \end{array}}
-      \]
-      We need to show that
-      \[
-      {\begin{array}{l}
-          \forall{\rho_1', a_2' \text{ s.t. }
-            (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.
-          \\\quad
-          L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
-          v_3 \approx^{L}_{P} v_3'
-        \end{array}}
-      \]
-      \\[70ex]
-      By \textsc{E-Decl2},
+        \begin{center}
+          \begin{tabular*}{1.0\linewidth}{ll}
+            a.
+            $\pc, \rho |- e_1
+            \Downarrow^{k-1}_{l+1}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1$
+            &
+            b.
+            $\pc, \rho |- e_2
+            \Downarrow^{k-1}_{l+1}
+            a_2$
+            \\[1.8ex]
+            c.
+            $L_1, (\rho_1, x = a_2) |- e
+            \Downarrow^{k-1}_{l+1}
+            v_3 \at \top$
+            &
+            d.
+            $\forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.$
+            \\ & \quad\quad
+            $L_1, (\rho_1', x = a_2') |- e \Downarrow^{l+1}_{k-1} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'$
+          \end{tabular*}
+        \end{center}
+        Since $k-1 + l < n$, we can apply the induction
+        hypothesis~(\ref{ih-l+1-l}) to a, b, and c, getting a', b', and c';
+        and since $\Downarrow^{l}_{k-1} \sqsubseteq \Downarrow^{l+1}_{k-1}$
+        by the induction hypothesis~(\ref{ih-k-k+1}), we also get d':
+        \begin{center}
+          \begin{tabular*}{1.0\linewidth}{ll}
+            a'.
+            $\pc, \rho |- e_1
+            \Downarrow^{k-1}_{l}
+            \langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1$
+            &
+            b'.
+            $\pc, \rho |- e_2
+            \Downarrow^{k-1}_{l}
+            a_2$
+            \\[1.8ex]
+            c'.
+            $L_1, (\rho_1, x = a_2) |- e
+            \Downarrow^{k-1}_{l}
+            v_3 \at \top$
+            &
+            d'.
+            $\forall{\rho_1', a_2' \text{ s.t. }
+              (\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')}.$
+            \\ & \quad\quad
+            $L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top =>
+            v_3 \approx^{L}_{P} v_3'$
+          \end{tabular*}
+        \end{center}
+      By \textsc{E-Decl2}, we have
       $\pc, \rho |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l}
       v_3 \at \bot$.
