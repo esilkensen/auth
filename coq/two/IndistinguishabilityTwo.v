@@ -137,3 +137,59 @@ Lemma env_LPequiv_Lequiv :
   forall L P e1 e2,
     env_LPequiv L P e1 e2 -> env_Lequiv L e1 e2.
 Proof. apply atom_value_env_LPequiv_Lequiv. Qed.
+
+Lemma atom_value_env_LPequiv_refl :
+  forall L (P : value -> value -> Prop),
+    (forall x, P x x) ->
+    (forall a, atom_LPequiv L P a a) /\
+    (forall v, value_LPequiv L P v v) /\
+    (forall e, env_LPequiv L P e e).
+Proof.
+  intros L P Prefl. apply atom_value_env_mutind.
+  - intros v Hv l.
+    destruct v as [b | n | e t];
+      (destruct L; destruct l; [
+         right; left; auto |
+         left; auto |
+         right; right; auto |
+         right; right; auto
+       ]).
+  - intros b.
+    unfold value_LPequiv. auto.
+  - intros n.
+    unfold value_LPequiv. auto.
+  - intros e He t.
+    unfold value_LPequiv. auto.
+  - intros e Ha.
+    unfold env_LPequiv.
+    induction e as [| a e'].
+    + reflexivity.
+    + split.
+      * apply (Ha 0). reflexivity.
+      * apply IHe'. intros. apply (Ha (S n)). auto.
+Qed.
+
+Lemma atom_LPequiv_refl :
+  forall L (P : value -> value -> Prop),
+    (forall x, P x x) ->
+    (forall a, atom_LPequiv L P a a).
+Proof.
+  intros. apply atom_value_env_LPequiv_refl. auto.
+Qed.
+
+Lemma value_LPequiv_refl :
+  forall L (P : value -> value -> Prop),
+    (forall x, P x x) ->
+    (forall v, value_LPequiv L P v v).
+Proof.
+  intros. apply atom_value_env_LPequiv_refl. auto.
+Qed.
+
+Lemma env_LPequiv_refl :
+  forall L (P : value -> value -> Prop),
+    (forall x, P x x) ->
+    (forall e, env_LPequiv L P e e).
+Proof.
+  intros. apply atom_value_env_LPequiv_refl. auto.
+Qed.
+
