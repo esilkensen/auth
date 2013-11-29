@@ -428,7 +428,7 @@
   and
   $\pc, \rho' |- e \Downarrow^{k'}_{l} a'$
   for some $k$ and $k'$ and for any $l$.
-  It suffices to show that, for any $n$ such that $k+k' < n$,
+  It suffices to show that, for any $n$ such that TODO,
   \begin{flalign}
     & \quad
     \text{If $\pc, \rho |- e \Downarrow^{k}_{l} a$ and
@@ -437,8 +437,8 @@
     &
   \end{flalign}
   The proof is by induction on $n$. Note that the claim is vacuously true when
-  $n = 0$. Assume the claim holds for some $n$ such that $k + k' < n$. We must
-  show that it is true for $k + k' < n + 1$, that is, when $k + k' = n$.
+  $n = 0$. Assume the claim holds for some $n$ such that TODO. We must show
+  that it is true for $\text{TODO} < n + 1$, that is, when $\text{TODO} = n$.
   We proceed by case analysis on the structure of $e$, inverting the
   derivations of $a$ and $a'$ at the start of each case.
   \begin{description}
@@ -452,8 +452,8 @@
         \pc, \rho' |- c \Downarrow^{k'}_{l} c \at \pc
       }
     \end{gather*}
-    Since $\approx^{L}_{P}$ is reflexive (Lemma~\ref{lem:lp-equiv-refl}),
-    we have $c \at \pc \approx^{L}_{P} c \at \pc$.
+    By Lemma~\ref{lem:lp-equiv-refl}, we have
+    $c \at \pc \approx^{L}_{P} c \at \pc$.
     
   \item[\emph{Case} $x$:]
     \begin{gather*}
@@ -512,6 +512,15 @@
         \langle{\rho', \lambda{x}.\, e\rangle} \at \pc
       }
     \end{gather*}
+    By the definition of $\approx^{L}_{P}$,
+    $\langle{\rho, \lambda{x}.\, e\rangle} \at \pc
+    \approx^{L}_{P}
+    \langle{\rho', \lambda{x}.\, e\rangle} \at \pc$
+    iff
+    $\langle{\rho, \lambda{x}.\, e\rangle}
+    \approx^{L}_{P}
+    \langle{\rho', \lambda{x}.\, e\rangle}$,
+    which we have immediately, since $\rho \approx^{L}_{P} \rho'$.
     
   \item[\emph{Case} $(e_1\ e_2)$:]
     \begin{gather*}
