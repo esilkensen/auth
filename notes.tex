@@ -138,11 +138,11 @@
   \label{lem:lp-equiv-refl}
 \end{lemma}
 
-\begin{lemma}
- If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
- \Coqed
- \label{lem:lp-equiv-lab-inv}
-\end{lemma}
+% \begin{lemma}
+%  If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
+%  \Coqed
+%  \label{lem:lp-equiv-lab-inv}
+% \end{lemma}
 
 \begin{lemma}
   If $v_1 \at \bot \approx^{L}_{P} v_2 \at \bot$, then
@@ -423,12 +423,14 @@
   \label{thm:non-interference}
 \end{theorem}
 \begin{proof}\renewcommand{\qedsymbol}{}
-  Unfolding the definition of $\Downarrow$, we have
+  Unfolding the definition of $\Downarrow$, we must show that
+  if
   $\pc, \rho |- e \Downarrow^{k}_{l} a$
   and
   $\pc, \rho' |- e \Downarrow^{k'}_{l} a'$
-  for some $k$ and $k'$ and for any $l$.
-  It suffices to show that, for any $n$ such that TODO,
+  for some $k$ and $k'$ and for any $l$,
+  then $a \approx^{L}_{P} a'$.
+  It suffices to show that for any $n$ such that $k + k' < n$,
   \begin{flalign}
     & \quad
     \text{If $\pc, \rho |- e \Downarrow^{k}_{l} a$ and
@@ -437,10 +439,10 @@
     &
   \end{flalign}
   The proof is by induction on $n$. Note that the claim is vacuously true when
-  $n = 0$. Assume the claim holds for some $n$ such that TODO. We must show
-  that it is true for $\text{TODO} < n + 1$, that is, when $\text{TODO} = n$.
-  We proceed by case analysis on the structure of $e$, inverting the
-  derivations of $a$ and $a'$ at the start of each case.
+  $n = 0$. Assume the claim holds for some $n$ such that $k + k' < n$.
+  We must show that it is true for $k + k' < n + 1$, that is, when
+  $k + k' = n$. We proceed by case analysis on the structure of $e$,
+  inverting the derivations of $a$ and $a'$ at the start of each case.
   \begin{description}
   \item[\emph{Case} $c$:]
     \begin{gather*}
@@ -470,7 +472,7 @@
       }
     \end{gather*}
     Since $\rho \approx^{L}_{P} \rho'$, we have $v \at L_1 \approx v' \at L_1'$.
-    By Lemma~\ref{lem:lp-equiv-lab-inv}, $L_1 = L_1'$. Therefore we must show
+    By inversion, $L_1 = L_1'$. Therefore we must show
     that $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
     We proceed by case analysis on $\pc$ and $L_1$.
     % 
@@ -521,6 +523,9 @@
     \approx^{L}_{P}
     \langle{\rho', \lambda{x}.\, e\rangle}$,
     which we have immediately, since $\rho \approx^{L}_{P} \rho'$.
+
+  \item[\emph{Note}:]
+    For the remaining cases, we have $k > 0$ and $k' > 0$.
     
   \item[\emph{Case} $(e_1\ e_2)$:]
     \begin{gather*}
@@ -550,6 +555,21 @@
         \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'}_{l} a_3'
       }
     \end{gather*}
+    Since $k-1 + k'-1 < n$, we can apply the induction hypothesis to each
+    pair of premises:
+    First,
+    $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+    \approx^{L}_{P}
+    \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$,
+    which means $\rho_1 \approx^{L}_{P} \rho_1'$ and, by inversion,
+    $x = x'$, $e = e'$, and $L_1 = L_1'$.
+    Second,
+    $a_2 \approx^{L}_{P} a_2'$,
+    which means
+    $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
+    Finally,
+    $a_3 \approx^{L}_{P} a_3'$,
+    which completes the case.
     
   \item[\emph{Case} $(\mathsf{declassify}\ e_1\ e_2)$:]\
     
@@ -569,6 +589,9 @@
         v' \at \bot
       }
     \end{gather*}
+    Since $k - 1 + k' - 1 < n$, we can apply the induction hypothesis to
+    the pair of premises, which gives
+    $v \at \bot \approx^{L}_{P} v' \at \bot$, completing the subcase.
 
     \emph{Subcase}:
     \begin{gather*}
