@@ -79,8 +79,8 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$ and with respect to some reflexive relation
-  $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
+  atoms for observers at label $L$, with respect to some reflexive relation
+  on values $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item
     $L = \bot$ and
@@ -228,7 +228,7 @@
   $\Downarrow^{k}_{l}\ \sqsubseteq\ \Downarrow^{k+1}_{l}$
   and
   $\Downarrow^{k}_{l+1}\ \sqsubseteq\ \Downarrow^{k}_{l}$.
-  \label{lem:semantics-step}
+  \label{lem:semantics-step-subset}
 \end{lemma}
 \begin{proof}
   It suffices to show that for all $k$ and $l$ such that $k + l < n$, for
@@ -422,15 +422,10 @@
   $\rho \approx^{L}_{P} \rho'$, then $a \approx^{L}_{P} a'$.
   \label{thm:non-interference}
 \end{theorem}
-\begin{proof}\renewcommand{\qedsymbol}{}
-  Unfolding the definition of $\Downarrow$, we must show that
-  if
-  $\pc, \rho |- e \Downarrow^{k}_{l} a$
-  and
-  $\pc, \rho' |- e \Downarrow^{k'}_{l} a'$
-  for some $k$ and $k'$ and for any $l$,
-  then $a \approx^{L}_{P} a'$.
-  It suffices to show that for any $n$ such that $k + k' < n$,
+\begin{proof}
+  Unfolding the definition of $\Downarrow$, the claim is, for some $k$ and $k'$
+  and for all $l$---and in particular for all $l$ such that $k \leq l$ and
+  $k' \leq l$:
   \begin{flalign}
     & \quad
     \text{If $\pc, \rho |- e \Downarrow^{k}_{l} a$ and
@@ -438,6 +433,8 @@
       $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
     &
   \end{flalign}
+  It suffices to show this is true for all $n$ such that $k + k' < n$.
+  
   The proof is by induction on $n$. Note that the claim is vacuously true when
   $n = 0$. Assume the claim holds for some $n$ such that $k + k' < n$.
   We must show that it is true for $k + k' < n + 1$, that is, when
@@ -484,23 +481,6 @@
     If $pc = \top$ and $L_1 = \bot$, then $\pc \sqcup L_1 = \pc$ and,
     by Lemma~\ref{lem:lp-equiv-raise},
     $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-    
-    % \begin{description}
-    % \item[\emph{Subcase} $\pc = \bot$ and $L_1 = \bot$:]\
-    %   Since $\pc \sqcup L_1 = L_1$, we have
-    %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-    % \item[\emph{Subcase} $\pc = \bot$ and $L_1 = \top$:]\
-    %   Since $\pc \sqcup L_1 = L_1$, we have
-    %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-    % \item[\emph{Subcase} $\pc = \top$ and $L_1 = \bot$:]\
-    %   By Lemma~\ref{lem:lp-equiv-raise},
-    %   $v \at \pc \approx^{L}_{P} v' \at \pc$.
-    %   Since $\pc \sqcup L_1 = \pc$, we have
-    %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-    % \item[\emph{Subcase} $\pc = \top$ and $L_1 = \top$:]\
-    %   Since $\pc \sqcup L_1 = L_1$, we have
-    %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-    % \end{description}
     
   \item[\emph{Case} $(\lambda{x}.\, e)$:]
     \begin{gather*}
@@ -555,8 +535,8 @@
         \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'}_{l} a_3'
       }
     \end{gather*}
-    Since $k-1 + k'-1 < n$, we can apply the induction hypothesis to each
-    pair of premises:
+    Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis
+    to each pair of premises:
     First,
     $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
     \approx^{L}_{P}
@@ -589,7 +569,7 @@
         v' \at \bot
       }
     \end{gather*}
-    Since $k - 1 + k' - 1 < n$, we can apply the induction hypothesis to
+    Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
     the pair of premises, which gives
     $v \at \bot \approx^{L}_{P} v' \at \bot$, completing the subcase.
 
@@ -634,7 +614,34 @@
         \pc, \rho' |- (e_1\ e_2) \Downarrow^{k'}_{l} v_3' \at \bot
       }
     \end{gather*}
-    
+    Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
+    the first three pairs of premises, as in the case for application:
+    \begin{enumerate}
+    \item 
+      $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+      \approx^{L}_{P}
+      \langle{\rho_1', \lambda{x'}.\, e'\rangle} \at L_1'$.
+      By inversion:
+      $\rho_1 \approx^{L}_{P} \rho_1'$,
+      $x = x'$, $e = e'$, and $L_1 = L_1'$.
+    \item
+      $a_2 \approx^{L}_{P} a_2'$.
+      Therefore:
+      $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x' = a_2')$.
+    \item
+      $v_3 \at \top \approx^{L}_{P} v_3' \at \top$.
+    \end{enumerate}
+    Recall that $k \leq l$ and $k' \leq l$.
+    By Lemma~\ref{lem:semantics-step-subset}, it follows that
+    $\Downarrow^{k'-1}_{l}\ \sqsubseteq\ \Downarrow^{l}_{k-1}$.
+    Since we have
+    $L_1, (\rho_1', x = a_2') |- e \Downarrow^{k'-1}_{l} v_3' \at \top$,
+    we also have
+    $L_1, (\rho_1', x = a_2') |- e \Downarrow^{l}_{k-1} v_3' \at \top$.
+    Applying the final premise, we get $v_3 \approx^{L}_{P} v_3'$ and
+    moreover $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$,
+    completing the subcase.
+    \qedhere
   \end{description}
 \end{proof}
 
