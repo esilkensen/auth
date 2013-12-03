@@ -157,7 +157,7 @@
   \centering
   \begin{gather*}
     \inference{}{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       c
       \Downarrow^{k}_{l}
       c \at \pc
@@ -168,14 +168,14 @@
           \rho(x) = v \at L_1
         \end{array}}
     }{
-      \langle{P, L, \pc, \rho\rangle} |-
+      (P, L, \pc, \rho) |-
       x
       \Downarrow^{k}_{l}
       v \at (\pc \sqcup L_1)
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       (\lambda{x}.\, e)
       \Downarrow^{k}_{l}
       \langle{\lambda{x}.\, e, \rho\rangle} \at \pc
@@ -183,21 +183,21 @@
     \qquad
     \inference{
       {\begin{array}{l}
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_1
           \Downarrow^{k}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
           \\
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_2 \Downarrow^{k}_{l} a_2
           \\
-          \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
+          (L, P, L_1, \rho_1[x = a_2]) |-
           e
           \Downarrow^{k}_{l}
           a_3
         \end{array}}
     }{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       (e_1\ e_2)
       \Downarrow^{k+1}_{l}
       a_3
@@ -205,13 +205,13 @@
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           (e_1\ e_2)
           \Downarrow^{k}_{l}
           v \at \bot
         \end{array}}
     }{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k+1}_{l}
       v \at \bot
@@ -219,17 +219,17 @@
     \\[3ex]
     \inference{
       {\begin{array}{l}
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_1
           \Downarrow^{k}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
           \\
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_2
           \Downarrow^{k}_{l}
           a_2
           \\
-          \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
+          (L, P, L_1, \rho_1[x = a_2]) |-
           e
           \Downarrow^{k}_{l}
           v_3 \at \top
@@ -237,26 +237,26 @@
           \forall{\rho_1', a_2' \text{ s.t. }
             \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
           \\\quad
-          \langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
+          (L, P, L_1, \rho_1'[x = a_2']) |-
           e
           \Downarrow^{l}_{k}
           v_3' \at \top =>
           v_3 \approx^{L}_{P} v_3'
         \end{array}}
     }{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k+1}_{l}
       v_3 \at \bot
     }[\textsc{E-Decl2}]
     \\[3ex]
-    \langle{L, P, \pc, \rho\rangle} |-
+    (L, P, \pc, \rho) |-
     e
     \Downarrow
     a
     \quad \triangleq \quad
     \exists{k}.\, \forall{l}.\,
-    \langle{L, P, \pc, \rho\rangle} |-
+    (L, P, \pc, \rho) |-
     e
     \Downarrow^{k}_{l}
     a
@@ -276,12 +276,12 @@
   any $n$:
   \begin{flalign}
     & \quad
-    \text{If $\langle{L, P, \pc, \rho\rangle} |- e \Downarrow^{k}_{l} a$, then
-      $\langle{L, P, \pc, \rho\rangle} |- \Downarrow^{k+1}_{l} a$.}
+    \text{If $(L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$, then
+      $(L, P, \pc, \rho) |- \Downarrow^{k+1}_{l} a$.}
     \label{ih:semantics-step-subset-k-k+1} & \\
     & \quad
-    \text{If $\langle{L, P, \pc, \rho\rangle} |- e \Downarrow^{k}_{l+1} a$, then
-      $\langle{L, P, \pc, \rho\rangle} |- e \Downarrow^{k}_{l} a$.}
+    \text{If $(L, P, \pc, \rho) |- e \Downarrow^{k}_{l+1} a$, then
+      $(L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$.}
     \label{ih:semantics-step-subset-l+1-l} &
   \end{flalign}
   The proof is by induction on $n$. Note that the claim is vacuously true
@@ -299,32 +299,32 @@
   \item By inversion, $k > 0$ and the derivation is by:
     \begin{itemize}
     \item \textsc{E-Decl1}, in which case
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l} v \at \bot$ and by inversion
-      $\langle{L, P, \pc, \rho\rangle} |- (e_1\ e_2) \Downarrow^{k-1}_{l}
+      $(L, P, \pc, \rho) |- (e_1\ e_2) \Downarrow^{k-1}_{l}
       v \at \bot$. Since $k-1 + l < n$, we can apply the induction
       hypothesis~(\ref{ih:semantics-step-subset-k-k+1}) to get
-      $\langle{L, P, \pc, \rho\rangle} |- (e_1\ e_2) \Downarrow^{k}_{l}
+      $(L, P, \pc, \rho) |- (e_1\ e_2) \Downarrow^{k}_{l}
       v \at \bot$. By \textsc{E-Decl1}, we have
-      \[\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      \[(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k+1}_{l} v \at \bot.\]
     \item \textsc{E-Decl2}, in which case
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l} v_3 \at \bot$ and by inversion:
       \begin{center}
         \begin{tabular*}{1.0\linewidth}{ll}
           a.
-          $\langle{L, P, \pc, \rho\rangle} |- e_1
+          $(L, P, \pc, \rho) |- e_1
           \Downarrow^{k-1}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1$
           &
           b.
-          $\langle{L, P, \pc, \rho\rangle} |- e_2
+          $(L, P, \pc, \rho) |- e_2
           \Downarrow^{k-1}_{l}
           a_2$
           \\[1.8ex]
           c.
-          $\langle{L, P, L_1, \rho_1[x = a_2]\rangle} |- e
+          $(L, P, L_1, \rho_1[x = a_2]) |- e
           \Downarrow^{k-1}_{l}
           v_3 \at \top$
           &
@@ -334,7 +334,7 @@
           \\
           &
           \quad\quad
-          $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e
+          $(L, P, L_1, \rho_1'[x = a_2']) |- e
           \Downarrow^{l}_{k-1} v_3' \at \top$
           \\
           &
@@ -352,17 +352,17 @@
       \begin{center}
         \begin{tabular*}{1.0\linewidth}{l@{\qquad}l}
           a'.
-          $\langle{L, P, \pc, \rho\rangle} |- e_1
+          $(L, P, \pc, \rho) |- e_1
           \Downarrow^{k}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1$
           &
           b'.
-          $\langle{L, P, \pc, \rho\rangle} |- e_2
+          $(L, P, \pc, \rho) |- e_2
           \Downarrow^{k}_{l}
           a_2$
           \\[1.8ex]
           c'.
-          $\langle{L, P, L_1, \rho_1[x = a_2]\rangle} |- e
+          $(L, P, L_1, \rho_1[x = a_2]) |- e
           \Downarrow^{k}_{l}
           v_3 \at \top$
           &
@@ -372,7 +372,7 @@
           \\
           &
           \quad\quad
-          $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e
+          $(L, P, L_1, \rho_1'[x = a_2']) |- e
           \Downarrow^{l}_{k} v_3' \at \top$
           \\
           &
@@ -382,43 +382,43 @@
         \end{tabular*}
       \end{center}
       By \textsc{E-Decl2}, we have
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k+1}_{l}
       v_3 \at \bot$.
     \end{itemize}
   \item By inversion, $k > 0$ and the derivation is by:
     \begin{itemize}
     \item \textsc{E-Decl1}, in which case
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l+1}
       v \at \bot$ and by inversion
-      $\langle{L, P, \pc, \rho\rangle} |- (e_1\ e_2)
+      $(L, P, \pc, \rho) |- (e_1\ e_2)
       \Downarrow^{k-1}_{l+1} v \at \bot$.
       Since $k-1 + l < n$, we can apply the induction
       hypothesis~(\ref{ih:semantics-step-subset-l+1-l}) to get
-      $\langle{L, P, \pc, \rho\rangle} |- (e_1\ e_2)
+      $(L, P, \pc, \rho) |- (e_1\ e_2)
       \Downarrow^{k-1}_{l} v \at \bot$.
       By \textsc{E-Decl1}, we have
-      \[ \langle{L, P, \pc, \rho\rangle} |- (e_1\ e_2)
+      \[ (L, P, \pc, \rho) |- (e_1\ e_2)
       \Downarrow^{k}_{l} v \at \bot. \]
     \item \textsc{E-Decl2}, in which case
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l+1}
       v_3 \at \bot$ and by inversion:
       \begin{center}
         \begin{tabular*}{1.0\linewidth}{ll}
           a.
-          $\langle{L, P, \pc, \rho\rangle} |- e_1
+          $(L, P, \pc, \rho) |- e_1
           \Downarrow^{k-1}_{l+1}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1$
           &
           b.
-          $\langle{L, P, \pc, \rho\rangle} |- e_2
+          $(L, P, \pc, \rho) |- e_2
           \Downarrow^{k-1}_{l+1}
           a_2$
           \\[1.8ex]
           c.
-          $\langle{L, P, L_1, \rho_1[x = a_2]\rangle} |- e
+          $(L, P, L_1, \rho_1[x = a_2]) |- e
           \Downarrow^{k-1}_{l+1}
           v_3 \at \top$
           &
@@ -426,7 +426,7 @@
           $\forall{\rho_1', a_2' \text{ s.t. }
             \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.$
           \\ & \quad\quad
-          $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e
+          $(L, P, L_1, \rho_1'[x = a_2']) |- e
           \Downarrow^{l+1}_{k-1} v_3' \at \top$
           \\ & \quad\quad
           $=> v_3 \approx^{L}_{P} v_3'$
@@ -441,17 +441,17 @@
       \begin{center}
         \begin{tabular*}{1.0\linewidth}{ll}
           a'.
-          $\langle{L, P, \pc, \rho\rangle} |- e_1
+          $(L, P, \pc, \rho) |- e_1
           \Downarrow^{k-1}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1$
           &
           b'.
-          $\langle{L, P, \pc, \rho\rangle} |- e_2
+          $(L, P, \pc, \rho) |- e_2
           \Downarrow^{k-1}_{l}
           a_2$
           \\[1.8ex]
           c'.
-          $\langle{L, P, L_1, \rho_1[x = a_2]\rangle} |- e
+          $(L, P, L_1, \rho_1[x = a_2]) |- e
           \Downarrow^{k-1}_{l}
           v_3 \at \top$
           &
@@ -459,14 +459,14 @@
           $\forall{\rho_1', a_2' \text{ s.t. }
             \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.$
           \\ & \quad\quad
-          $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e
+          $(L, P, L_1, \rho_1'[x = a_2']) |- e
           \Downarrow^{l}_{k-1} v_3' \at \top$
           \\ & \quad\quad
           $=> v_3 \approx^{L}_{P} v_3'$
         \end{tabular*}
       \end{center}
       By \textsc{E-Decl2}, we have
-      $\langle{L, P, \pc, \rho\rangle} |- (\mathsf{declassify}\ e_1\ e_2)
+      $(L, P, \pc, \rho) |- (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l}
       v_3 \at \bot$.
       \qedhere
@@ -477,8 +477,8 @@
 \pagebreak
 
 \begin{theorem}
-  If $\langle{L, P, \pc, \rho\rangle} |- e \Downarrow a$ and
-  $\langle{L, P, \pc, \rho'\rangle} |- e \Downarrow a'$ and
+  If $(L, P, \pc, \rho) |- e \Downarrow a$ and
+  $(L, P, \pc, \rho') |- e \Downarrow a'$ and
   $\rho \approx^{L}_{P} \rho'$, then $a \approx^{L}_{P} a'$.
   \label{thm:non-interference}
 \end{theorem}
@@ -487,9 +487,9 @@
   \begin{flalign*}
     & \quad
     \text{If $\exists{k}.\, \forall{l}.\,
-      \langle{L, P, \pc, \rho\rangle} |- e \Downarrow^{k}_{l} a$ and
+      (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
       $\exists{k'}.\, \forall{l}.\,
-      \langle{L, P, \pc, \rho'\rangle} |- e \Downarrow^{k'}_{l} a'$ and
+      (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
       $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
     &
   \end{flalign*}
@@ -498,9 +498,9 @@
   \begin{flalign}
     & \quad
     \text{If $\forall{l}.\,
-      \langle{L, P, \pc, \rho\rangle} |- e \Downarrow^{k}_{l} a$ and
+      (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
       $\forall{l}.\,
-      \langle{L, P, \pc, \rho'\rangle} |- e \Downarrow^{k'}_{l} a'$ and
+      (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
       $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
     \label{ih:non-interference} &
   \end{flalign}
@@ -522,17 +522,17 @@
   \begin{gather*}
     \inference{
       {\begin{array}{l}
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_1
           \Downarrow^{k-1}_{l}
           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
           \\
-          \langle{L, P, \pc, \rho\rangle} |-
+          (L, P, \pc, \rho) |-
           e_2
           \Downarrow^{k-1}_{l}
           a_2
           \\
-          \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
+          (L, P, L_1, \rho_1[x = a_2]) |-
           e
           \Downarrow^{k-1}_{l}
           v_3 \at \top
@@ -540,7 +540,7 @@
           \forall{\rho_1', a_2' \text{ s.t. }
             \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
           \\\quad
-          \langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
+          (L, P, L_1, \rho_1'[x = a_2']) |-
           e
           \Downarrow^{l}_{k-1}
           v_3' \at \top
@@ -548,7 +548,7 @@
           v_3 \approx^{L}_{P} v_3'
         \end{array}}
     }{
-      \langle{L, P, \pc, \rho\rangle} |-
+      (L, P, \pc, \rho) |-
       (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k}_{l}
       v_3 \at \bot
@@ -556,17 +556,17 @@
     \quad
     \inference{
       {\begin{array}{l}
-          \langle{L, P, \pc, \rho'\rangle} |-
+          (L, P, \pc, \rho') |-
           e_1
           \Downarrow^{k'-1}_{l}
           \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
           \\
-          \langle{L, P, \pc, \rho'\rangle} |-
+          (L, P, \pc, \rho') |-
           e_2
           \Downarrow^{k'-1}_{l}
           a_2'
           \\
-          \langle{L, P, L_1', \rho_1'[x = a_2']\rangle} |-
+          (L, P, L_1', \rho_1'[x = a_2']) |-
           e'
           \Downarrow^{k'-1}_{l}
           v_3' \at \top
@@ -574,7 +574,7 @@
           \forall{\rho_1'', a_2'' \text{ s.t. }
             \rho_1'[x = a_2'] \approx^{L}_{P} \rho_1''[x = a_2'']}.
           \\\quad
-          \langle{L, P, L_1', \rho_1''[x = a_2'']\rangle} |-
+          (L, P, L_1', \rho_1''[x = a_2'']) |-
           e'
           \Downarrow^{l}_{k'-1}
           v_3'' \at \top
@@ -582,7 +582,7 @@
           v_3' \approx^{L}_{P} v_3''
         \end{array}}
     }{
-      \langle{L, P, \pc, \rho'\rangle} |-
+      (L, P, \pc, \rho') |-
       (\mathsf{declassify}\ e_1\ e_2)
       \Downarrow^{k'}_{l}
       v_3' \at \bot
@@ -606,13 +606,13 @@
 
   Consider the fourth premise.
   We already have $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$ and,
-  for all $l$, that
-  $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e
+  for any $l$, that
+  $(L, P, L_1, \rho_1'[x = a_2']) |- e
   \Downarrow^{k'-1}_{l} v_3' \at \top$.
   Without loss of generality, we can assume $k \leq l$ and $k' \leq l$.
   By Lemma~\ref{lem:semantics-step-subset}, it follows that
   $\Downarrow^{k'-1}_{l}\ \subseteq\ \Downarrow^{l}_{k-1}$ and therefore
-  $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |- e \Downarrow^{l}_{k-1}
+  $(L, P, L_1, \rho_1'[x = a_2']) |- e \Downarrow^{l}_{k-1}
   v_3' \at \top$. Applying the fourth premise, we get
   $v_3 \approx^{L}_{P} v_3'$ and therefore
   $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
