@@ -2,13 +2,6 @@ Require Import Recdef.
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
 
-Definition bottomp : forall l : two, {l = Bottom2} + {l = Top2} :=
-  fun (l : two) =>
-    match l with
-      | Bottom2 => left eq_refl
-      | Top2 => right eq_refl
-    end.
-
 Definition pair_add (a : nat * nat) : nat :=
   match a with
     | (a1, a2) => a1 + a2
@@ -31,6 +24,18 @@ Theorem pair_lt_wf : well_founded pair_lt.
 Proof.
   unfold well_founded; intro; eapply pair_lt_wf'; eauto.
 Defined.
+
+Definition bottomp : forall l : two, {l = Bottom2} + {l = Top2} :=
+  fun (l : two) =>
+    match l with
+      | Bottom2 => left eq_refl
+      | Top2 => right eq_refl
+    end.
+
+Example bottomp_example :
+  (if bottomp Bottom2 then 1 else 2) = 1 /\
+  (if bottomp Top2 then 1 else 2) = 2.
+Proof. split; reflexivity. Qed.
 
 Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                      two -> env -> term -> atom -> Prop.
@@ -75,13 +80,12 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                          eval_kl (fst kl - 1, snd kl) _
                                  L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
                          if bottomp l3 then a = Atom v3 Bottom2 else
-                           (* refine: proof term contains metas in a product
+                           (* refine: proof term contains metas in a product *)
                            (forall a2' e2' v3',
                               env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
                               eval_kl (snd kl, fst kl - 1) _
                                       L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
                               value_LPequiv L P v3 v3') /\
-                            *)
                            a = Atom v3 Bottom2
               end));
   assert (kl = (fst kl, snd kl)) by
