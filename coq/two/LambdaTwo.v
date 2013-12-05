@@ -37,50 +37,6 @@ Example bottomp_example :
   (if bottomp Top2 then 1 else 2) = 2.
 Proof. split; reflexivity. Qed.
 
-(* Error: Found a lambda which body contains a recursive call.
-   Such terms are not allowed *)
-Function eval_kl (kl : nat * nat) (L : two) (P : value -> value -> Prop)
-         (pc : two) (e : env) (t : term) (a : atom)
-         {wf pair_lt kl} : Prop :=
-  match t with
-    | TBool b =>
-      a = Atom (VBool b) pc
-    | TNat n =>
-      a = Atom (VNat n) pc
-    | TVar n =>
-      exists v l,
-        atIndex e n = Some (Atom v l) /\
-        a = Atom v (l ⊔ pc)
-    | TAbs t' =>
-      a = Atom (VClos e t') pc
-    | TApp t1 t2 =>
-      if Compare_dec.zerop (fst kl) then False
-      else exists e1' t1' l1 a2 a3,
-             eval_kl (fst kl - 1, snd kl)
-                     L P pc e t1 (Atom (VClos e1' t1') l1) /\
-             eval_kl (fst kl - 1, snd kl)
-                     L P pc e t2 a2 /\
-             eval_kl (fst kl - 1, snd kl)
-                     L P l1 (a2 :: e1') t1' a3 /\
-             a = a3
-    | TDecl t1 t2 => 
-      if Compare_dec.zerop (fst kl) then False
-      else exists e1' t1' l1 a2 v3 l3,
-             eval_kl (fst kl - 1, snd kl)
-                     L P pc e t1 (Atom (VClos e1' t1') l1) /\
-             eval_kl (fst kl - 1, snd kl)
-                     L P pc e t2 a2 /\
-             eval_kl (fst kl - 1, snd kl)
-                     L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
-             if bottomp l3 then a = Atom v3 Bottom2 else
-               (forall a2' e2' v3',
-                  env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                  eval_kl (snd kl, fst kl - 1)
-                          L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                  value_LPequiv L P v3 v3') /\
-               a = Atom v3 Bottom2
-  end.
-
 Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                      two -> env -> term -> atom -> Prop.
   refine
@@ -105,32 +61,27 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                 | TAbs t' =>
                   a = Atom (VClos e t') pc
                 | TApp t1 t2 =>
-                  if Compare_dec.zerop (fst kl) then False
-                  else exists e1' t1' l1 a2 a3,
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P pc e t1 (Atom (VClos e1' t1') l1) /\
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P pc e t2 a2 /\
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P l1 (a2 :: e1') t1' a3 /\
-                         a = a3
+                  if Compare_dec.zerop (fst kl) then False else
+                    let eval := eval_kl (fst kl - 1, snd kl) _ L P in
+                    exists e1' t1' l1 a2 a3,
+                      eval pc e t1 (Atom (VClos e1' t1') l1) /\
+                      eval pc e t2 a2 /\
+                      eval l1 (a2 :: e1') t1' a3 /\
+                      a = a3
                 | TDecl t1 t2 =>
-                  if Compare_dec.zerop (fst kl) then False
-                  else exists e1' t1' l1 a2 v3 l3,
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P pc e t1 (Atom (VClos e1' t1') l1) /\
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P pc e t2 a2 /\
-                         eval_kl (fst kl - 1, snd kl) _
-                                 L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
-                         if bottomp l3 then a = Atom v3 Bottom2 else
-                           (* refine: proof term contains metas in a product *)
-                           (forall a2' e2' v3',
-                              env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                              eval_kl (snd kl, fst kl - 1) _
-                                      L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                              value_LPequiv L P v3 v3') /\
-                           a = Atom v3 Bottom2
+                  if Compare_dec.zerop (fst kl) then False else
+                    let eval := eval_kl (fst kl - 1, snd kl) _ L P in
+                    exists e1' t1' l1 a2 v3 l3,
+                      eval pc e t1 (Atom (VClos e1' t1') l1) /\
+                      eval pc e t2 a2 /\
+                      eval l1 (a2 :: e1') t1' (Atom v3 l3) /\
+                      if bottomp l3 then a = Atom v3 Bottom2 else
+                        let eval := eval_kl (snd kl, fst kl - 1) _ L P in
+                        (forall a2' e2' v3',
+                           env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+                           eval l1 (a2' :: e2') t1' (Atom v3' Top2) ->
+                           value_LPequiv L P v3 v3') /\
+                        a = Atom v3 Bottom2
               end));
   assert (kl = (fst kl, snd kl)) by
       (destruct kl; auto); rewrite H; simpl; clear H;
