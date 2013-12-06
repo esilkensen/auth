@@ -89,6 +89,10 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
   inversion _H; unfold pair_lt; auto.
 Defined.
 
+Definition eval (L : two) (P : value -> value -> Prop)
+           (pc : two) (e : env) (t : term) (a : atom) : Prop :=
+  exists k, forall l, eval_kl (k, l) L P pc e t a.
+
 Lemma eval_kl_bool :
   forall k l L P pc e b,
     eval_kl (k, l) L P pc e (TBool b) (Atom (VBool b) pc).
@@ -160,7 +164,3 @@ Proof.
   destruct a as [v1 l1]; destruct v1 as [b1 | n1 | e1 t1];
   destruct k; destruct l; inversion Heval; auto.
 Qed.
-
-Definition eval (L : two) (P : value -> value -> Prop)
-           (pc : two) (e : env) (t : term) (a : atom) : Prop :=
-  exists k, forall l, eval_kl (k, l) L P pc e t a.

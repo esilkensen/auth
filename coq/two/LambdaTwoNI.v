@@ -21,8 +21,8 @@ Proof.
       apply eval_kl_bool_inv in Heval.
       subst. apply eval_kl_bool.
     + (* TNat *)
-      apply eval_kl_nat_inv in Heval. subst.
-      apply eval_kl_nat.
+      apply eval_kl_nat_inv in Heval.
+      subst. apply eval_kl_nat.
     + (* TVar *)
       apply eval_kl_var_inv in Heval. destruct Heval as [v' [l' [H1 H2]]].
       subst. apply eval_kl_var. assumption.
