@@ -97,7 +97,7 @@ Lemma eval_kl_bool :
   forall k l L P pc e b,
     eval_kl (k, l) L P pc e (TBool b) (Atom (VBool b) pc).
 Proof.
-  intros. destruct k; destruct l; reflexivity.
+  introv. destruct k; destruct l; repeat red; auto.
 Qed.
 
 Lemma eval_kl_bool_inv :
@@ -114,7 +114,7 @@ Lemma eval_kl_nat :
   forall k l L P pc e n,
     eval_kl (k, l) L P pc e (TNat n) (Atom (VNat n) pc).
 Proof.
-  intros. destruct k; destruct l; reflexivity.
+  introv. destruct k; destruct l; repeat red; auto.
 Qed.
 
 Lemma eval_kl_nat_inv :
@@ -132,8 +132,7 @@ Lemma eval_kl_var :
     atIndex e n = Some (Atom v' l') ->
     eval_kl (k, l) L P pc e (TVar n) (Atom v' (l' ⊔ pc)).
 Proof.
-  (* TODO *)
-  admit.
+  introv He. destruct k; destruct l; repeat red; exists v' l'; auto.
 Qed.
 
 Lemma eval_kl_var_inv :
@@ -152,7 +151,7 @@ Lemma eval_kl_abs :
   forall k l L P pc e t',
     eval_kl (k, l) L P pc e (TAbs t') (Atom (VClos e t') pc).
 Proof.
-  intros. destruct k; destruct l; reflexivity.
+  intros. destruct k; destruct l; repeat red; auto.
 Qed.
   
 Lemma eval_kl_abs_inv :
