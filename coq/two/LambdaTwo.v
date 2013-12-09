@@ -79,8 +79,8 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                            value_LPequiv L P v3 v3') /\
                         a = Atom v3 Bottom2
               end));
-  assert (kl = (fst kl, snd kl)) by
-      (destruct kl; auto); rewrite H; simpl; clear H;
+  assert (kl = (fst kl, snd kl))
+    by (destruct kl; auto); rewrite H; simpl; clear H;
   inversion _H; unfold pair_lt; auto.
 Defined.
 
@@ -178,6 +178,53 @@ Lemma eval_kl_app_inv :
       eval_kl (k', l) L P pc e t2 a2 /\
       eval_kl (k', l) L P l1 (a2 :: e1') t1' a3 /\
       a = a3.
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_decl1 :
+  forall k l L P pc e t1 t2 e1' t1' l1 a2 v3,
+    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
+    eval_kl (k, l) L P pc e t2 a2 ->
+    eval_kl (k, l) L P l1 (a2 :: e1') t1' (Atom v3 Bottom2) ->
+    eval_kl (S k, l) L P pc e (TDecl t1 t2) (Atom v3 Bottom2).
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_decl2 :
+  forall k l L P pc e t1 t2 e1' t1' l1 a2 v3,
+    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
+    eval_kl (k, l) L P pc e t2 a2 ->
+    eval_kl (k, l) L P l1 (a2 :: e1') t1' (Atom v3 Top2) ->
+    (forall a2' e2' v3',
+       env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+       eval_kl (l, k) L P pc (a2' :: e2') t1' (Atom v3' Top2) ->
+       value_LPequiv L P v3 v3') ->
+    eval_kl (S k, l) L P pc e (TDecl t1 t2) (Atom v3 Bottom2).
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_decl_inv :
+  forall k l L P pc e t1 t2 a,
+    eval_kl (k, l) L P pc e (TDecl t1 t2) a ->
+    (exists k' e1' t1' l1 a2 v3,
+       k = S k' /\
+       eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
+       eval_kl (k', l) L P pc e t2 a2 /\
+       eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Bottom2) /\
+       a = Atom v3 Bottom2) \/
+    (exists k' e1' t1' l1 a2 v3,
+       k = S k' /\
+       eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
+       eval_kl (k', l) L P pc e t2 a2 /\
+       eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Top2) /\
+       (forall a2' e2' v3',
+          env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+          eval_kl (l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2) ->
+          value_LPequiv L P v3 v3') /\
+       a = Atom v3 Bottom2).
 Proof.
   (* TODO *)
   Admitted.

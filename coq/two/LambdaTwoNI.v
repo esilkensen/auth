@@ -32,18 +32,54 @@ Proof.
       subst. apply eval_kl_abs.
     + (* TApp *)
       apply eval_kl_app_inv in Heval.
-      destruct Heval as [k' [e1' [t1' [l1 [a2 [a3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
-      assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1)) by
-          (apply IHn in H2; try assumption; omega).
-      assert (H3': eval_kl (S k', l) L P pc e t2 a2) by
-          (apply IHn in H3; try assumption; omega).
-      assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3) by
-          (apply IHn in H4; try assumption; omega).
+      destruct Heval
+        as [k' [e1' [t1' [l1 [a2 [a3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
+      assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        by (apply IHn in H2; try assumption; omega).
+      assert (H3': eval_kl (S k', l) L P pc e t2 a2)
+        by (apply IHn in H3; try assumption; omega).
+      assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3)
+        by (apply IHn in H4; try assumption; omega).
       clear H2; clear H3; clear H4; subst.
-      apply (eval_kl_app (S k') l L P pc e t1 t2 e1' t1' l1 a2 a3); assumption.
+      apply (eval_kl_app (S k') l L P pc e t1 t2 e1' t1' l1 a2 a3);
+        assumption.
     + (* TDecl *)
-      (* TODO *)
-      admit.
+      apply eval_kl_decl_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_Decl1 *)
+        destruct Heval
+          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
+        remember (Atom v3 Bottom2) as a3.
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H3': eval_kl (S k', l) L P pc e t2 a2)
+          by (apply IHn in H3; try assumption; omega).
+        assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3)
+          by (apply IHn in H4; try assumption; omega).
+        clear H2; clear H3; clear H4; subst.
+        apply (eval_kl_decl1 (S k') l L P pc e t1 t2 e1' t1' l1 a2 v3);
+          assumption.
+      * (* E_Decl2 *)
+        destruct Heval
+          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 [H5 H6]]]]]]]]]]].
+        remember (Atom v3 Top2) as a3.
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H3': eval_kl (S k', l) L P pc e t2 a2)
+          by (apply IHn in H3; try assumption; omega).
+        assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3)
+          by (apply IHn in H4; try assumption; omega).
+        assert (H5':
+                  forall a2' e2' v3',
+                    env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+                    eval_kl (l, S k') L P pc (a2' :: e2') t1' (Atom v3' Top2) ->
+                    value_LPequiv L P v3 v3')
+          by (introv He H7; subst;
+              assert (eval_kl (l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2))
+                by (apply IHn in H7; try omega; assumption);
+              apply (H5 a2' e2' v3'); assumption).
+        clear H2; clear H3; clear H4; clear H5; subst.
+        apply (eval_kl_decl2 (S k') l L P pc e t1 t2 e1' t1' l1 a2 v3);
+          assumption.
   - destruct t.
     + (* TBool *)
       apply eval_kl_bool_inv in Heval.
@@ -60,18 +96,54 @@ Proof.
       subst. apply eval_kl_abs.
     + (* TApp *) 
       apply eval_kl_app_inv in Heval.
-      destruct Heval as [k' [e1' [t1' [l1 [a2 [a3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
-      assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1)) by
-          (apply IHn; try omega; assumption).
-      assert (H3': eval_kl (k', l) L P pc e t2 a2) by
-          (apply IHn; try omega; assumption).
-      assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3) by
-          (apply IHn; try omega; assumption).
+      destruct Heval
+        as [k' [e1' [t1' [l1 [a2 [a3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
+      assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        by (apply IHn; try omega; assumption).
+      assert (H3': eval_kl (k', l) L P pc e t2 a2)
+        by (apply IHn; try omega; assumption).
+      assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3)
+        by (apply IHn; try omega; assumption).
       clear H2; clear H3; clear H4; subst.
-      apply (eval_kl_app k' l L P pc e t1 t2 e1' t1' l1 a2 a3); assumption.
+      apply (eval_kl_app k' l L P pc e t1 t2 e1' t1' l1 a2 a3);
+        assumption.
     + (* TDecl *)
-      (* TODO *)
-      admit.
+      apply eval_kl_decl_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_Decl1 *)
+        destruct Heval
+          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
+        remember (Atom v3 Bottom2) as a3.
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+          by (apply IHn; try omega; assumption).
+        assert (H3': eval_kl (k', l) L P pc e t2 a2)
+          by (apply IHn; try omega; assumption).
+        assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3)
+          by (apply IHn; try omega; assumption).
+        clear H2; clear H3; clear H4; subst.
+        apply (eval_kl_decl1 k' l L P pc e t1 t2 e1' t1' l1 a2 v3);
+          assumption.
+      * (* E_Decl2 *)
+        destruct Heval
+          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 [H5 H6]]]]]]]]]]].
+        remember (Atom v3 Top2) as a3.
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+          by (apply IHn; try omega; assumption).
+        assert (H3': eval_kl (k', l) L P pc e t2 a2)
+          by (apply IHn; try omega; assumption).
+        assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3)
+          by (apply IHn; try omega; assumption).
+        assert (H5':
+                  forall a2' e2' v3',
+                    env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+                    eval_kl (l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2) ->
+                    value_LPequiv L P v3 v3')
+          by (introv He H7; subst;
+              assert (eval_kl (S l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2))
+                by (apply IHn in H7; try assumption; omega);
+              apply (H5 a2' e2' v3'); assumption).
+        clear H2; clear H3; clear H4; clear H5; subst.
+        apply (eval_kl_decl2 k' l L P pc e t1 t2 e1' t1' l1 a2 v3);
+          assumption.
 Qed.
 
 Lemma eval_kl_subset :
@@ -83,7 +155,7 @@ Lemma eval_kl_subset :
        eval_kl (k, S l) L P pc e t a ->
        eval_kl (k, l) L P pc e t a).
 Proof.
-  intros k l. apply (eval_kl_subset_n (S (k + l))). auto.
+  introv. apply (eval_kl_subset_n (S (k + l))). auto.
 Qed.
   
 End NI.
