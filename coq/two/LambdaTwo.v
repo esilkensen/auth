@@ -3,16 +3,11 @@ Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
 Require Import LibTactics.
 
-Definition pair_add (a : nat * nat) : nat :=
-  match a with
-    | (a1, a2) => a1 + a2
-  end.
-
 Definition pair_lt (a b : nat * nat) : Prop :=
-  pair_add a < pair_add b.
+  fst a + snd a < fst b + snd b.
 
 Lemma pair_lt_wf' :
-  forall s a, pair_add a <= s -> Acc pair_lt a.
+  forall s a, fst a + snd a <= s -> Acc pair_lt a.
 Proof.
   induction s; intros a H1.
   - destruct a as [a1 a2]; destruct a1; destruct a2; auto.
