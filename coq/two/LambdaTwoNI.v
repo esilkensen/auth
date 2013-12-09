@@ -170,41 +170,59 @@ Proof.
   intro n. induction n; introv H He Heval1 Heval2 Prefl; auto.
   destruct t.
   - (* TBool *)
-    assert (H1: eval_kl (k, 0) L P pc e (TBool b) a) by apply Heval1.
-    assert (H2: eval_kl (k', 0) L P pc e' (TBool b) a') by apply Heval2.
-    apply eval_kl_bool_inv in H1.
-    apply eval_kl_bool_inv in H2.
+    apply eval_kl_bool_inv' in Heval1.
+    apply eval_kl_bool_inv' in Heval2.
     subst. apply atom_LPequiv_refl. assumption.
   - (* TNat *)
-    assert (H1: eval_kl (k, 0) L P pc e (TNat n0) a) by apply Heval1.
-    assert (H2: eval_kl (k', 0) L P pc e' (TNat n0) a') by apply Heval2.
-    apply eval_kl_nat_inv in H1.
-    apply eval_kl_nat_inv in H2.
+    apply eval_kl_nat_inv' in Heval1.
+    apply eval_kl_nat_inv' in Heval2.
     subst. apply atom_LPequiv_refl. assumption.
   - (* TVar *)
-    assert (H1: eval_kl (k, 0) L P pc e (TVar n0) a) by apply Heval1.
-    assert (H2: eval_kl (k', 0) L P pc e' (TVar n0) a') by apply Heval2.
-    apply eval_kl_var_inv in H1.
-    apply eval_kl_var_inv in H2.
-    destruct H1 as [v1' [l1' [He1 Ha1]]].
-    destruct H2 as [v2' [l2' [He2 Ha2]]].
+    apply eval_kl_var_inv' in Heval1.
+    apply eval_kl_var_inv' in Heval2.
+    destruct Heval1 as [v1' [l1' [He1 Ha1]]].
+    destruct Heval2 as [v2' [l2' [He2 Ha2]]].
     assert (Ha: atom_LPequiv L P (Atom v1' l1') (Atom v2' l2'))
       by (eapply list_forall2_atIndex; eauto).
     assert (l2' = l1') by (apply atom_LPequiv_lab_inv in Ha; auto); subst.
     destruct pc; destruct l1'; simpl in *; auto.
     apply atom_LPequiv_raise; assumption.
   - (* TAbs *)
-    assert (H1: eval_kl (k, 0) L P pc e (TAbs t) a) by apply Heval1.
-    assert (H2: eval_kl (k', 0) L P pc e' (TAbs t) a') by apply Heval2.
-    apply eval_kl_abs_inv in H1.
-    apply eval_kl_abs_inv in H2.
+    apply eval_kl_abs_inv' in Heval1.
+    apply eval_kl_abs_inv' in Heval2.
     subst. destruct L; destruct pc.
     + right. left. auto.
     + left. auto.
     + right. right. auto.
     + right. right. auto.
   - (* TApp *)
-    admit.
+    apply eval_kl_app_inv' in Heval1.
+    apply eval_kl_app_inv' in Heval2.
+    destruct Heval1
+      as [k1' [e11' [t11' [l11 [a21 [a31 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
+    destruct Heval2
+      as [k1'' [e11'' [t11'' [l11' [a21' [a31' [H1' [H2' [H3' [H4' H5']]]]]]]]]].
+    remember (Atom (VClos e11' t11') l11) as a1.
+    remember (Atom (VClos e11'' t11'') l11') as a1'.
+    assert (Ha1: atom_LPequiv L P a1 a1')
+      by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
+                                    (a := a1) (a' := a1') in H2;
+          try assumption; omega); subst.
+    assert (l11' = l11)
+      by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
+    assert (t11'' = t11')
+      by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto); subst.
+    assert (He1: env_LPequiv L P e11' e11'')
+      by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
+    assert (Ha2: atom_LPequiv L P a21 a21')
+      by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
+                                    (a := a21) (a' := a21') in H3;
+          try assumption; omega).
+    assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
+      by (split; assumption).
+    apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
+                              (e' := (a21' :: e11'')) (a := a31) (a' := a31')
+      in H4; try assumption; omega.
   - (* TDecl *)
     admit.
 Qed.

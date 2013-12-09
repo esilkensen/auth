@@ -105,6 +105,16 @@ Proof.
   destruct k; destruct l; inversion Heval; auto.
 Qed.
 
+Lemma eval_kl_bool_inv' :
+  forall k L P pc e b a,
+    (forall l, eval_kl (k, l) L P pc e (TBool b) a) ->
+    a = Atom (VBool b) pc.
+Proof.
+  introv Heval.
+  eapply eval_kl_bool_inv. eauto.
+  Grab Existential Variables. auto.
+Qed.
+
 Lemma eval_kl_nat :
   forall k l L P pc e n,
     eval_kl (k, l) L P pc e (TNat n) (Atom (VNat n) pc).
@@ -120,6 +130,16 @@ Proof.
   introv Heval.
   destruct a as [v1 l1]; destruct v1 as [b1 | n1 | e1 t1];
   destruct k; destruct l; inversion Heval; auto.
+Qed.
+
+Lemma eval_kl_nat_inv' :
+  forall k L P pc e n a,
+    (forall l, eval_kl (k, l) L P pc e (TNat n) a) ->
+    a = Atom (VNat n) pc.
+Proof.
+  introv Heval.
+  eapply eval_kl_nat_inv. eauto.
+  Grab Existential Variables. auto.
 Qed.
 
 Lemma eval_kl_var :
@@ -141,6 +161,18 @@ Proof.
   destruct a as [v1 l1]; destruct v1 as [b1 | n1 | e1 t1];
   destruct k; destruct l; inversion Heval; auto.
 Qed.
+
+Lemma eval_kl_var_inv' :
+  forall k L P pc e n a,
+    (forall l, eval_kl (k, l) L P pc e (TVar n) a) ->
+    exists v' l',
+      atIndex e n = Some (Atom v' l') /\
+      a = Atom v' (l' ⊔ pc).
+Proof.
+  introv Heval.
+  eapply eval_kl_var_inv. eauto.
+  Grab Existential Variables. auto.
+Qed.
       
 Lemma eval_kl_abs :
   forall k l L P pc e t',
@@ -157,6 +189,16 @@ Proof.
   introv Heval.
   destruct a as [v1 l1]; destruct v1 as [b1 | n1 | e1 t1];
   destruct k; destruct l; inversion Heval; auto.
+Qed.
+
+Lemma eval_kl_abs_inv' :
+  forall k L P pc e t' a,
+    (forall l, eval_kl (k, l) L P pc e (TAbs t') a) ->
+    a = Atom (VClos e t') pc.
+Proof.
+  introv Heval.
+  eapply eval_kl_abs_inv. eauto.
+  Grab Existential Variables. auto.
 Qed.
 
 Lemma eval_kl_app :
@@ -177,6 +219,19 @@ Lemma eval_kl_app_inv :
       eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
       eval_kl (k', l) L P pc e t2 a2 /\
       eval_kl (k', l) L P l1 (a2 :: e1') t1' a3 /\
+      a = a3.
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_app_inv' :
+  forall k L P pc e t1 t2 a,
+    (forall l, eval_kl (k, l) L P pc e (TApp t1 t2) a) ->
+    exists k' e1' t1' l1 a2 a3,
+      k = S k' /\
+      (forall l, eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1)) /\
+      (forall l, eval_kl (k', l) L P pc e t2 a2) /\
+      (forall l, eval_kl (k', l) L P l1 (a2 :: e1') t1' a3) /\
       a = a3.
 Proof.
   (* TODO *)
@@ -223,6 +278,29 @@ Lemma eval_kl_decl_inv :
        (forall a2' e2' v3',
           env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
           eval_kl (l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2) ->
+          value_LPequiv L P v3 v3') /\
+       a = Atom v3 Bottom2).
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_decl_inv' :
+  forall k L P pc e t1 t2 a,
+    (forall l, eval_kl (k, l) L P pc e (TDecl t1 t2) a) ->
+    (exists k' e1' t1' l1 a2 v3,
+       k = S k' /\
+       (forall l, eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1)) /\
+       (forall l, eval_kl (k', l) L P pc e t2 a2) /\
+       (forall l, eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Bottom2)) /\
+       a = Atom v3 Bottom2) \/
+    (exists k' e1' t1' l1 a2 v3,
+       k = S k' /\
+       (forall l, eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1)) /\
+       (forall l, eval_kl (k', l) L P pc e t2 a2) /\
+       (forall l, eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Top2)) /\
+       (forall a2' e2' v3',
+          env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+          (forall l, eval_kl (l, k') L P pc (a2' :: e2') t1' (Atom v3' Top2)) ->
           value_LPequiv L P v3 v3') /\
        a = Atom v3 Bottom2).
 Proof.
