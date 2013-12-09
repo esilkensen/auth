@@ -157,5 +157,71 @@ Lemma eval_kl_subset :
 Proof.
   introv. apply (eval_kl_subset_n (S (k + l))). auto.
 Qed.
+
+Lemma non_interference_n :
+  forall n k k' L P pc e e' t a a',
+    k + k' < n ->
+    env_LPequiv L P e e' ->
+    (forall l, eval_kl (k, l) L P pc e t a) ->
+    (forall l, eval_kl (k', l) L P pc e' t a') ->
+    (forall v, P v v) ->
+    atom_LPequiv L P a a'.
+Proof.
+  intro n. induction n; introv H He Heval1 Heval2 Prefl; auto.
+  destruct t.
+  - (* TBool *)
+    assert (H1: eval_kl (k, 0) L P pc e (TBool b) a) by apply Heval1.
+    assert (H2: eval_kl (k', 0) L P pc e' (TBool b) a') by apply Heval2.
+    apply eval_kl_bool_inv in H1.
+    apply eval_kl_bool_inv in H2.
+    subst. apply atom_LPequiv_refl. assumption.
+  - (* TNat *)
+    assert (H1: eval_kl (k, 0) L P pc e (TNat n0) a) by apply Heval1.
+    assert (H2: eval_kl (k', 0) L P pc e' (TNat n0) a') by apply Heval2.
+    apply eval_kl_nat_inv in H1.
+    apply eval_kl_nat_inv in H2.
+    subst. apply atom_LPequiv_refl. assumption.
+  - (* TVar *)
+    assert (H1: eval_kl (k, 0) L P pc e (TVar n0) a) by apply Heval1.
+    assert (H2: eval_kl (k', 0) L P pc e' (TVar n0) a') by apply Heval2.
+    apply eval_kl_var_inv in H1.
+    apply eval_kl_var_inv in H2.
+    destruct H1 as [v1' [l1' [He1 Ha1]]].
+    destruct H2 as [v2' [l2' [He2 Ha2]]].
+    assert (Ha: atom_LPequiv L P (Atom v1' l1') (Atom v2' l2'))
+      by (eapply list_forall2_atIndex; eauto).
+    assert (l2' = l1') by (apply atom_LPequiv_lab_inv in Ha; auto); subst.
+    destruct pc; destruct l1'; simpl in *; auto.
+    apply atom_LPequiv_raise; assumption.
+  - (* TAbs *)
+    assert (H1: eval_kl (k, 0) L P pc e (TAbs t) a) by apply Heval1.
+    assert (H2: eval_kl (k', 0) L P pc e' (TAbs t) a') by apply Heval2.
+    apply eval_kl_abs_inv in H1.
+    apply eval_kl_abs_inv in H2.
+    subst. destruct L; destruct pc.
+    + right. left. auto.
+    + left. auto.
+    + right. right. auto.
+    + right. right. auto.
+  - (* TApp *)
+    admit.
+  - (* TDecl *)
+    admit.
+Qed.
+
+Theorem non_interference :
+  forall L P pc e e' t a a',
+    env_LPequiv L P e e' ->
+    eval L P pc e t a ->
+    eval L P pc e' t a' ->
+    (forall v, P v v) ->
+    atom_LPequiv L P a a'.
+Proof.
+  introv He Heval1 Heval2 Prefl.
+  unfold eval in *.
+  destruct Heval1 as [k Heval1].
+  destruct Heval2 as [k' Heval2].
+  eapply non_interference_n; eauto.
+Qed.
   
 End NI.
