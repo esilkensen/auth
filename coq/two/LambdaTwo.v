@@ -146,7 +146,7 @@ Lemma eval_kl_abs :
   forall k l L P pc e t',
     eval_kl (k, l) L P pc e (TAbs t') (Atom (VClos e t') pc).
 Proof.
-  intros. destruct k; destruct l; repeat red; auto.
+  introv. destruct k; destruct l; repeat red; auto.
 Qed.
   
 Lemma eval_kl_abs_inv :
@@ -158,3 +158,26 @@ Proof.
   destruct a as [v1 l1]; destruct v1 as [b1 | n1 | e1 t1];
   destruct k; destruct l; inversion Heval; auto.
 Qed.
+
+Lemma eval_kl_app :
+  forall k l L P pc e t1 t2 e1' t1' l1 a2 a3,
+    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
+    eval_kl (k, l) L P pc e t2 a2 ->
+    eval_kl (k, l) L P l1 (a2 :: e1') t1' a3 ->
+    eval_kl (S k, l) L P pc e (TApp t1 t2) a3.
+Proof.
+  (* TODO *)
+  Admitted.
+
+Lemma eval_kl_app_inv :
+  forall k l L P pc e t1 t2 a,
+    eval_kl (k, l) L P pc e (TApp t1 t2) a ->
+    exists k' e1' t1' l1 a2 a3,
+      k = S k' /\
+      eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
+      eval_kl (k', l) L P pc e t2 a2 /\
+      eval_kl (k', l) L P l1 (a2 :: e1') t1' a3 /\
+      a = a3.
+Proof.
+  (* TODO *)
+  Admitted.
