@@ -2,6 +2,7 @@ Require Import Recdef.
 Require Export LambdaTwoSyntax.
 Require Export IndistinguishabilityTwo.
 Require Import LibTactics.
+Require Import Wf_nat.
 
 Definition pair_lt (a b : nat * nat) : Prop :=
   fst a + snd a < fst b + snd b.
@@ -57,31 +58,29 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                 | TAbs t' =>
                   a = Atom (VClos e t') pc
                 | TApp t1 t2 =>
-                  if Compare_dec.zerop (fst kl) then False else
-                    let eval := eval_kl (fst kl - 1, snd kl) _ in
-                    exists e1' t1' l1 a2 a3,
-                      eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
-                      eval L P pc e t2 a2 /\
-                      eval L P l1 (a2 :: e1') t1' a3 /\
-                      a = a3
+                  if Compare_dec.zerop (fst kl) then False
+                  else let eval := eval_kl (fst kl - 1, snd kl) _ in
+                       exists e1' t1' l1 a2 a3,
+                         eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
+                         eval L P pc e t2 a2 /\
+                         eval L P l1 (a2 :: e1') t1' a3 /\
+                         a = a3
                 | TDecl t1 t2 =>
-                  if Compare_dec.zerop (fst kl) then False else
-                    let eval := eval_kl (fst kl - 1, snd kl) _ L P in
-                    exists e1' t1' l1 a2 v3 l3,
-                      eval pc e t1 (Atom (VClos e1' t1') l1) /\
-                      eval pc e t2 a2 /\
-                      eval l1 (a2 :: e1') t1' (Atom v3 l3) /\
-                      if bottomp l3 then a = Atom v3 Bottom2 else
-                        let eval := eval_kl (snd kl, fst kl - 1) _ in
-                        (forall a2' e2' v3',
-                           env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                           eval L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                           value_LPequiv L P v3 v3') /\
-                        a = Atom v3 Bottom2
+                  if Compare_dec.zerop (fst kl) then False
+                  else let eval := eval_kl (fst kl - 1, snd kl) _ in
+                       exists e1' t1' l1 a2 v3 l3,
+                         eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
+                         eval L P pc e t2 a2 /\
+                         eval L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
+                         if bottomp l3 then a = Atom v3 Bottom2
+                         else let eval := eval_kl (snd kl, fst kl - 1) _ in
+                              (forall a2' e2' v3',
+                                 env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
+                                 eval L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
+                                 value_LPequiv L P v3 v3') /\
+                              a = Atom v3 Bottom2
               end));
-  assert (kl = (fst kl, snd kl))
-    by (destruct kl; auto); rewrite H; simpl; clear H;
-  inversion _H; unfold pair_lt; auto.
+  unfold pair_lt; simpl; omega.
 Defined.
 
 Definition eval (L : two) (P : value -> value -> Prop)
