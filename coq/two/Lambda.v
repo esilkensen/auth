@@ -54,11 +54,13 @@ Fixpoint lookup (e : env) (n : nat) : option atom :=
       end
   end.
 
-Definition eval_kl : nat * nat -> two -> env -> term -> atom -> Prop.
+Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
+                     two -> env -> term -> atom -> Prop.
   refine
-    (Fix pair_lt_wf (fun _ => two -> env -> term -> atom -> Prop)
+    (Fix pair_lt_wf (fun _ => two -> (value -> value -> Prop) ->
+                              two -> env -> term -> atom -> Prop)
          (fun kl eval_kl =>
-            fun pc e t a =>
+            fun L P pc e t a =>
               match t with
                 | TBool b =>
                   a = Atom (VBool b) pc
@@ -74,9 +76,9 @@ Definition eval_kl : nat * nat -> two -> env -> term -> atom -> Prop.
                   if Compare_dec.zerop (fst kl) then False
                   else let eval := eval_kl (fst kl - 1, snd kl) _ in
                        exists e1' t1' l1 a2,
-                         eval pc e t1 (Atom (VClos e1' t1') l1) /\
-                         eval pc e t2 a2 /\
-                         eval l1 (a2 :: e1') t1' a
+                         eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
+                         eval L P pc e t2 a2 /\
+                         eval L P l1 (a2 :: e1') t1' a
               end)).
   unfold pair_lt. simpl. omega.
 Defined.
@@ -84,7 +86,7 @@ Defined.
 Lemma eval_kl_eq :
   forall kl,
     eval_kl kl =
-    fun pc e t a =>
+    fun L P pc e t a =>
       match t with
         | TBool b =>
           a = Atom (VBool b) pc
@@ -100,14 +102,17 @@ Lemma eval_kl_eq :
           if Compare_dec.zerop (fst kl) then False
           else let eval := eval_kl (fst kl - 1, snd kl) in
                exists e1' t1' l1 a2,
-                 eval pc e t1 (Atom (VClos e1' t1') l1) /\
-                 eval pc e t2 a2 /\
-                 eval l1 (a2 :: e1') t1' a
+                 eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
+                 eval L P pc e t2 a2 /\
+                 eval L P l1 (a2 :: e1') t1' a
       end.
 Proof.
   intro kl.
-  apply (Fix_eq pair_lt_wf (fun _ => two -> env -> term -> atom -> Prop));
+  apply (Fix_eq pair_lt_wf (fun _ => two -> (value -> value -> Prop) ->
+                                     two -> env -> term -> atom -> Prop));
     intros; destruct x as [x1 x2].
+  apply functional_extensionality; intro L.
+  apply functional_extensionality; intro P.
   apply functional_extensionality; intro pc.
   apply functional_extensionality; intro e.
   apply functional_extensionality; intro t.
@@ -125,55 +130,55 @@ Proof.
 Qed.
 
 Lemma eval_k_bool :
-  forall k l pc e b,
-    eval_kl (k, l) pc e (TBool b) (Atom (VBool b) pc).
+  forall k l L P pc e b,
+    eval_kl (k, l) L P pc e (TBool b) (Atom (VBool b) pc).
 Proof. intros. rewrite eval_kl_eq. reflexivity. Qed.
 
 Lemma eval_kl_bool_inv :
-  forall k l pc e b a,
-    eval_kl (k, l) pc e (TBool b) a -> a = Atom (VBool b) pc.
+  forall k l L P pc e b a,
+    eval_kl (k, l) L P pc e (TBool b) a -> a = Atom (VBool b) pc.
 Proof. intros. destruct a; destruct k; destruct l; auto. Qed.
 
 Lemma eval_kl_nat :
-  forall k l pc e n,
-    eval_kl (k, l) pc e (TNat n) (Atom (VNat n) pc).
+  forall k l L P pc e n,
+    eval_kl (k, l) L P pc e (TNat n) (Atom (VNat n) pc).
 Proof. intros. rewrite eval_kl_eq. reflexivity. Qed.
 
 Lemma eval_kl_nat_inv :
-  forall k l pc e n a,
-    eval_kl (k, l) pc e (TNat n) a -> a = Atom (VNat n) pc.
+  forall k l L P pc e n a,
+    eval_kl (k, l) L P pc e (TNat n) a -> a = Atom (VNat n) pc.
 Proof. intros. destruct a; destruct k; destruct l; auto. Qed.
 
 Lemma eval_kl_var :
-  forall k l pc e n v' l',
+  forall k l L P pc e n v' l',
     lookup e n = Some (Atom v' l') ->
-    eval_kl (k, l) pc e (TVar n) (Atom v' (l' ⊔ pc)).
+    eval_kl (k, l) L P pc e (TVar n) (Atom v' (l' ⊔ pc)).
 Proof. intros. rewrite eval_kl_eq. exists v'. exists l'. auto. Qed.
 
 Lemma eval_kl_var_inv :
-  forall k l pc e n a,
-    eval_kl (k, l) pc e (TVar n) a ->
+  forall k l L P pc e n a,
+    eval_kl (k, l) L P pc e (TVar n) a ->
     exists v' l',
       lookup e n = Some (Atom v' l') /\
       a = Atom v' (l' ⊔ pc).
-Proof. intros. destruct a as [v1 l1]; destruct k; destruct l; auto. Qed.
+Proof. intros. destruct a; destruct k; destruct l; auto. Qed.
 
 Lemma eval_kl_abs :
-  forall k l pc e t',
-    eval_kl (k, l) pc e (TAbs t') (Atom (VClos e t') pc).
+  forall k l L P pc e t',
+    eval_kl (k, l) L P pc e (TAbs t') (Atom (VClos e t') pc).
 Proof. intros. rewrite eval_kl_eq. reflexivity. Qed.
 
 Lemma eval_kl_abs_inv :
-  forall k l pc e t a,
-    eval_kl (k, l) pc e (TAbs t) a -> a = Atom (VClos e t) pc.
+  forall k l L P pc e t a,
+    eval_kl (k, l) L P pc e (TAbs t) a -> a = Atom (VClos e t) pc.
 Proof. intros. destruct a; destruct k; destruct l; auto. Qed.
 
 Lemma eval_kl_app :
-  forall k l pc e t1 t2 e1' t1' l1 a2 a3,
-    eval_kl (k, l) pc e t1 (Atom (VClos e1' t1') l1) ->
-    eval_kl (k, l) pc e t2 a2 ->
-    eval_kl (k, l) l1 (a2 :: e1') t1' a3 ->
-    eval_kl (S k, l) pc e (TApp t1 t2) a3.
+  forall k l L P pc e t1 t2 e1' t1' l1 a2 a3,
+    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
+    eval_kl (k, l) L P pc e t2 a2 ->
+    eval_kl (k, l) L P l1 (a2 :: e1') t1' a3 ->
+    eval_kl (S k, l) L P pc e (TApp t1 t2) a3.
 Proof.
   intros. rewrite eval_kl_eq. simpl.
   replace (k - 0) with k by omega.
@@ -182,13 +187,13 @@ Proof.
 Qed.
 
 Lemma eval_kl_app_inv :
-  forall k l pc e t1 t2 a,
-    eval_kl (k, l) pc e (TApp t1 t2) a ->
+  forall k l L P pc e t1 t2 a,
+    eval_kl (k, l) L P pc e (TApp t1 t2) a ->
     exists k' e1' t1' l1 a2,
       k = S k' /\
-      eval_kl (k', l) pc e t1 (Atom (VClos e1' t1') l1) /\
-      eval_kl (k', l) pc e t2 a2 /\
-      eval_kl (k', l) l1 (a2 :: e1') t1' a.
+      eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
+      eval_kl (k', l) L P pc e t2 a2 /\
+      eval_kl (k', l) L P l1 (a2 :: e1') t1' a.
 Proof.
   intros.
   rewrite eval_kl_eq in H.
