@@ -12,12 +12,14 @@ Qed.
 
 Inductive term : Type :=
   | TBool : bool -> term
+  | TNat : nat -> term
   | TVar : nat -> term
   | TAbs : term -> term
   | TApp : term -> term -> term.
 
 Inductive value : Type :=
   | VBool : bool -> value
+  | VNat : nat -> value
   | VClos : list value -> term -> value.
 
 Definition env : Type := list value.
@@ -40,6 +42,8 @@ Definition eval_k : nat -> env -> term -> value -> Prop.
               match t with
                 | TBool b =>
                   v = VBool b
+                | TNat n =>
+                  v = VNat n
                 | TVar n =>
                   lookup e n = Some v
                 | TAbs t' =>
@@ -61,6 +65,7 @@ Lemma eval_k_eq :
     fun e t v =>
       match t with
         | TBool b => v = VBool b
+        | TNat n => v = VNat n
         | TVar n => lookup e n = Some v
         | TAbs t' => v = VClos e t'
         | TApp t1 t2 => (if Compare_dec.zerop k then False
@@ -95,6 +100,16 @@ Proof. intros. rewrite eval_k_eq. reflexivity. Qed.
 Lemma eval_k_bool_inv :
   forall k e b v,
     eval_k k e (TBool b) v -> v = VBool b.
+Proof. intros. destruct v; destruct k; inversion H; reflexivity. Qed.
+
+Lemma eval_k_nat :
+  forall k e n,
+    eval_k k e (TNat n) (VNat n).
+Proof. intros. rewrite eval_k_eq. reflexivity. Qed.
+
+Lemma eval_k_nat_inv :
+  forall k e n v,
+    eval_k k e (TNat n) v -> v = VNat n.
 Proof. intros. destruct v; destruct k; inversion H; reflexivity. Qed.
 
 Lemma eval_k_var :
