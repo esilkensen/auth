@@ -89,7 +89,6 @@ VFILES:=UnitLattice.v\
   LambdaTwoSyntax.v\
   LambdaTwoNI.v\
   LambdaTwo.v\
-  Lambda.v\
   LabelAlgebra.v\
   IndistinguishabilityTwo.v
 
