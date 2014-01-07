@@ -20,18 +20,6 @@ Proof.
   unfold well_founded; intro; eapply pair_lt_wf'; eauto.
 Defined.
 
-Definition bottomp : forall l : two, {l = Bottom2} + {l = Top2} :=
-  fun (l : two) =>
-    match l with
-      | Bottom2 => left eq_refl
-      | Top2 => right eq_refl
-    end.
-
-Example bottomp_example :
-  (if bottomp Bottom2 then 1 else 2) = 1 /\
-  (if bottomp Top2 then 1 else 2) = 2.
-Proof. split; reflexivity. Qed.
-
 Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                      two -> env -> term -> atom -> Prop.
   refine
