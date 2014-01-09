@@ -53,20 +53,18 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                          eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
                          eval L P pc e t2 a2 /\
                          eval L P l1 (a2 :: e1') t1' a
-                | TDecl t1 t2 =>
+                | TDecl t' =>
                   if Compare_dec.zerop (fst kl) then False
                   else let eval := eval_kl (fst kl - 1, snd kl) _ in
-                       exists e1' t1' l1 a2 v3 l3,
-                         eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
-                         eval L P pc e t2 a2 /\
-                         eval L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
-                         if bottomp l3 then a = Atom v3 Bottom2
+                       exists v l1,
+                         eval L P pc e t' (Atom v l1) /\
+                         if bottomp l1 then a = Atom v Bottom2
                          else let eval := eval_kl (snd kl, fst kl - 1) _ in
-                              (forall a2' e2' v3',
-                                 env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                                 eval L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                                 value_LPequiv L P v3 v3') /\
-                              a = Atom v3 Bottom2
+                              (forall e' v',
+                                 env_LPequiv L P e e' ->
+                                 eval L P pc e' t' (Atom v' Top2) ->
+                                 value_LPequiv L P v v') /\
+                              a = Atom v Bottom2
               end));
   unfold pair_lt; simpl; omega.
 Defined.
@@ -93,20 +91,18 @@ Lemma eval_kl_eq :
                  eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
                  eval L P pc e t2 a2 /\
                  eval L P l1 (a2 :: e1') t1' a
-        | TDecl t1 t2 =>
+        | TDecl t' =>
           if Compare_dec.zerop (fst kl) then False
           else let eval := eval_kl (fst kl - 1, snd kl) in
-               exists e1' t1' l1 a2 v3 l3,
-                 eval L P pc e t1 (Atom (VClos e1' t1') l1) /\
-                 eval L P pc e t2 a2 /\
-                 eval L P l1 (a2 :: e1') t1' (Atom v3 l3) /\
-                 if bottomp l3 then a = Atom v3 Bottom2
+               exists v l1,
+                 eval L P pc e t' (Atom v l1) /\
+                 if bottomp l1 then a = Atom v Bottom2
                  else let eval := eval_kl (snd kl, fst kl - 1) in
-                      (forall a2' e2' v3',
-                         env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                         eval L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                         value_LPequiv L P v3 v3') /\
-                      a = Atom v3 Bottom2
+                      (forall e' v',
+                         env_LPequiv L P e e' ->
+                         eval L P pc e' t' (Atom v' Top2) ->
+                         value_LPequiv L P v v') /\
+                      a = Atom v Bottom2
       end.
 Proof.
   intro kl.
@@ -129,13 +125,9 @@ Proof.
     apply functional_extensionality_ex; intro a2.
     rewrite H'. reflexivity.
   - destruct x1; auto; simpl.
-    apply functional_extensionality_ex; intro e1'.
-    apply functional_extensionality_ex; intro t1'.
+    apply functional_extensionality_ex; intro v.
     apply functional_extensionality_ex; intro l1.
-    apply functional_extensionality_ex; intro a2.
-    apply functional_extensionality_ex; intro v3.
-    apply functional_extensionality_ex; intro l3.
-    destruct l3; rewrite H'; simpl; try rewrite H'; reflexivity.
+    destruct l1; rewrite H'; simpl; try rewrite H'; reflexivity.
 Qed.
 
 Lemma eval_kl_bool :
@@ -214,64 +206,56 @@ Proof.
 Qed.
 
 Lemma eval_kl_decl1 :
-  forall k l L P pc e t1 t2 e1' t1' l1 a2 v3,
-    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
-    eval_kl (k, l) L P pc e t2 a2 ->
-    eval_kl (k, l) L P l1 (a2 :: e1') t1' (Atom v3 Bottom2) ->
-    eval_kl (S k, l) L P pc e (TDecl t1 t2) (Atom v3 Bottom2).
+  forall k l L P pc e t v,
+    eval_kl (k, l) L P pc e t (Atom v Bottom2) ->
+    eval_kl (S k, l) L P pc e (TDecl t) (Atom v Bottom2).
 Proof.
   intros.
   rewrite eval_kl_eq. simpl.
   replace (k - 0) with k by omega.
-  exists e1' t1' l1 a2 v3 Bottom2. simpl. auto.
+  exists v Bottom2. simpl. auto.
 Qed.
 
 Lemma eval_kl_decl2 :
-  forall k l L P pc e t1 t2 e1' t1' l1 a2 v3,
-    eval_kl (k, l) L P pc e t1 (Atom (VClos e1' t1') l1) ->
-    eval_kl (k, l) L P pc e t2 a2 ->
-    eval_kl (k, l) L P l1 (a2 :: e1') t1' (Atom v3 Top2) ->
-    (forall a2' e2' v3',
-       env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-       eval_kl (l, k) L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-       value_LPequiv L P v3 v3') ->
-    eval_kl (S k, l) L P pc e (TDecl t1 t2) (Atom v3 Bottom2).
+  forall k l L P pc e t v,
+    eval_kl (k, l) L P pc e t (Atom v Top2) ->
+    (forall e' v',
+       env_LPequiv L P e e' ->
+       eval_kl (l, k) L P pc e' t (Atom v' Top2) ->
+       value_LPequiv L P v v') ->
+    eval_kl (S k, l) L P pc e (TDecl t) (Atom v Bottom2).
 Proof.
   intros.
   rewrite eval_kl_eq. simpl.
   replace (k - 0) with k by omega.
-  exists e1' t1' l1 a2 v3 Top2. simpl. auto.
+  exists v Top2. simpl. auto.
 Qed.
 
 Lemma eval_kl_decl_inv :
-  forall k l L P pc e t1 t2 a,
-    eval_kl (k, l) L P pc e (TDecl t1 t2) a ->
-    (exists k' e1' t1' l1 a2 v3,
+  forall k l L P pc e t a,
+    eval_kl (k, l) L P pc e (TDecl t) a ->
+    (exists k' v,
        k = S k' /\
-       eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
-       eval_kl (k', l) L P pc e t2 a2 /\
-       eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Bottom2) /\
-       a = Atom v3 Bottom2) \/
-    (exists k' e1' t1' l1 a2 v3,
+       eval_kl (k', l) L P pc e t (Atom v Bottom2) /\
+       a = Atom v Bottom2) \/
+    (exists k' v,
        k = S k' /\
-       eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1) /\
-       eval_kl (k', l) L P pc e t2 a2 /\
-       eval_kl (k', l) L P l1 (a2 :: e1') t1' (Atom v3 Top2) /\
-       (forall a2' e2' v3',
-          env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-          eval_kl (l, k') L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-          value_LPequiv L P v3 v3') /\
-       a = Atom v3 Bottom2).
+       eval_kl (k', l) L P pc e t (Atom v Top2) /\
+       (forall e' v',
+          env_LPequiv L P e e' ->
+          eval_kl (l, k') L P pc e' t (Atom v' Top2) ->
+          value_LPequiv L P v v') /\
+       a = Atom v Bottom2).
 Proof.
   intros.
   rewrite eval_kl_eq in H.
   destruct k; simpl in H.
   - inversion H.
-  - destruct H as [e1' [t1' [l1 [a2 [v3 [l3 [H1 [H2 [H3 H4]]]]]]]]].
+  - destruct H as [v [l1 [H1 H2]]].
     replace (k - 0) with k in * by omega.
-    destruct l3; simpl in H4.
-    + left. exists k e1' t1' l1 a2 v3. auto.
-    + right. exists k e1' t1' l1 a2 v3. auto.
+    destruct l1; simpl in H2.
+    + left. exists k v. auto.
+    + right. exists k v. auto.
 Qed.
 
 Definition eval (L : two) (P : value -> value -> Prop)

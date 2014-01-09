@@ -51,39 +51,26 @@ Proof.
     + (* TDecl *)
       apply eval_kl_decl_inv in Heval; destruct Heval as [Heval | Heval].
       * (* E_Decl1 *)
-        destruct Heval
-          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
-        remember (Atom v3 Bottom2) as a3.
-        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        destruct Heval as [k' [v [H1 [H2 H3]]]].
+        assert (H2': eval_kl (S k', l) L P pc e t (Atom v Bottom2))
           by (apply IHn in H2; try assumption; omega).
-        assert (H3': eval_kl (S k', l) L P pc e t2 a2)
-          by (apply IHn in H3; try assumption; omega).
-        assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3)
-          by (apply IHn in H4; try assumption; omega).
-        clear H2; clear H3; clear H4; subst.
-        apply (eval_kl_decl1 (S k') l L P pc e t1 t2 e1' t1' l1 a2 v3);
+        clear H2; subst.
+        apply (eval_kl_decl1 (S k') l L P pc e t v);
           assumption.
       * (* E_Decl2 *)
-        destruct Heval
-          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 [H5 H6]]]]]]]]]]].
-        remember (Atom v3 Top2) as a3.
-        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        destruct Heval as [k' [v [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_kl (S k', l) L P pc e t (Atom v Top2))
           by (apply IHn in H2; try assumption; omega).
-        assert (H3': eval_kl (S k', l) L P pc e t2 a2)
-          by (apply IHn in H3; try assumption; omega).
-        assert (H4': eval_kl (S k', l) L P l1 (a2 :: e1') t1' a3)
-          by (apply IHn in H4; try assumption; omega).
-        assert (H5':
-                  forall a2' e2' v3',
-                    env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                    eval_kl (l, S k') L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                    value_LPequiv L P v3 v3')
-          by (introv He H7; subst;
-              assert (eval_kl (l, k') L P l1 (a2' :: e2') t1' (Atom v3' Top2))
-                by (apply IHn in H7; try omega; assumption);
-              apply (H5 a2' e2' v3'); assumption).
-        clear H2; clear H3; clear H4; clear H5; subst.
-        apply (eval_kl_decl2 (S k') l L P pc e t1 t2 e1' t1' l1 a2 v3);
+        assert (H3': forall e' v',
+                       env_LPequiv L P e e' ->
+                       eval_kl (l, S k') L P pc e' t (Atom v' Top2) ->
+                       value_LPequiv L P v v')
+          by (introv He H5; subst;
+              assert (eval_kl (l, k') L P pc e' t (Atom v' Top2))
+                by (apply IHn in H5; try omega; assumption);
+              apply (H3 e' v'); assumption).
+        clear H2; clear H3; subst.
+        apply (eval_kl_decl2 (S k') l L P pc e t v);
           assumption.
   - destruct t.
     + (* TBool *)
@@ -101,8 +88,7 @@ Proof.
       subst. apply eval_kl_abs.
     + (* TApp *) 
       apply eval_kl_app_inv in Heval.
-      destruct Heval
-        as [k' [e1' [t1' [l1 [a2 [H1 [H2 [H3 H4]]]]]]]].
+      destruct Heval as [k' [e1' [t1' [l1 [a2 [H1 [H2 [H3 H4]]]]]]]].
       assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
         by (apply IHn; try omega; assumption).
       assert (H3': eval_kl (k', l) L P pc e t2 a2)
@@ -115,39 +101,26 @@ Proof.
     + (* TDecl *)
       apply eval_kl_decl_inv in Heval; destruct Heval as [Heval | Heval].
       * (* E_Decl1 *)
-        destruct Heval
-          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 H5]]]]]]]]]].
-        remember (Atom v3 Bottom2) as a3.
-        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        destruct Heval as [k' [v [H1 [H2 H3]]]].
+        assert (H2': eval_kl (k', l) L P pc e t (Atom v Bottom2))
           by (apply IHn; try omega; assumption).
-        assert (H3': eval_kl (k', l) L P pc e t2 a2)
-          by (apply IHn; try omega; assumption).
-        assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3)
-          by (apply IHn; try omega; assumption).
-        clear H2; clear H3; clear H4; subst.
-        apply (eval_kl_decl1 k' l L P pc e t1 t2 e1' t1' l1 a2 v3);
+        clear H2; subst.
+        apply (eval_kl_decl1 k' l L P pc e t v);
           assumption.
       * (* E_Decl2 *)
-        destruct Heval
-          as [k' [e1' [t1' [l1 [a2 [v3 [H1 [H2 [H3 [H4 [H5 H6]]]]]]]]]]].
-        remember (Atom v3 Top2) as a3.
-        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VClos e1' t1') l1))
+        destruct Heval as [k' [v [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_kl (k', l) L P pc e t (Atom v Top2))
           by (apply IHn; try omega; assumption).
-        assert (H3': eval_kl (k', l) L P pc e t2 a2)
-          by (apply IHn; try omega; assumption).
-        assert (H4': eval_kl (k', l) L P l1 (a2 :: e1') t1' a3)
-          by (apply IHn; try omega; assumption).
-        assert (H5':
-                  forall a2' e2' v3',
-                    env_LPequiv L P (a2 :: e1') (a2' :: e2') ->
-                    eval_kl (l, k') L P l1 (a2' :: e2') t1' (Atom v3' Top2) ->
-                    value_LPequiv L P v3 v3')
-          by (introv He H7; subst;
-              assert (eval_kl (S l, k') L P l1 (a2' :: e2') t1' (Atom v3' Top2))
-                by (apply IHn in H7; try assumption; omega);
-              apply (H5 a2' e2' v3'); assumption).
-        clear H2; clear H3; clear H4; clear H5; subst.
-        apply (eval_kl_decl2 k' l L P pc e t1 t2 e1' t1' l1 a2 v3);
+        assert (H3': forall e' v',
+                       env_LPequiv L P e e' ->
+                       eval_kl (l, k') L P pc e' t (Atom v' Top2) ->
+                       value_LPequiv L P v v')
+          by (introv He H5; subst;
+              assert (eval_kl (S l, k') L P pc e' t (Atom v' Top2))
+                by (apply IHn in H5; try assumption; omega);
+              apply (H3 e' v'); assumption).
+        clear H2; clear H3; subst.
+        apply (eval_kl_decl2 k' l L P pc e t v);
           assumption.
 Qed.
 
@@ -259,8 +232,7 @@ Proof.
     remember (Atom (VClos e11' t11') l11) as a1.
     remember (Atom (VClos e11'' t11'') l11') as a1'.
     assert (Ha1: atom_LPequiv L P a1 a1')
-      by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                    (a := a1) (a' := a1') in H2;
+      by (apply (IHn k1' k1'' l pc e e' t1 a1 a1') in H2;
           try assumption; omega); subst.
     assert (l11' = l11)
       by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
@@ -269,128 +241,51 @@ Proof.
     assert (He1: env_LPequiv L P e11' e11'')
       by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
     assert (Ha2: atom_LPequiv L P a21 a21')
-      by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                    (a := a21) (a' := a21') in H3;
+      by (apply (IHn k1' k1'' l pc e e' t2 a21 a21') in H3;
           try assumption; omega).
     assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
       by (split; assumption).
-    apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
-                              (e' := (a21' :: e11'')) (a := a) (a' := a')
-      in H4; try assumption; omega.
+    remember (a21 :: e11') as e2.
+    remember (a21' :: e11'') as e2'.
+    apply (IHn k1' k1'' l l11 e2 e2' t11' a a') in H4;
+      try assumption; omega.
   - (* TDecl *)
     apply eval_kl_decl_inv in Heval1.
     apply eval_kl_decl_inv in Heval2.
     destruct Heval1 as [Heval1 | Heval1];
       destruct Heval2 as [Heval2 | Heval2];
-      destruct Heval1
-        as [k1' [e11' [t11' [l11 [a21 [v31 Heval1]]]]]];
-      destruct Heval2
-        as [k1'' [e11'' [t11'' [l11' [a21' [v31' Heval2]]]]]];
-      destruct_conjs;
-      remember (Atom (VClos e11' t11') l11) as a1;
-      remember (Atom (VClos e11'' t11'') l11') as a1'.
-    + assert (Ha1: atom_LPequiv L P a1 a1')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a1) (a' := a1') in H6;
+      destruct Heval1 as [k1' [v11 Heval1]];
+      destruct Heval2 as [k1'' [v11' Heval2]];
+      destruct_conjs.
+    + apply (IHn k1' k1'' l pc e e' t a a');
+      try omega; subst; assumption.
+    + remember (Atom v11 Bottom2) as a1;
+      remember (Atom v11' Top2) as a1';
+      assert (Ha1: atom_LPequiv L P a1 a1')
+        by (apply (IHn k1' k1'' l pc e e' t a1 a1');
             try assumption; omega); subst.
-      assert (l11' = l11)
-        by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
-      assert (t11'' = t11')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto); subst.
-      assert (He1: env_LPequiv L P e11' e11'')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
-      assert (Ha2: atom_LPequiv L P a21 a21')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a21) (a' := a21') in H7;
-            try assumption; omega).
-      assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
-        by (split; assumption).
-      remember (Atom v31 Bottom2) as a31.
-      remember (Atom v31' Bottom2) as a31'.
-      assert (Ha3: atom_LPequiv L P a31 a31')
-        by (apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
-                                      (e' := (a21' :: e11'')) (a := a31)
-                                      (a' := a31')
-             in H8; try assumption; omega); assumption.
-    + assert (Ha1: atom_LPequiv L P a1 a1')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a1) (a' := a1') in H7;
+      apply atom_LPequiv_lab_inv in Ha1.
+      inversion Ha1.
+    + remember (Atom v11 Top2) as a1;
+      remember (Atom v11' Bottom2) as a1';
+      assert (Ha1: atom_LPequiv L P a1 a1')
+        by (apply (IHn k1' k1'' l pc e e' t a1 a1');
             try assumption; omega); subst.
-      assert (l11' = l11)
-        by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
-      assert (t11'' = t11')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto); subst.
-      assert (He1: env_LPequiv L P e11' e11'')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
-      assert (Ha2: atom_LPequiv L P a21 a21')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a21) (a' := a21') in H8;
+      apply atom_LPequiv_lab_inv in Ha1.
+      inversion Ha1.
+    + remember (Atom v11 Top2) as a1.
+      remember (Atom v11' Top2) as a1'.
+      assert (Ha1: atom_LPequiv L P a1 a1')
+        by (apply (IHn k1' k1'' l pc e e' t a1 a1') in H5;
             try assumption; omega).
-      assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
-        by (split; assumption).
-      remember (Atom v31 Bottom2) as a31.
-      remember (Atom v31' Top2) as a31'.
-      assert (Ha3: atom_LPequiv L P a31 a31')
-        by (apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
-                                      (e' := (a21' :: e11'')) (a := a31)
-                                      (a' := a31')
-             in H9; try assumption; omega); subst.
-      apply atom_LPequiv_lab_inv in Ha3. inversion Ha3.
-    + assert (Ha1: atom_LPequiv L P a1 a1')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a1) (a' := a1') in H6;
-            try assumption; omega); subst.
-      assert (l11' = l11)
-        by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
-      assert (t11'' = t11')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto); subst.
-      assert (He1: env_LPequiv L P e11' e11'')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
-      assert (Ha2: atom_LPequiv L P a21 a21')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a21) (a' := a21') in H7;
-            try assumption; omega).
-      assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
-        by (split; assumption).
-      remember (Atom v31 Top2) as a31.
-      remember (Atom v31' Bottom2) as a31'.
-      assert (Ha3: atom_LPequiv L P a31 a31')
-        by (apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
-                                      (e' := (a21' :: e11'')) (a := a31)
-                                      (a' := a31')
-             in H8; try assumption; omega); subst.
-      apply atom_LPequiv_lab_inv in Ha3. inversion Ha3.
-    + assert (Ha1: atom_LPequiv L P a1 a1')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a1) (a' := a1') in H7;
-            try assumption; omega); subst.
-      assert (l11' = l11)
-        by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
-      assert (t11'' = t11')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto); subst.
-      assert (He1: env_LPequiv L P e11' e11'')
-        by (destruct L; destruct Ha1; destruct H0; destruct_conjs; auto).
-      assert (Ha2: atom_LPequiv L P a21 a21')
-        by (apply IHn with (k := k1') (k' := k1'') (e := e) (e' := e')
-                                      (a := a21) (a' := a21') in H8;
-            try assumption; omega).
-      assert (He1': env_LPequiv L P (a21 :: e11') (a21' :: e11''))
-        by (split; assumption).
-      remember (Atom v31 Top2) as a31.
-      remember (Atom v31' Top2) as a31'.
-      assert (Ha3: atom_LPequiv L P a31 a31')
-        by (apply IHn with (k := k1') (k' := k1'') (e := (a21 :: e11'))
-                                      (e' := (a21' :: e11'')) (a := a31)
-                                      (a' := a31')
-             in H9; try assumption; omega).
-      assert (H3': eval_kl (l, l) L P l11 (a21' :: e11'') t11' a31')
-        by (apply (eval_kl_mon_k k1'' l) in H3; try assumption; omega).
-      assert (H3'': eval_kl (l, k1') L P l11 (a21' :: e11'') t11' a31')
-        by (apply (eval_kl_mon_l l l k1') in H3'; try assumption; omega).
-      assert (value_LPequiv L P v31 v31')
-        by (subst; apply (H10 a21' e11'' v31') in H3''; assumption).
+      assert (H1': eval_kl (l, l) L P pc e' t a1')
+        by (apply (eval_kl_mon_k k1'' l) in H1; try assumption; omega).
+      assert (H1'': eval_kl (l, k1') L P pc e' t a1')
+        by (apply (eval_kl_mon_l l l k1') in H1'; try assumption; omega).
+      assert (value_LPequiv L P v11 v11')
+        by (subst; apply (H6 e' v11') in H1''; assumption); subst.
       destruct L.
-      * right; left; auto.
+      * right; left; auto. 
       * right; right; auto.
 Qed.
 
@@ -408,9 +303,7 @@ Proof.
   assert (H1: eval_kl (k, (S (k + k'))) L P pc e t a) by apply Heval1.
   assert (H2: eval_kl (k', (S (k + k'))) L P pc e' t a') by apply Heval2.
   remember (S (k + k')) as n.
-  apply non_interference_n
-  with (n := n) (k := k) (k' := k') (l := n)
-                (pc := pc) (e := e) (e' := e') (t := t);
+  apply (non_interference_n n k k' n pc e e' t a a');
     try omega; assumption.
 Qed.
 
