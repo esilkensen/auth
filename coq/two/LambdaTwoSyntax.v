@@ -11,8 +11,7 @@ Inductive term : Type :=
   | TVar : nat -> term
   | TAbs : term -> term
   | TApp : term -> term -> term
-  | TDecl : term -> term
-  | TIf : term -> term -> term -> term.
+  | TDecl : term -> term.
 
 (** * Atoms, values. *)
 Section Atoms.

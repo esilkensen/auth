@@ -65,14 +65,6 @@ Definition eval_kl : nat * nat -> two -> (value -> value -> Prop) ->
                                  eval L P pc e' t' (Atom v' Top2) ->
                                  value_LPequiv L P v v') /\
                               a = Atom v Bottom2
-                | TIf t1 t2 t3 =>
-                  if Compare_dec.zerop (fst kl) then False
-                  else let eval := eval_kl (fst kl - 1, snd kl) _ in
-                       exists n l1,
-                         eval L P pc e t1 (Atom (VNat n) l1) /\
-                         if Compare_dec.zerop n
-                         then eval L P (l1 ⊔ pc) e t2 a
-                         else eval L P (l1 ⊔ pc) e t3 a
               end));
   unfold pair_lt; simpl; omega.
 Defined.
@@ -111,14 +103,6 @@ Lemma eval_kl_eq :
                          eval L P pc e' t' (Atom v' Top2) ->
                          value_LPequiv L P v v') /\
                       a = Atom v Bottom2
-        | TIf t1 t2 t3 =>
-          if Compare_dec.zerop (fst kl) then False
-          else let eval := eval_kl (fst kl - 1, snd kl) in
-               exists n l1,
-                 eval L P pc e t1 (Atom (VNat n) l1) /\
-                 if Compare_dec.zerop n
-                 then eval L P (l1 ⊔ pc) e t2 a
-                 else eval L P (l1 ⊔ pc) e t3 a
       end.
 Proof.
   intro kl.
@@ -144,10 +128,6 @@ Proof.
     apply functional_extensionality_ex; intro v.
     apply functional_extensionality_ex; intro l1.
     destruct l1; rewrite H'; simpl; try rewrite H'; reflexivity.
-  - destruct x1; auto; simpl.
-    apply functional_extensionality_ex; intro n.
-    apply functional_extensionality_ex; intro l1.
-    rewrite H'. reflexivity.
 Qed.
 
 Lemma eval_kl_bool :
@@ -276,53 +256,6 @@ Proof.
     destruct l1; simpl in H2.
     + left. exists k v. auto.
     + right. exists k v. auto.
-Qed.
-
-Lemma eval_kl_iftrue :
-  forall k l L P pc e t1 t2 t3 l1 a,
-    eval_kl (k, l) L P pc e t1 (Atom (VNat 0) l1) ->
-    eval_kl (k, l) L P (l1 ⊔ pc) e t2 a ->
-    eval_kl (S k, l) L P pc e (TIf t1 t2 t3) a.
-Proof.
-  introv Ht1 Ht2.
-  rewrite eval_kl_eq. simpl.
-  replace (k - 0) with k by omega.
-  exists 0 l1. auto.
-Qed.
-
-Lemma eval_kl_iffalse :
-  forall k l L P pc e t1 t2 t3 l1 n a,
-    eval_kl (k, l) L P pc e t1 (Atom (VNat (S n)) l1) ->
-    eval_kl (k, l) L P (l1 ⊔ pc) e t3 a ->
-    eval_kl (S k, l) L P pc e (TIf t1 t2 t3) a.
-Proof.
-  introv Ht1 Ht3.
-  rewrite eval_kl_eq. simpl.
-  replace (k - 0) with k by omega.
-  exists (S n) l1. auto.
-Qed.
-
-Lemma eval_kl_if_inv :
-  forall k l L P pc e t1 t2 t3 a,
-    eval_kl (k, l) L P pc e (TIf t1 t2 t3) a ->
-    (exists k' l1,
-       k = S k' /\
-       eval_kl (k', l) L P pc e t1 (Atom (VNat 0) l1) /\
-       eval_kl (k', l) L P (l1 ⊔ pc) e t2 a) \/
-    (exists k' n l1,
-       k = S k' /\
-       eval_kl (k', l) L P pc e t1 (Atom (VNat (S n)) l1) /\
-       eval_kl (k', l) L P (l1 ⊔ pc) e t3 a).
-Proof.
-  intros.
-  rewrite eval_kl_eq in H.
-  destruct k; simpl in H.
-  - inversion H.
-  - destruct H as [n [l1 [H1 H2]]].
-    replace (k - 0) with k in * by omega.
-    destruct n.
-    + left. exists k l1. auto.
-    + right. exists k n l1. auto.
 Qed.
 
 Definition eval (L : two) (P : value -> value -> Prop)
