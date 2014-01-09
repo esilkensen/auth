@@ -76,7 +76,7 @@ Proof.
       apply eval_kl_if_inv in Heval; destruct Heval as [Heval | Heval].
       * (* E_IfTrue *)
         destruct Heval as [k' [l1 [H1 [H2 H3]]]].
-        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VBool true) l1))
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VNat 0) l1))
           by (apply IHn in H2; try assumption; omega).
         assert (H3': eval_kl (S k', l) L P (l1 ⊔ pc) e t2 a)
           by (apply IHn in H3; try assumption; omega).
@@ -84,13 +84,13 @@ Proof.
         apply (eval_kl_iftrue (S k') l L P pc e t1 t2 t3 l1 a);
           assumption.
       * (* E_IfFalse *)
-        destruct Heval as [k' [l1 [H1 [H2 H3]]]].
-        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VBool false) l1))
+        destruct Heval as [k' [n' [l1 [H1 [H2 H3]]]]].
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VNat (S n')) l1))
           by (apply IHn in H2; try assumption; omega).
         assert (H3': eval_kl (S k', l) L P (l1 ⊔ pc) e t3 a)
           by (apply IHn in H3; try assumption; omega).
         clear H2; clear H3; subst.
-        apply (eval_kl_iffalse (S k') l L P pc e t1 t2 t3 l1 a);
+        apply (eval_kl_iffalse (S k') l L P pc e t1 t2 t3 l1 n' a);
           assumption.
   - destruct t.
     + (* TBool *)
@@ -146,7 +146,7 @@ Proof.
       apply eval_kl_if_inv in Heval; destruct Heval as [Heval | Heval].
       * (* E_IfTrue *)
         destruct Heval as [k' [l1 [H1 [H2 H3]]]].
-        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VBool true) l1))
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VNat 0) l1))
           by (apply IHn; try omega; assumption).
         assert (H3': eval_kl (k', l) L P (l1 ⊔ pc) e t2 a)
           by (apply IHn; try omega; assumption).
@@ -154,13 +154,13 @@ Proof.
         apply (eval_kl_iftrue k' l L P pc e t1 t2 t3 l1 a);
           assumption.
       * (* E_IfFalse *)
-        destruct Heval as [k' [l1 [H1 [H2 H3]]]].
-        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VBool false) l1))
+        destruct Heval as [k' [n' [l1 [H1 [H2 H3]]]]].
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VNat (S n')) l1))
           by (apply IHn; try omega; assumption).
         assert (H3': eval_kl (k', l) L P (l1 ⊔ pc) e t3 a)
           by (apply IHn; try omega; assumption).
         clear H2; clear H3; subst.
-        apply (eval_kl_iffalse k' l L P pc e t1 t2 t3 l1 a);
+        apply (eval_kl_iffalse k' l L P pc e t1 t2 t3 l1 n' a);
           assumption.
 Qed.
 
@@ -332,10 +332,12 @@ Proof.
     apply eval_kl_if_inv in Heval2.
     destruct Heval1 as [Heval1 | Heval1];
       destruct Heval2 as [Heval2 | Heval2];
-      destruct Heval1 as [k1 [l1 [H1 [H2 H3]]]];
-      destruct Heval2 as [k1' [l1' [H1' [H2' H3']]]].
-    + remember (Atom (VBool true) l1) as a1.
-      remember (Atom (VBool true) l1') as a1'.
+      destruct Heval1 as [k1 Heval1];
+      destruct Heval2 as [k1' Heval2].
+    + destruct Heval1 as [l1 [H1 [H2 H3]]].
+      destruct Heval2 as [l1' [H1' [H2' H3']]].
+      remember (Atom (VNat 0) l1) as a1.
+      remember (Atom (VNat 0) l1') as a1'.
       assert (Ha1: atom_LPequiv L P a1 a1')
         by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
             try omega; assumption); subst.
@@ -343,8 +345,10 @@ Proof.
         by (apply atom_LPequiv_lab_inv in Ha1; auto); subst.
       apply (IHn k1 k1' l (l1 ⊔ pc) e e' t2 a a');
         try omega; assumption.
-    + remember (Atom (VBool true) l1) as a1.
-      remember (Atom (VBool false) l1') as a1'.
+    + destruct Heval1 as [l1 [H1 [H2 H3]]].
+      destruct Heval2 as [n1' [l1' [H1' [H2' H3']]]].
+      remember (Atom (VNat 0) l1) as a1.
+      remember (Atom (VNat (S n1')) l1') as a1'.
       assert (Ha1: atom_LPequiv L P a1 a1')
         by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
             try omega; assumption); subst.
@@ -354,8 +358,10 @@ Proof.
       * destruct_conjs; subst. simpl in *.
         admit.
       * destruct H0; destruct_conjs; inversion H4; inversion H5.
-    + remember (Atom (VBool false) l1) as a1.
-      remember (Atom (VBool true) l1') as a1'.
+    + destruct Heval1 as [n1 [l1 [H1 [H2 H3]]]].
+      destruct Heval2 as [l1' [H1' [H2' H3']]].
+      remember (Atom (VNat (S n1)) l1) as a1.
+      remember (Atom (VNat 0) l1') as a1'.
       assert (Ha1: atom_LPequiv L P a1 a1')
         by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
             try omega; assumption); subst.
@@ -365,8 +371,10 @@ Proof.
       * destruct_conjs; subst. simpl in *.
         admit.
       * destruct H0; destruct_conjs; inversion H4; inversion H5.
-    + remember (Atom (VBool false) l1) as a1.
-      remember (Atom (VBool false) l1') as a1'.
+    + destruct Heval1 as [n1 [l1 [H1 [H2 H3]]]].
+      destruct Heval2 as [n1' [l1' [H1' [H2' H3']]]].
+      remember (Atom (VNat (S n1)) l1) as a1.
+      remember (Atom (VNat (S n1')) l1') as a1'.
       assert (Ha1: atom_LPequiv L P a1 a1')
         by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
             try omega; assumption); subst.
