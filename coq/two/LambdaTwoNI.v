@@ -72,6 +72,26 @@ Proof.
         clear H2; clear H3; subst.
         apply (eval_kl_decl2 (S k') l L P pc e t v);
           assumption.
+    + (* TIf *)
+      apply eval_kl_if_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_IfTrue *)
+        destruct Heval as [k' [H1 [H2 H3]]].
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VBool true) Bottom2))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H3': eval_kl (S k', l) L P (Bottom2 ⊔ pc) e t2 a)
+          by (apply IHn in H3; try assumption; omega).
+        clear H2; clear H3; subst.
+        apply (eval_kl_iftrue (S k') l L P pc e t1 t2 t3 a);
+          assumption.
+      * (* E_IfFalse *)
+        destruct Heval as [k' [H1 [H2 H3]]].
+        assert (H2': eval_kl (S k', l) L P pc e t1 (Atom (VBool false) Bottom2))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H3': eval_kl (S k', l) L P (Bottom2 ⊔ pc) e t3 a)
+          by (apply IHn in H3; try assumption; omega).
+        clear H2; clear H3; subst.
+        apply (eval_kl_iffalse (S k') l L P pc e t1 t2 t3 a);
+          assumption.
   - destruct t.
     + (* TBool *)
       apply eval_kl_bool_inv in Heval.
@@ -121,6 +141,26 @@ Proof.
               apply (H3 e' v'); assumption).
         clear H2; clear H3; subst.
         apply (eval_kl_decl2 k' l L P pc e t v);
+          assumption.
+    + (* TIf *)
+      apply eval_kl_if_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_IfTrue *)
+        destruct Heval as [k' [H1 [H2 H3]]].
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VBool true) Bottom2))
+          by (apply IHn; try omega; assumption).
+        assert (H3': eval_kl (k', l) L P (Bottom2 ⊔ pc) e t2 a)
+          by (apply IHn; try omega; assumption).
+        clear H2; clear H3; subst.
+        apply (eval_kl_iftrue k' l L P pc e t1 t2 t3 a);
+          assumption.
+      * (* E_IfFalse *)
+        destruct Heval as [k' [H1 [H2 H3]]].
+        assert (H2': eval_kl (k', l) L P pc e t1 (Atom (VBool false) Bottom2))
+          by (apply IHn; try omega; assumption).
+        assert (H3': eval_kl (k', l) L P (Bottom2 ⊔ pc) e t3 a)
+          by (apply IHn; try omega; assumption).
+        clear H2; clear H3; subst.
+        apply (eval_kl_iffalse k' l L P pc e t1 t2 t3 a);
           assumption.
 Qed.
 
@@ -287,6 +327,31 @@ Proof.
       destruct L.
       * right; left; auto. 
       * right; right; auto.
+  - (* TIf *)
+    apply eval_kl_if_inv in Heval1.
+    apply eval_kl_if_inv in Heval2.
+    destruct Heval1 as [Heval1 | Heval1];
+      destruct Heval2 as [Heval2 | Heval2];
+      destruct Heval1 as [k1 [H1 [H2 H3]]];
+      destruct Heval2 as [k1' [H1' [H2' H3']]].
+    + apply (IHn k1 k1' l (Bottom2 ⊔ pc) e e' t2 a a');
+        try omega; assumption.
+    + remember (Atom (VBool true) Bottom2) as a1.
+      remember (Atom (VBool false) Bottom2) as a1'.
+      assert (Ha1: atom_LPequiv L P a1 a1')
+        by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
+            try omega; assumption); subst.
+      inversion Ha1; inversion H0; destruct_conjs;
+      inversion H4; inversion H5; inversion H6.
+    + remember (Atom (VBool false) Bottom2) as a1.
+      remember (Atom (VBool true) Bottom2) as a1'.
+      assert (Ha1: atom_LPequiv L P a1 a1')
+        by (apply (IHn k1 k1' l pc e e' t1 a1 a1');
+            try omega; assumption); subst.
+      inversion Ha1; inversion H0; destruct_conjs;
+      inversion H4; inversion H5; inversion H6.
+    + apply (IHn k1 k1' l (Bottom2 ⊔ pc) e e' t3 a a');
+        try omega; assumption.
 Qed.
 
 Theorem non_interference :
