@@ -238,23 +238,6 @@ Proof.
   exists v l1. auto.
 Qed.
 
-(*
-        | TRelabel t' l' =>
-          if Compare_dec.zerop (fst km) then False
-          else let eval := eval_km (fst km - 1, snd km) in
-               exists v l1,
-                 eval l P pc e t' (Atom v l1) /\
-                 ((l1 ⊑ l' /\
-                   a = Atom v l') \/
-                  (l' ⊑ l1 /\
-                   let eval := eval_km (snd km, fst km - 1) in
-                   (forall e' v',
-                      env_LPequiv L M l P e e' ->
-                      eval l P pc e' t' (Atom v' l1) ->
-                      value_LPequiv L M l P v v') /\
-                   a = Atom v l'))
-*)
-
 Lemma eval_km_relabel_inv {L : Type} {M : LabelAlgebra unit L} :
   forall k m l P pc e t' l' a,
     eval_km (k, m) l P pc e (TRelabel t' l') a ->
