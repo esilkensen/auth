@@ -134,3 +134,157 @@ Proof.
     apply functional_extensionality_ex; intro l1.
     rewrite 2! H'. reflexivity.
 Qed.
+
+Lemma eval_km_bool {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e b,
+    eval_km (k, m) l P pc e (TBool L b) (Atom (VBool L b) pc).
+Proof. intros. rewrite eval_km_eq. auto. Qed.
+
+Lemma eval_km_bool_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e b a,
+    eval_km (k, m) l P pc e (TBool L b) a -> a = Atom (VBool L b) pc.
+Proof. intros. rewrite eval_km_eq in H. auto. Qed.
+
+Lemma eval_km_nat {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e n,
+    eval_km (k, m) l P pc e (TNat L n) (Atom (VNat L n) pc).
+Proof. intros. rewrite eval_km_eq. auto. Qed.
+
+Lemma eval_km_nat_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e n a,
+    eval_km (k, m) l P pc e (TNat L n) a -> a = Atom (VNat L n) pc.
+Proof. intros. rewrite eval_km_eq in H. auto. Qed.
+
+Lemma eval_km_var {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e n v' l',
+    atIndex e n = Some (Atom v' l') ->
+    eval_km (k, m) l P pc e (TVar L n) (Atom v' (l' ⊔ pc)).
+Proof. intros. rewrite eval_km_eq. exists v' l'. auto. Qed.
+
+Lemma eval_km_var_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e n a,
+    eval_km (k, m) l P pc e (TVar L n) a ->
+    exists v' l',
+      atIndex e n = Some (Atom v' l') /\
+      a = Atom v' (l' ⊔ pc).
+Proof. intros. rewrite eval_km_eq in H. auto. Qed.
+
+Lemma eval_km_abs {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t',
+    eval_km (k, m) l P pc e (TAbs t') (Atom (VClos e t') pc).
+Proof. intros. rewrite eval_km_eq. auto. Qed.
+
+Lemma eval_km_abs_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t a,
+    eval_km (k, m) l P pc e (TAbs t) a -> a = Atom (VClos e t) pc.
+Proof. intros. rewrite eval_km_eq in H. auto. Qed.
+
+Lemma eval_km_app {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t1 t2 e1' t1' l1 a2 a3,
+    eval_km (k, m) l P pc e t1 (Atom (VClos e1' t1') l1) ->
+    eval_km (k, m) l P pc e t2 a2 ->
+    eval_km (k, m) l P l1 (a2 :: e1') t1' a3 ->
+    eval_km (S k, m) l P pc e (TApp t1 t2) a3.
+Proof.
+  intros.
+  rewrite eval_km_eq. simpl.
+  replace (k - 0) with k by omega.
+  exists e1' t1' l1 a2. auto.
+Qed.
+
+Lemma eval_km_app_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t1 t2 a,
+    eval_km (k, m) l P pc e (TApp t1 t2) a ->
+    exists k' e1' t1' l1 a2,
+      k = S k' /\
+      eval_km (k', m) l P pc e t1 (Atom (VClos e1' t1') l1) /\
+      eval_km (k', m) l P pc e t2 a2 /\
+      eval_km (k', m) l P l1 (a2 :: e1') t1' a.
+Proof.
+  intros.
+  rewrite eval_km_eq in H.
+  destruct k; simpl in H.
+  - inversion H.
+  - destruct H as [e1' [t1' [l1 [a2 [H1 [H2 H3]]]]]].
+    replace (k - 0) with k in * by omega.
+    exists k e1' t1' l1 a2. auto.
+Qed.
+
+Lemma eval_km_relabel_up {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t' l' v l1,
+    eval_km (k, m) l P pc e t' (Atom v l1) ->
+    l1 ⊑ l' ->
+    eval_km (S k, m) l P pc e (TRelabel t' l') (Atom v l').
+Proof.
+  intros.
+  rewrite eval_km_eq. simpl.
+  replace (k - 0) with k by omega.
+  exists v l1. auto.
+Qed.
+
+Lemma eval_km_relabel_down {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t' l' v l1,
+    eval_km (k, m) l P pc e t' (Atom v l1) ->
+    l' ⊑ l1 ->
+    (forall e' v',
+       env_LPequiv L M l P e e' ->
+       eval_km (m, k) l P pc e' t' (Atom v' l1) ->
+       value_LPequiv L M l P v v') ->
+    eval_km (S k, m) l P pc e (TRelabel t' l') (Atom v l').
+Proof.
+  intros.
+  rewrite eval_km_eq. simpl.
+  replace (k - 0) with k by omega.
+  exists v l1. auto.
+Qed.
+
+(*
+        | TRelabel t' l' =>
+          if Compare_dec.zerop (fst km) then False
+          else let eval := eval_km (fst km - 1, snd km) in
+               exists v l1,
+                 eval l P pc e t' (Atom v l1) /\
+                 ((l1 ⊑ l' /\
+                   a = Atom v l') \/
+                  (l' ⊑ l1 /\
+                   let eval := eval_km (snd km, fst km - 1) in
+                   (forall e' v',
+                      env_LPequiv L M l P e e' ->
+                      eval l P pc e' t' (Atom v' l1) ->
+                      value_LPequiv L M l P v v') /\
+                   a = Atom v l'))
+*)
+
+Lemma eval_km_relabel_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t' l' a,
+    eval_km (k, m) l P pc e (TRelabel t' l') a ->
+    (exists k' v l1,
+       k = S k' /\
+       eval_km (k', m) l P pc e t' (Atom v l1) /\
+       l1 ⊑ l' /\
+       a = Atom v l') \/
+    (exists k' v l1,
+       k = S k' /\
+       eval_km (k', m) l P pc e t' (Atom v l1) /\
+       l' ⊑ l1 /\
+       (forall e' v',
+          env_LPequiv L M l P e e' ->
+          eval_km (m, k') l P pc e' t' (Atom v' l1) ->
+          value_LPequiv L M l P v v') /\
+       a = Atom v l').
+Proof.
+  intros.
+  rewrite eval_km_eq in H.
+  destruct k; simpl in H.
+  - inversion H.
+  - destruct H as [v [l1 [H1 H2]]].
+    replace (k - 0) with k in * by omega.
+    destruct H2 as [[H2 H3] | [H2 H3]].
+    + left. exists k v l1. auto.
+    + right. exists k v l1. auto.
+Qed.
+
+Definition eval {L : Type} {M : LabelAlgebra unit L}
+           (l : L) (P : value L -> value L -> Prop)
+           (pc : L) (e : env L) (t : term L) (a : atom L) : Prop :=
+  exists k, forall m, eval_km (k, m) l P pc e t a.
