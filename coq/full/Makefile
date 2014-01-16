@@ -86,6 +86,7 @@ VFILES:=UnitLattice.v\
   MyList.v\
   LibTactics.v\
   LambdaSyntax.v\
+  LambdaNI.v\
   Lambda.v\
   LabelAlgebra.v\
   Indistinguishability.v

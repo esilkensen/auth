@@ -1,6 +1,7 @@
 Indistinguishability.v
 LabelAlgebra.v
 Lambda.v
+LambdaNI.v
 LambdaSyntax.v
 LibTactics.v
 MyList.v
