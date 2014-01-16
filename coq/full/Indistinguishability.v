@@ -17,13 +17,13 @@ Fixpoint atom_LPequiv a1 a2 : Prop :=
     | Atom v1 l1, Atom v2 l2 =>
       ((l1 ⊑ l \/ l2 ⊑ l) /\
        value_LPequiv v1 v2 /\ l1 =L l2) \/
-      (l ⊑ l1 /\ l ⊑ l2 /\ ~ l =L l1 /\ ~ l =L l2 /\
+      (l ⊑ l1 /\ l ⊑ l2 /\ ~ l1 ⊑ l /\ ~ l2 ⊑ l /\
        match v1, v2 with
          | VNat n1, VNat n2 => P v1 v2
          | VClos e1 t1, VClos e2 t2 => value_LPequiv v1 v2
          | _, _ => True
        end) \/
-      (~ l ⊑ l1 /\ ~ l1 ⊑ l /\ ~ l ⊑ l2 /\ ~ l2 ⊑ l)
+      ~ (l1 ⊑ l \/ l ⊑ l1 \/ l2 ⊑ l \/ l ⊑ l2)
   end
 with value_LPequiv v1 v2 : Prop :=
        match v1, v2 with
@@ -51,7 +51,7 @@ Proof.
          left; auto |
          left; auto |
          right; left; splits; auto |
-         right; right; auto
+         right; right; intro C; destruct C as [C | [C | [C | C]]]; auto
        ]).
   - intros b.
     unfold value_LPequiv. auto.
