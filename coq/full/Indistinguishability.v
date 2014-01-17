@@ -15,15 +15,14 @@ Context (L : Type)
 Fixpoint atom_LPequiv a1 a2 : Prop :=
   match a1, a2 with
     | Atom v1 l1, Atom v2 l2 =>
-      ((l1 ⊑ l \/ l2 ⊑ l) /\
-       value_LPequiv v1 v2 /\ l1 =L l2) \/
-      (l ⊑ l1 /\ l ⊑ l2 /\ ~ l1 ⊑ l /\ ~ l2 ⊑ l /\
+      ((l1 ⊑ l \/ l2 ⊑ l) ->
+       (value_LPequiv v1 v2 /\ l1 =L l2)) /\
+      ((l ⊑ l1 /\ l ⊑ l2 /\ ~ l1 ⊑ l /\ ~ l2 ⊑ l) ->
        match v1, v2 with
          | VNat n1, VNat n2 => P v1 v2
          | VClos e1 t1, VClos e2 t2 => value_LPequiv v1 v2
          | _, _ => True
-       end) \/
-      ~ (l1 ⊑ l \/ l ⊑ l1 \/ l2 ⊑ l \/ l ⊑ l2)
+       end)
   end
 with value_LPequiv v1 v2 : Prop :=
        match v1, v2 with
@@ -43,16 +42,10 @@ Lemma atom_value_env_LPequiv_refl :
   (forall e, env_LPequiv e e).
 Proof.
   apply atom_value_env_mutind.
-  - intros v Hv l1.
-    assert (H1: l1 ⊑ l \/ ~ l1 ⊑ l) by apply classic.
-    assert (H2: l ⊑ l1 \/ ~ l ⊑ l1) by apply classic.
-    destruct v as [b | n | e t];
-      (destruct H1 as [H1 | H1]; destruct H2 as [H2 | H2]; [
-         left; auto |
-         left; auto |
-         right; left; splits; auto |
-         right; right; intro C; destruct C as [C | [C | [C | C]]]; auto
-       ]).
+  - intros v Hv l1. 
+    split; intro.
+    + split; auto.
+    + destruct v; auto.
   - intros b.
     unfold value_LPequiv. auto.
   - intros n.

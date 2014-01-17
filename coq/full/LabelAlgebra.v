@@ -255,6 +255,22 @@ Hint Resolve
      flowsTo_join_UBR
      flowsTo_join_LUB.
 
+Lemma labEquiv_join {A L} {LA: LabelAlgebra A L} :
+  forall l1 l2 l,
+    l1 =L l2 ->
+    l1 ⊔ l =L l2 ⊔ l.
+Proof.
+intros l1 l2 l H.
+inversion H as [H1 H2].
+assert (H3: l1 ⊑ l1 ⊔ l) by auto.
+assert (H4: l2 ⊑ l2 ⊔ l) by auto.
+assert (H5: l ⊑ l1 ⊔ l) by auto.
+assert (H6: l ⊑ l2 ⊔ l) by auto.
+assert (H7: l1 ⊑ l2 ⊔ l) by (transitivity l2; auto).
+assert (H8: l2 ⊑ l1 ⊔ l) by (transitivity l1; auto).
+split; auto.
+Qed.
+
 (** * Packing label algebras with their authority- and label-types. *)
 Definition packedLA : Type := { A :Type & { L : Type & LabelAlgebra A L } }.
 Definition packLA {A L: Type} (LA: LabelAlgebra A L) : packedLA :=

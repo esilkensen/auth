@@ -214,17 +214,22 @@ Proof.
     destruct Heval2 as [v2' [l2' [He2 Ha2]]].
     assert (Ha: atom_LPequiv L M l P (Atom v1' l1') (Atom v2' l2'))
       by (eapply list_forall2_atIndex; eauto). subst.
-    admit.
+    split; intro H1; destruct Ha as [Ha1 Ha2];
+    fold (value_LPequiv L M l P v1' v2') in *.
+    + assert (H1': l1' ⊑ l \/ l2' ⊑ l)
+        by (destruct H1; [
+              left; transitivity (l1' ⊔ pc); auto |
+              right; transitivity (l2' ⊔ pc); auto
+            ]).
+      apply Ha1 in H1'. destruct H1' as [H1'a H1'b].
+      split; try apply labEquiv_join; auto. 
+    + (* TODO: what is the correct definition of atom_LPequiv? *)
+      admit.
   - (* TAbs *)
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
     assert (H1: pc ⊑ l \/ ~ pc ⊑ l) by apply classic.
-    destruct H1 as [H1 | H1].
-    + left. auto.
-    + assert (H2: l ⊑ pc \/ ~ l ⊑ pc) by apply classic.
-      destruct H2 as [H2 | H2].
-      * right. left. splits; auto. 
-      * right. right. intro C. destruct C as [C | [C | [C | C]]]; auto.
+    destruct H1; split; auto.
   - (* TApp *)
     apply eval_km_app_inv in Heval1.
     apply eval_km_app_inv in Heval2.
