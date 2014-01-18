@@ -10,7 +10,8 @@ Context
   (M : LabelAlgebra unit L)
   (l : L)
   (P : value L -> value L -> Prop)
-  (Prefl: forall v, P v v).
+  (Prefl: forall v, P v v)
+  (Ltotal: forall l l', l ⊑ l' \/ l' ⊑ l).
 
 Lemma eval_km_mon_n :
   forall n,
@@ -214,17 +215,7 @@ Proof.
     destruct Heval2 as [v2' [l2' [He2 Ha2]]].
     assert (Ha: atom_LPequiv L M l P (Atom v1' l1') (Atom v2' l2'))
       by (eapply list_forall2_atIndex; eauto). subst.
-    split; intro H1; destruct Ha as [Ha1 Ha2];
-    fold (value_LPequiv L M l P v1' v2') in *.
-    + assert (H1': l1' ⊑ l \/ l2' ⊑ l)
-        by (destruct H1; [
-              left; transitivity (l1' ⊔ pc); auto |
-              right; transitivity (l2' ⊔ pc); auto
-            ]).
-      apply Ha1 in H1'. destruct H1' as [H1'a H1'b].
-      split; try apply labEquiv_join; auto. 
-    + (* TODO: what is the correct definition of atom_LPequiv? *)
-      admit.
+    apply atom_LPequiv_raise; auto.
   - (* TAbs *)
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
