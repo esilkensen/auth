@@ -189,25 +189,26 @@ Proof.
 Qed.
 
 Lemma non_interference_n :
-  forall n k k' m pc e e' t a a',
+  forall n k k' m pc pc' e e' t a a',
     k + k' < n ->
     k < m ->
     k' < m ->
+    lab_Lequiv L M l pc pc' ->
     env_LPequiv L M l P e e' ->
     eval_km (k, m) l P pc e t a ->
-    eval_km (k', m) l P pc e' t a' ->
+    eval_km (k', m) l P pc' e' t a' ->
     atom_LPequiv L M l P a a'.
 Proof.
-  intro n. induction n; introv H Hk Hk' He Heval1 Heval2; auto.
+  intro n. induction n; introv H Hk Hk' Hpc He Heval1 Heval2; auto.
   destruct t.
   - (* TBool *)
     apply eval_km_bool_inv in Heval1.
     apply eval_km_bool_inv in Heval2. subst.
-    apply atom_LPequiv_refl. assumption.
+    apply atom_LPequiv_lab_Lequiv_refl; assumption.
   - (* TNat *)
     apply eval_km_nat_inv in Heval1.
     apply eval_km_nat_inv in Heval2. subst.
-    apply atom_LPequiv_refl. assumption.
+    apply atom_LPequiv_lab_Lequiv_refl; assumption.
   - (* TVar *)
     apply eval_km_var_inv in Heval1.
     apply eval_km_var_inv in Heval2.
@@ -215,7 +216,7 @@ Proof.
     destruct Heval2 as [v2' [l2' [He2 Ha2]]].
     assert (Ha: atom_LPequiv L M l P (Atom v1' l1') (Atom v2' l2'))
       by (eapply list_forall2_atIndex; eauto). subst.
-    apply atom_LPequiv_raise; auto.
+    apply atom_LPequiv_lab_Lequiv_raise; auto.
   - (* TAbs *)
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
@@ -231,8 +232,26 @@ Proof.
     remember (Atom (VClos e11' t11') l11) as a1.
     remember (Atom (VClos e11'' t11'') l11') as a1'.
     assert (Ha1: atom_LPequiv L M l P a1 a1')
-      by (apply (IHn k1' k1'' m pc e e' t1 a1 a1') in H2;
+      by (apply (IHn k1' k1'' m pc pc' e e' t1 a1 a1') in H2;
           try assumption; omega); subst.
+    assert (Ha2: atom_LPequiv L M l P a21 a21')
+      by (apply (IHn k1' k1'' m pc pc' e e' t2 a21 a21') in H3;
+          try assumption; omega).
+    assert (t11'' = t11')
+      by (inversion Ha1 as [Ha1a Ha1b];
+          fold (atom_LPequiv L M l P) in *;
+            assert (Hl11: l11 ⊑ l \/ l ⊑ l11) by auto;
+          assert (Hl11': l11' ⊑ l \/ l ⊑ l11') by auto;
+          destruct Hl11 as [Hl11 | Hl11];
+          destruct Hl11' as [Hl11' | Hl11'];
+          try (assert (Hl: l11 ⊑ l \/ l11' ⊑ l) by auto;
+               apply Ha1a in Hl; destruct Hl as [[Hla Hlb] Hlc]; auto);
+          try (assert (Hl': (l11 ⊑ l \/ l11' ⊑ l) \/ ~ (l11 ⊑ l \/ l11' ⊑ l))
+                by apply classic;
+               destruct Hl' as [Hl' | Hl'];
+               try (apply Ha1a in Hl'; destruct Hl' as [[Hla Hlb] Hlc]; auto);
+               try (assert (Hl: ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
+                     by auto; apply Ha1b in Hl; destruct Hl; auto))); subst.
     admit.
   - (* TRelabel *)
     apply eval_km_relabel_inv in Heval1.
@@ -241,20 +260,21 @@ Proof.
 Qed.
 
 Theorem non_interference :
-  forall pc e e' t a a',
+  forall pc pc' e e' t a a',
     env_LPequiv L M l P e e' ->
+    lab_Lequiv L M l pc pc' ->
     eval l P pc e t a ->
-    eval l P pc e' t a' ->
+    eval l P pc' e' t a' ->
     atom_LPequiv L M l P a a'.
 Proof.
-  introv He Heval1 Heval2.
+  introv He Hpc Heval1 Heval2.
   unfold eval in *.
   destruct Heval1 as [k Heval1].
   destruct Heval2 as [k' Heval2].
   assert (H1: eval_km (k, (S (k + k'))) l P pc e t a) by apply Heval1.
-  assert (H2: eval_km (k', (S (k + k'))) l P pc e' t a') by apply Heval2.
+  assert (H2: eval_km (k', (S (k + k'))) l P pc' e' t a') by apply Heval2.
   remember (S (k + k')) as n.
-  apply (non_interference_n n k k' n pc e e' t a a');
+  apply (non_interference_n n k k' n pc pc' e e' t a a');
     try omega; assumption.
 Qed.
 
