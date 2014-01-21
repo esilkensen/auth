@@ -10,8 +10,9 @@ Context
   (M : LabelAlgebra unit L)
   (l : L)
   (P : value L -> value L -> Prop)
-  (Prefl: forall v, P v v)
-  (Ltotal: forall l l', l ⊑ l' \/ l' ⊑ l).
+  (Prefl : forall v, P v v)
+  (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
+  (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
 
 Lemma eval_km_mon_n :
   forall n,
@@ -279,26 +280,32 @@ Proof.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
         by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
             try omega; assumption); subst.
-      assert (Hl11: lab_Lequiv L M l l11 l11')
-        by (eapply atom_LPequiv_lab_inv; eauto).
-      destruct Hl11 as [Hl11 | Hl11].
-      * destruct Hl11 as [Hl11a [Hl11b Hl11c]].
-        assert (l11' ⊑ l0) by (transitivity l11; assumption).
-        apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
-          assumption.
-      * destruct Hl11 as [Hl11a [Hl11b Hl11c]]; clear Hl11c.
-        assert (Hl11a': ~ l11 ⊑ l /\ ~ l11' ⊑ l) by auto.
-        destruct Hl11a' as [Hl11a' Hl11b'].
-        assert (Hl1: l ⊑ l11 \/ l11 ⊑ l) by auto.
-        destruct Hl1; try contradiction.
-        assert (Hl0: l11' ⊑ l0 \/ ~ l11' ⊑ l0) by apply classic.
-        destruct Hl0 as [Hl0 | Hl0].
-        apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
-          assumption.
-        split; intro; destruct Ha1 as [Ha11 Ha12];
-        fold (value_LPequiv L M l P v11 v11') in *.
-        admit.
-        admit.
+      assert (Hl11': l11' ⊑ l0 \/ ~ l11' ⊑ l0) by apply classic.
+      destruct Hl11' as [Hl11' | Hl11'].
+      * apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
+        assumption.
+      * assert (Hl11: lab_Lequiv L M l l11 l11')
+          by (eapply atom_LPequiv_lab_inv; eauto).
+        split; intro Hl; fold (value_LPequiv L M l P v11 v11').
+        admit. (* should be able to prove this *)
+        destruct v11; destruct v11'; auto.
+        destruct Ha1 as [Ha11 Ha12].
+          destruct Hl11 as [[Hl11a Hl11b] | Hl11].
+          apply Ha11 in Hl11a. destruct Hl11a as [Hl11a Hl11a']. subst. auto.
+          apply Ha12. destruct Hl11 as [Hl11a [Hl11b Hl11c]].
+          split. assumption. split; try assumption.
+          assert (~ l11 ⊑ l) by auto.
+          assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto.
+          destruct Htmp; try contradiction. assumption.
+        destruct Ha1 as [Ha11 Ha12];
+            fold (value_LPequiv L M l P (VClos l1 t0) (VClos l2 t1)) in *.
+          destruct Hl11 as [[Hl11a Hl11b] | Hl11].
+          apply Ha11 in Hl11a. destruct Hl11a. assumption.
+          apply Ha12. destruct Hl11 as [Hl11a [Hl11b Hl11c]].
+          split. assumption. split; try assumption.
+          assert (~ l11 ⊑ l) by auto.
+          assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto.
+          destruct Htmp; try contradiction. assumption.
     + admit.
     + admit.
 Qed.

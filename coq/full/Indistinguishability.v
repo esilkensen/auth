@@ -11,7 +11,8 @@ Context (L : Type)
         (l : L)
         (P : value L -> value L -> Prop)
         (Prefl : forall v, P v v)
-        (Ltotal: forall l l', l ⊑ l' \/ l' ⊑ l).
+        (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
+        (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
 
 Definition lab_Lequiv l1 l2 : Prop :=
   ((l1 ⊑ l \/ l2 ⊑ l) /\ l1 =L l2) \/
@@ -48,6 +49,33 @@ Proof.
     + destruct H2 as [H2 | H2].
       * contradiction.
       * auto.
+Qed.
+
+Lemma lab_Lequiv_sym :
+  forall l1 l2,
+    lab_Lequiv l1 l2 ->
+    lab_Lequiv l2 l1.
+Proof.
+  intros l1 l2 H.
+  destruct H as [[H1 [H2 H3]] | [H1 [H2 H3]]].
+  - destruct H1 as [H1 | H1].
+    + left. split.
+      * right. assumption.
+      * split; assumption.
+    + left. split.
+      * left. assumption.
+      * split; assumption.
+  - assert (H4: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+    destruct H4 as [H4a H4b].
+    assert (H5: l ⊑ l1)
+      by (assert (H6: l1 ⊑ l \/ l ⊑ l1) by auto;
+          destruct H6 as [H6 | H6]; try contradiction; assumption).
+    assert (H6: ~ l2 ⊑ l /\ ~ l1 ⊑ l) by auto.
+    assert (H7: ~ (l2 ⊑ l \/ l1 ⊑ l))
+      by (intro C; destruct C; contradiction).
+    right. split.
+    + assumption.
+    + split; assumption.
 Qed.
 
 Lemma lab_Lequiv_join :
@@ -271,6 +299,66 @@ Proof.
          destruct H2a'; destruct H2b'; try contradiction;
          apply Hb; auto
      ]).
+Qed.
+
+Lemma or_sym :
+  forall p q, p \/ q -> q \/ p.
+Proof.
+  intros p q H. 
+  destruct H as [H | H].
+  - right. assumption.
+  - left. assumption.
+Qed.
+
+Lemma atom_value_env_LPequiv_sym :
+  (forall a1 a2, atom_LPequiv a1 a2 -> atom_LPequiv a2 a1) /\
+  (forall v1 v2, value_LPequiv v1 v2 -> value_LPequiv v2 v1) /\
+  (forall e1 e2, env_LPequiv e1 e2 -> env_LPequiv e2 e1).
+Proof.
+  apply atom_value_env_mutind.
+  - intros v1 Hv l1 a2 H; destruct a2 as [v2 l2].
+    destruct H as [H1 H2].
+    split; intro H3.
+    + assert (H4: l1 ⊑ l \/ l2 ⊑ l) by (apply or_sym; assumption).
+      apply H1 in H4. destruct H4 as [H4a H4b]. split.
+      * apply Hv. assumption.
+      * apply lab_Lequiv_sym. assumption.
+    + destruct v2; destruct v1; auto.
+      * destruct H3 as [H3a [H3b H3c]].
+        assert (H4: ~ l2 ⊑ l /\ ~ l1 ⊑ l) by auto.
+        destruct H4 as [H4a H4b].
+        assert (H5: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+        assert (H6: ~ (l1 ⊑ l \/ l2 ⊑ l))
+          by (intro C; destruct C; contradiction).
+        assert (H7: P (VNat L n0) (VNat L n))
+          by (apply H2; split; [ assumption | split; assumption ]).
+        apply Psym. assumption.
+      * destruct H3 as [H3a [H3b H3c]].
+        assert (H4: ~ l2 ⊑ l /\ ~ l1 ⊑ l) by auto.
+        destruct H4 as [H4a H4b].
+        assert (H5: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+        assert (H6: ~ (l1 ⊑ l \/ l2 ⊑ l))
+          by (intro C; destruct C; contradiction).
+        assert (H7: value_LPequiv (VClos l3 t0) (VClos l0 t))
+          by (apply H2; split; [ assumption | split; assumption ]).
+        apply Hv. assumption.
+  - intros b1 v2 H.
+    destruct v2 as [b2 | n2 | e2 t2]; inversion H; reflexivity.
+  - intros n1 v2 H.
+    destruct v2 as [b2 | n2 | e2 t2]; inversion H; reflexivity.
+  - intros e1 He t1 v2 H.
+    destruct v2 as [b2 | n2 | e2 t2]; inversion H; subst.
+    split.
+    + apply He. assumption.
+    + reflexivity.
+  - intro e1.
+    unfold env_LPequiv.
+    induction e1 as [| a1 e1']; intros Ha e2 H.
+    + destruct e2 as [| a2 e2']; inversion H; reflexivity.
+    + destruct e2 as [| a2 e2']; inversion H.
+      split.
+      * apply (Ha 0). reflexivity. assumption.
+      * apply IHe1'. intros. apply (Ha (S n)); auto. assumption.
 Qed.
 
 End Indistinguishability.
