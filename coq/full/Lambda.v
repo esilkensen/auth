@@ -63,9 +63,10 @@ Definition eval_km {L : Type} {M : LabelAlgebra unit L} :
                            a = Atom v l') \/
                           (l' ⊑ l1 /\
                            let eval := eval_km (snd km, fst km - 1) _ in
-                           (forall e' v',
+                           (forall e' v' l1',
                               env_LPequiv L M l P e e' ->
-                              eval l P pc e' t' (Atom v' l1) ->
+                              lab_Lequiv L M l l1 l1' ->
+                              eval l P pc e' t' (Atom v' l1') ->
                               value_LPequiv L M l P v v') /\
                            a = Atom v l'))
               end));
@@ -103,9 +104,10 @@ Lemma eval_km_eq {L : Type} {M : LabelAlgebra unit L} :
                    a = Atom v l') \/
                   (l' ⊑ l1 /\
                    let eval := eval_km (snd km, fst km - 1) in
-                   (forall e' v',
+                   (forall e' v' l1',
                       env_LPequiv L M l P e e' ->
-                      eval l P pc e' t' (Atom v' l1) ->
+                      lab_Lequiv L M l l1 l1' ->
+                      eval l P pc e' t' (Atom v' l1') ->
                       value_LPequiv L M l P v v') /\
                    a = Atom v l'))
       end.
@@ -226,9 +228,10 @@ Lemma eval_km_relabel_down {L : Type} {M : LabelAlgebra unit L} :
   forall k m l P pc e t' l' v l1,
     eval_km (k, m) l P pc e t' (Atom v l1) ->
     l' ⊑ l1 ->
-    (forall e' v',
+    (forall e' v' l1',
        env_LPequiv L M l P e e' ->
-       eval_km (m, k) l P pc e' t' (Atom v' l1) ->
+       lab_Lequiv L M l l1 l1' ->
+       eval_km (m, k) l P pc e' t' (Atom v' l1') ->
        value_LPequiv L M l P v v') ->
     eval_km (S k, m) l P pc e (TRelabel t' l') (Atom v l').
 Proof.
@@ -250,9 +253,10 @@ Lemma eval_km_relabel_inv {L : Type} {M : LabelAlgebra unit L} :
        k = S k' /\
        eval_km (k', m) l P pc e t' (Atom v l1) /\
        l' ⊑ l1 /\
-       (forall e' v',
+       (forall e' v' l1',
           env_LPequiv L M l P e e' ->
-          eval_km (m, k') l P pc e' t' (Atom v' l1) ->
+          lab_Lequiv L M l l1 l1' ->
+          eval_km (m, k') l P pc e' t' (Atom v' l1') ->
           value_LPequiv L M l P v v') /\
        a = Atom v l').
 Proof.
