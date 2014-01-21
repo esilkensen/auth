@@ -65,14 +65,15 @@ Proof.
         destruct Heval as [k' [v [l1 [H1 [H2 [H3 [H4 H5]]]]]]].
         assert (H2': eval_km (S k', m) l P pc e t (Atom v l1))
           by (apply IHn in H2; try assumption; omega).
-        assert (H4': forall e' v',
+        assert (H4': forall e' v' l1',
                        env_LPequiv L M l P e e' ->
-                       eval_km (m, S k') l P pc e' t (Atom v' l1) ->
+                       lab_Lequiv L M l l1 l1' ->
+                       eval_km (m, S k') l P pc e' t (Atom v' l1') ->
                        value_LPequiv L M l P v v')
-          by (introv He H6; subst;
-              assert (eval_km (m, k') l P pc e' t (Atom v' l1))
+          by (introv He Hl1 H6; subst;
+              assert (eval_km (m, k') l P pc e' t (Atom v' l1'))
                 by (apply IHn in H6; try omega; assumption);
-              apply (H4 e' v'); assumption).
+              apply (H4 e' v' l1'); assumption).
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down (S k') m l P pc e t l0 v l1);
           assumption.
@@ -115,14 +116,15 @@ Proof.
         destruct Heval as [k' [v [l1 [H1 [H2 [H3 [H4 H5]]]]]]].
         assert (H2': eval_km (k', m) l P pc e t (Atom v l1))
           by (apply IHn; try omega; assumption).
-        assert (H4': forall e' v',
+        assert (H4': forall e' v' l1',
                        env_LPequiv L M l P e e' ->
-                       eval_km (m, k') l P pc e' t (Atom v' l1) ->
+                       lab_Lequiv L M l l1 l1' ->
+                       eval_km (m, k') l P pc e' t (Atom v' l1') ->
                        value_LPequiv L M l P v v')
-          by (introv He H6; subst;
-              assert (eval_km (S m, k') l P pc e' t (Atom v' l1))
+          by (introv He Hl1 H6; subst;
+              assert (eval_km (S m, k') l P pc e' t (Atom v' l1'))
                 by (apply IHn in H6; try assumption; omega);
-              apply (H4 e' v'); assumption).
+              apply (H4 e' v' l1'); assumption).
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down k' m l P pc e t l0 v l1);
           assumption.
@@ -204,11 +206,11 @@ Proof.
   - (* TBool *)
     apply eval_km_bool_inv in Heval1.
     apply eval_km_bool_inv in Heval2. subst.
-    apply atom_LPequiv_lab_Lequiv_refl; assumption.
+    split; auto.
   - (* TNat *)
     apply eval_km_nat_inv in Heval1.
     apply eval_km_nat_inv in Heval2. subst.
-    apply atom_LPequiv_lab_Lequiv_refl; assumption.
+    split; auto.
   - (* TVar *)
     apply eval_km_var_inv in Heval1.
     apply eval_km_var_inv in Heval2.
@@ -221,7 +223,7 @@ Proof.
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
     assert (H1: pc ⊑ l \/ ~ pc ⊑ l) by apply classic.
-    destruct H1; split; auto.
+    split; auto.
   - (* TApp *)
     apply eval_km_app_inv in Heval1.
     apply eval_km_app_inv in Heval2.
@@ -237,7 +239,8 @@ Proof.
     assert (Ha2: atom_LPequiv L M l P a21 a21')
       by (apply (IHn k1' k1'' m pc pc' e e' t2 a21 a21') in H3;
           try assumption; omega).
-    assert (t11'' = t11')
+    assert (Hinv: env_LPequiv L M l P e11' e11'' /\ t11'' = t11' /\
+                  lab_Lequiv L M l l11 l11')
       by (inversion Ha1 as [Ha1a Ha1b];
           fold (atom_LPequiv L M l P) in *;
             assert (Hl11: l11 ⊑ l \/ l ⊑ l11) by auto;
@@ -251,18 +254,59 @@ Proof.
                destruct Hl' as [Hl' | Hl'];
                try (apply Ha1a in Hl'; destruct Hl' as [[Hla Hlb] Hlc]; auto);
                try (assert (Hl: ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
-                     by auto; apply Ha1b in Hl; destruct Hl; auto))); subst.
-    admit.
+                     by auto;
+                    apply Ha1b in Hl; destruct Hl; splits; auto; right; auto))).
+    destruct Hinv as [He11 [Ht11 Hl11]]. subst.
+    apply (IHn k1' k1'' m l11 l11' (a21 :: e11') (a21' :: e11'') t11' a a');
+      try omega; try split; assumption.
   - (* TRelabel *)
     apply eval_km_relabel_inv in Heval1.
     apply eval_km_relabel_inv in Heval2.
-    admit.
+    destruct Heval1 as [Heval1 | Heval1];
+      destruct Heval2 as [Heval2 | Heval2];
+      destruct Heval1 as [k1' [v11 [l11 Heval1]]];
+      destruct Heval2 as [k1'' [v11' [l11' Heval2]]];
+      destruct_conjs.
+    + remember (Atom v11 l11) as a1.
+      remember (Atom v11' l11') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
+            try omega; assumption); subst.
+      apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
+        assumption.
+    + remember (Atom v11 l11) as a1.
+      remember (Atom v11' l11') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
+            try omega; assumption); subst.
+      assert (Hl11: lab_Lequiv L M l l11 l11')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      destruct Hl11 as [Hl11 | Hl11].
+      * destruct Hl11 as [Hl11a [Hl11b Hl11c]].
+        assert (l11' ⊑ l0) by (transitivity l11; assumption).
+        apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
+          assumption.
+      * destruct Hl11 as [Hl11a [Hl11b Hl11c]]; clear Hl11c.
+        assert (Hl11a': ~ l11 ⊑ l /\ ~ l11' ⊑ l) by auto.
+        destruct Hl11a' as [Hl11a' Hl11b'].
+        assert (Hl1: l ⊑ l11 \/ l11 ⊑ l) by auto.
+        destruct Hl1; try contradiction.
+        assert (Hl0: l11' ⊑ l0 \/ ~ l11' ⊑ l0) by apply classic.
+        destruct Hl0 as [Hl0 | Hl0].
+        apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
+          assumption.
+        split; intro; destruct Ha1 as [Ha11 Ha12];
+        fold (value_LPequiv L M l P v11 v11') in *.
+        admit.
+        admit.
+    + admit.
+    + admit.
 Qed.
 
 Theorem non_interference :
   forall pc pc' e e' t a a',
     env_LPequiv L M l P e e' ->
-    lab_Lequiv L M l pc pc' ->
+    pc =L pc' ->
     eval l P pc e t a ->
     eval l P pc' e' t a' ->
     atom_LPequiv L M l P a a'.
@@ -275,7 +319,7 @@ Proof.
   assert (H2: eval_km (k', (S (k + k'))) l P pc' e' t a') by apply Heval2.
   remember (S (k + k')) as n.
   apply (non_interference_n n k k' n pc pc' e e' t a a');
-    try omega; assumption.
+    try omega; try apply labEquiv_lab_Lequiv; auto.
 Qed.
 
 End NI.

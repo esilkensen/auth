@@ -17,6 +17,24 @@ Definition lab_Lequiv l1 l2 : Prop :=
   ((l1 ⊑ l \/ l2 ⊑ l) /\ l1 =L l2) \/
   ~ (l1 ⊑ l \/ l2 ⊑ l) /\ l ⊑ l2 /\ l ⊑ l2.
 
+Lemma labEquiv_lab_Lequiv :
+  forall l1 l2,
+    l1 =L l2 ->
+    lab_Lequiv l1 l2.
+Proof.
+  intros l1 l2 H.
+  inversion H as [H1 H2].
+  assert (H3: (l1 ⊑ l \/ l2 ⊑ l) \/ ~ (l1 ⊑ l \/ l2 ⊑ l)) by apply classic.
+  destruct H3 as [H3 | H3].
+  - left. auto.
+  - assert (H4: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+    destruct H4 as [H4 H5].
+    assert (H4': l1 ⊑ l \/ l ⊑ l1) by auto.
+    assert (H5': l2 ⊑ l \/ l ⊑ l2) by auto.
+    destruct H4'; destruct H5'; try contradiction.
+    right. auto.
+Qed.
+
 Lemma lab_Lequiv_refl :
   forall l1, lab_Lequiv l1 l1.
 Proof.
@@ -186,13 +204,13 @@ Proof.
   destruct H as [H1 H2].
   assert (H3: (l1 ⊑ l \/ l2 ⊑ l) \/ ~ (l1 ⊑ l \/ l2 ⊑ l)) by apply classic.
   destruct H3 as [H3 | H3].
-  - apply H1 in H3. destruct H3. assumption.
+  - apply H1 in H3. destruct H3 as [H3a H3b].
+    assumption.
   - assert (H4: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
     destruct H4 as [H4a H4b].
     assert (H5: l1 ⊑ l \/ l ⊑ l1) by auto.
-    destruct H5 as [H5 | H5]; try contradiction.
     assert (H6: l2 ⊑ l \/ l ⊑ l2) by auto.
-    destruct H6 as [H6 | H6]; try contradiction.
+    destruct H5; destruct H6; try contradiction.
     right. auto.
 Qed.
 
@@ -211,7 +229,7 @@ Proof.
                         right; transitivity l'; assumption
                       ])).
     destruct H4 as [H4a H4b].
-    split. assumption. left. auto.
+    split. assumption. apply lab_Lequiv_refl.
   - assert (Hl: lab_Lequiv l1 l2) by (eapply atom_LPequiv_lab_inv; eauto).
     destruct Hl as [Hl | Hl].
     + assert (H4: value_LPequiv v1 v2 /\ lab_Lequiv l1 l2)
@@ -231,8 +249,8 @@ Lemma atom_LPequiv_lab_Lequiv_raise :
     atom_LPequiv (Atom v1 l1) (Atom v2 l2) ->
     atom_LPequiv (Atom v1 (l1 ⊔ l1')) (Atom v2 (l2 ⊔ l2')).
 Proof.
-  intros v1 l1 v2 l2 l1' l2' Hlab H.
-  destruct H as [Ha Hb].
+  intros v1 l1 v2 l2 l1' l2' Hlab Ha.
+  destruct Ha as [Ha Hb].
   split; intro H1.
   - assert (H1': l1 ⊑ l \/ l2 ⊑ l)
       by (destruct H1; [
@@ -240,29 +258,19 @@ Proof.
             right; transitivity (l2 ⊔ l2'); auto
          ]).
     apply Ha in H1'.
-    destruct H1'; split; try apply lab_Lequiv_join; auto.
-  - assert (Htotal1: l1 ⊑ l \/ l ⊑ l1) by auto.
-    assert (Htotal2: l2 ⊑ l \/ l ⊑ l2) by auto.
-    destruct Htotal1 as [Htotal1 | Htotal1];
-    destruct Htotal2 as [Htotal2 | Htotal2].
-    + assert (H2: l1 ⊑ l \/ l2 ⊑ l) by auto.
-      apply Ha in H2. destruct H2 as [H2a H2b].
-      destruct v1; destruct v2; auto.
-      inversion H2a; auto.
-    + assert (H2: l1 ⊑ l \/ l2 ⊑ l) by auto.
-      apply Ha in H2. destruct H2 as [H2a H2b].
-      destruct v1; destruct v2; auto.
-      inversion H2a; auto.
-    + assert (H2: l1 ⊑ l \/ l2 ⊑ l) by auto.
-      apply Ha in H2. destruct H2 as [H2a H2b].
-      destruct v1; destruct v2; auto.
-      inversion H2a; auto.
-    + assert (H2: (l1 ⊑ l \/ l2 ⊑ l) \/ ~ (l1 ⊑ l \/ l2 ⊑ l)) by apply classic.
-      destruct H2 as [H2 | H2].
-      * apply Ha in H2. destruct H2 as [H2a H2b].
-        destruct v1; destruct v2; auto.
-        inversion H2a; auto.
-      * apply Hb; auto.
+    destruct H1' as [H1'a H1'b].
+    split. assumption. apply lab_Lequiv_join; assumption.
+  - destruct v1; destruct v2; auto;
+    assert (H1': (l1 ⊑ l \/ l2 ⊑ l) \/ ~ (l1 ⊑ l \/ l2 ⊑ l)) by apply classic;
+    (destruct H1' as [H1' | H1']; [
+       apply Ha in H1'; destruct H1' as [H1'a H1'b]; inversion H1'a; auto |
+       assert (H2: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto;
+         destruct H2 as [H2a H2b];
+         assert (H2a': l1 ⊑ l \/ l ⊑ l1) by auto;
+         assert (H2b': l2 ⊑ l \/ l ⊑ l2) by auto;
+         destruct H2a'; destruct H2b'; try contradiction;
+         apply Hb; auto
+     ]).
 Qed.
 
 End Indistinguishability.
