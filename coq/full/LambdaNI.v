@@ -353,14 +353,19 @@ Proof.
       remember (Atom v11' l11') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
         by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
-            try omega; assumption); subst.
+            try omega; assumption).
       assert (Hl11: lab_Lequiv L M l l11 l11')
-        by (eapply atom_LPequiv_lab_inv; eauto).
+        by (subst; eapply atom_LPequiv_lab_inv; eauto).
+      assert (H1': eval_km (m, m) l P pc' e' t a1')
+        by (apply (eval_km_mon_k k1'' m); try omega; assumption).
+      assert (H1'': eval_km (m, k1') l P pc' e' t a1')
+        by (apply (eval_km_mon_m m m k1'); try omega; assumption).
+      assert (Hv: value_LPequiv L M l P v11 v11')
+        by (subst; apply (H8 pc' e' v11' l11'); assumption); subst.
       split; intro Hl; fold (value_LPequiv L M l P v11 v11').
-      * admit.
+      * split; try apply lab_Lequiv_refl; assumption.
       * destruct v11; destruct v11'; try reflexivity.
-        admit.
-        admit.
+        inversion Hv. auto. assumption.
 Qed.
 
 Theorem non_interference :
