@@ -66,15 +66,16 @@ Proof.
         destruct Heval as [k' [v [l1 [H1 [H2 [H3 [H4 H5]]]]]]].
         assert (H2': eval_km (S k', m) l P pc e t (Atom v l1))
           by (apply IHn in H2; try assumption; omega).
-        assert (H4': forall e' v' l1',
+        assert (H4': forall pc' e' v' l1',
+                       lab_Lequiv L M l pc pc' ->
                        env_LPequiv L M l P e e' ->
                        lab_Lequiv L M l l1 l1' ->
-                       eval_km (m, S k') l P pc e' t (Atom v' l1') ->
+                       eval_km (m, S k') l P pc' e' t (Atom v' l1') ->
                        value_LPequiv L M l P v v')
-          by (introv He Hl1 H6; subst;
-              assert (eval_km (m, k') l P pc e' t (Atom v' l1'))
+          by (introv Hpc He Hl1 H6; subst;
+              assert (eval_km (m, k') l P pc' e' t (Atom v' l1'))
                 by (apply IHn in H6; try omega; assumption);
-              apply (H4 e' v' l1'); assumption).
+              apply (H4 pc' e' v' l1'); assumption).
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down (S k') m l P pc e t l0 v l1);
           assumption.
@@ -117,15 +118,16 @@ Proof.
         destruct Heval as [k' [v [l1 [H1 [H2 [H3 [H4 H5]]]]]]].
         assert (H2': eval_km (k', m) l P pc e t (Atom v l1))
           by (apply IHn; try omega; assumption).
-        assert (H4': forall e' v' l1',
+        assert (H4': forall pc' e' v' l1',
+                       lab_Lequiv L M l pc pc' ->
                        env_LPequiv L M l P e e' ->
                        lab_Lequiv L M l l1 l1' ->
-                       eval_km (m, k') l P pc e' t (Atom v' l1') ->
+                       eval_km (m, k') l P pc' e' t (Atom v' l1') ->
                        value_LPequiv L M l P v v')
-          by (introv He Hl1 H6; subst;
-              assert (eval_km (S m, k') l P pc e' t (Atom v' l1'))
+          by (introv Hpc He Hl1 H6; subst;
+              assert (eval_km (S m, k') l P pc' e' t (Atom v' l1'))
                 by (apply IHn in H6; try assumption; omega);
-              apply (H4 e' v' l1'); assumption).
+              apply (H4 pc' e' v' l1'); assumption).
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down k' m l P pc e t l0 v l1);
           assumption.
@@ -273,41 +275,92 @@ Proof.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
         by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
             try omega; assumption); subst.
-      apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
-        assumption.
+      apply atom_LPequiv_lab_Lequiv_raise with (l1 := l11) (l2 := l11');
+        try apply lab_Lequiv_refl; auto.
     + remember (Atom v11 l11) as a1.
       remember (Atom v11' l11') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
         by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
             try omega; assumption); subst.
-      assert (Hl11': l11' ⊑ l0 \/ ~ l11' ⊑ l0) by apply classic.
-      destruct Hl11' as [Hl11' | Hl11'].
-      * apply atom_LPequiv_raise with (l1 := l11) (l2 := l11');
-        assumption.
-      * assert (Hl11: lab_Lequiv L M l l11 l11')
-          by (eapply atom_LPequiv_lab_inv; eauto).
-        split; intro Hl; fold (value_LPequiv L M l P v11 v11').
-        admit. (* should be able to prove this *)
-        destruct v11; destruct v11'; auto.
-        destruct Ha1 as [Ha11 Ha12].
-          destruct Hl11 as [[Hl11a Hl11b] | Hl11].
-          apply Ha11 in Hl11a. destruct Hl11a as [Hl11a Hl11a']. subst. auto.
-          apply Ha12. destruct Hl11 as [Hl11a [Hl11b Hl11c]].
-          split. assumption. split; try assumption.
-          assert (~ l11 ⊑ l) by auto.
-          assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto.
-          destruct Htmp; try contradiction. assumption.
-        destruct Ha1 as [Ha11 Ha12];
-            fold (value_LPequiv L M l P (VClos l1 t0) (VClos l2 t1)) in *.
-          destruct Hl11 as [[Hl11a Hl11b] | Hl11].
-          apply Ha11 in Hl11a. destruct Hl11a. assumption.
-          apply Ha12. destruct Hl11 as [Hl11a [Hl11b Hl11c]].
-          split. assumption. split; try assumption.
-          assert (~ l11 ⊑ l) by auto.
-          assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto.
-          destruct Htmp; try contradiction. assumption.
-    + admit.
-    + admit.
+      assert (Hl11: lab_Lequiv L M l l11 l11')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      split; intro Hl; destruct Ha1 as [Ha11 Ha12];
+      fold (value_LPequiv L M l P v11 v11') in *.
+      * destruct Hl11 as [Hl11 | Hl11].
+          destruct Hl11 as [Hl11 Hl11'].
+            apply Ha11 in Hl11. destruct Hl11 as [Hl11a Hl11b].
+            split. assumption.
+            left. split. assumption. split; auto.
+          destruct Hl11 as [Hl11 [Hl11a Hl11b]].
+            assert (~ l11 ⊑ l) by auto.
+            destruct Hl as [Hl | Hl].
+              assert (l11 ⊑ l) by (transitivity (l11 ⊔ l0); auto);
+                contradiction.
+              assert (l11 ⊑ l) by (transitivity l0; auto).
+                contradiction.
+      * destruct v11; destruct v11'; try reflexivity;
+        (destruct Hl11 as [Hl11 | Hl11]; [
+           destruct Hl11 as [Hl11 Hl11'];
+           apply Ha11 in Hl11; destruct Hl11 as [Hl11a Hl11b];
+           inversion Hl11a; auto |
+           destruct Hl11 as [Hl11 [Hl11a Hl11b]];
+             destruct Hl as [Hla [Hlb Hlc]];
+             assert (~ l11 ⊑ l) by auto;
+             assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto;
+             destruct Htmp as [Htmp | Htmp]; try contradiction;
+             assert (Htmp': ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
+               by auto; apply Ha12 in Htmp'; assumption
+         ]).
+    + remember (Atom v11 l11) as a1.
+      remember (Atom v11' l11') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
+            try omega; assumption); subst.
+      assert (Hl11: lab_Lequiv L M l l11 l11')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      split; intro Hl; destruct Ha1 as [Ha11 Ha12];
+      fold (value_LPequiv L M l P v11 v11') in *.
+      * destruct Hl11 as [Hl11 | Hl11].
+          destruct Hl11 as [Hl11 Hl11'].
+            apply Ha11 in Hl11. destruct Hl11 as [Hl11a Hl11b].
+            split. assumption.
+            left. split. assumption. split; auto.
+          destruct Hl11 as [Hl11 [Hl11a Hl11b]].
+            assert (~ l11 ⊑ l) by auto.
+            destruct Hl as [Hl | Hl].
+              assert (l11' ⊑ l) by (transitivity l0; auto).
+                assert (Htmp: l11 ⊑ l \/ l11' ⊑ l) by auto.
+                apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
+                split. assumption. left. split. left. assumption. split; auto.
+              assert (Htmp: l11 ⊑ l \/ l11' ⊑ l)
+                  by (right; transitivity (l11' ⊔ l0); auto).
+              apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
+              split. assumption. left. split. right. assumption. split; auto.
+      * destruct v11; destruct v11'; try reflexivity;
+        (destruct Hl11 as [Hl11 | Hl11]; [
+           destruct Hl11 as [Hl11 Hl11'];
+           apply Ha11 in Hl11; destruct Hl11 as [Hl11a Hl11b];
+           inversion Hl11a; auto |
+           destruct Hl11 as [Hl11 [Hl11a Hl11b]];
+             destruct Hl as [Hla [Hlb Hlc]];
+             assert (~ l11 ⊑ l) by auto;
+             assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto;
+             destruct Htmp as [Htmp | Htmp]; try contradiction;
+             assert (Htmp': ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
+               by auto; apply Ha12 in Htmp'; assumption
+         ]).
+    + remember (Atom v11 l11) as a1.
+      remember (Atom v11' l11') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
+            try omega; assumption); subst.
+      assert (Hl11: lab_Lequiv L M l l11 l11')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      split; intro Hl; fold (value_LPequiv L M l P v11 v11').
+      * admit.
+      * destruct v11; destruct v11'; try reflexivity.
+        admit.
+        admit.
 Qed.
 
 Theorem non_interference :

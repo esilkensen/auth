@@ -361,4 +361,16 @@ Proof.
       * apply IHe1'. intros. apply (Ha (S n)); auto. assumption.
 Qed.
 
+Lemma atom_LPequiv_sym :
+  forall a1 a2, atom_LPequiv a1 a2 -> atom_LPequiv a2 a1.
+Proof. apply atom_value_env_LPequiv_sym. Qed.
+
+Lemma value_LPequiv_sym :
+  forall v1 v2, value_LPequiv v1 v2 -> value_LPequiv v2 v1.
+Proof. apply atom_value_env_LPequiv_sym. Qed.
+
+Lemma env_LPequiv_sym :
+  forall e1 e2, env_LPequiv e1 e2 -> env_LPequiv e2 e1.
+Proof. apply atom_value_env_LPequiv_sym. Qed.
+
 End Indistinguishability.
