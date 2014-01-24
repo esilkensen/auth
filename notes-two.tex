@@ -59,6 +59,7 @@
     x\;\; |\;\;
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
+    \mathsf{if}\ e\ \mathsf{then}\ e\ \mathsf{else}\ e\;\; |\;\;
     \mathsf{declassify}\ e\ e
     \\[0.3ex]
     v & ::= &
@@ -79,7 +80,7 @@
 
 \begin{definition}
   The $\approx^{L}_{P}$ relation expresses the \emph{indistinguishability} of
-  atoms for observers at label $L$, with respect to some reflexive relation
+  atoms for observers at label $L$, modulo some reflexive relation
   on values $P$, where $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$ iff either
   \begin{itemize}
   \item
@@ -137,12 +138,6 @@
   \Coqed
   \label{lem:lp-equiv-refl}
 \end{lemma}
-
-% \begin{lemma}
-%  If $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, then $L_1 = L_2$.
-%  \Coqed
-%  \label{lem:lp-equiv-lab-inv}
-% \end{lemma}
 
 \begin{lemma}
   If $v_1 \at \bot \approx^{L}_{P} v_2 \at \bot$, then
@@ -205,6 +200,32 @@
     \\[3ex]
     \inference{
       {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow^{k}_{l} \mathit{tt} \at \bot
+          \\
+          \pc, \rho |- e_2 \Downarrow^{k}_{l} a_2
+        \end{array}}
+    }{
+      \pc, \rho |-
+      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+      \Downarrow^{k+1}_{l}
+      a_2
+    }[\textsc{E-IfTrue}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
+          \pc, \rho |- e_1 \Downarrow^{k}_{l} \mathit{ff} \at \bot
+          \\
+          \pc, \rho |- e_3 \Downarrow^{k}_{l} a_3
+        \end{array}}
+    }{
+      \pc, \rho |-
+      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+      \Downarrow^{k+1}_{l}
+      a_3
+    }[\textsc{E-IfFalse}]
+    \\[3ex]
+    \inference{
+      {\begin{array}{l}
           \pc, \rho |-
           (e_1\ e_2)
           \Downarrow^{k}_{l}
@@ -249,17 +270,6 @@
       \Downarrow^{k+1}_{l}
       v_3 \at \bot
     }[\textsc{E-Decl2}]
-    \\[3ex]
-    \pc, \rho |-
-    e
-    \Downarrow
-    a
-    \quad \triangleq \quad
-    \exists{k}.\, \forall{l}.\,
-    \pc, \rho |-
-    e
-    \Downarrow^{k}_{l}
-    a
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathbf{2}}$.}
   \label{fig:semantics}
@@ -485,6 +495,12 @@
 % \end{proof}
 
 % \pagebreak
+
+\begin{definition}
+  $\pc, \rho |- e \Downarrow a
+  <=>
+  \exists{k}.\, \forall{l}.\, \pc, \rho |- e \Downarrow^{k}_{l} a$
+\end{definition}
 
 \begin{theorem}
   If $\pc, \rho |- e \Downarrow a$ and
