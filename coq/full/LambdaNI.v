@@ -11,7 +11,6 @@ Context
   (l : L)
   (P : value L -> value L -> Prop)
   (Prefl : forall v, P v v)
-  (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
   (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
 
 Lemma eval_km_mon_n :
