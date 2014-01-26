@@ -19,6 +19,35 @@ Definition lab_Lequiv l1 l2 : Prop :=
   ((l1 ⊑ l \/ l2 ⊑ l) /\ l1 =L l2) \/
   ~ (l1 ⊑ l \/ l2 ⊑ l) /\ l ⊑ l2 /\ l ⊑ l2.
 
+Definition lab_Lequiv' l1 l2 : Prop :=
+  (~ l1 ⊑ l /\ ~ l2 ⊑ l) \/
+  (l1 ⊑ l /\ l1 =L l2).
+
+Lemma lab_Lequiv_Lequiv' :
+  forall l1 l2,
+    lab_Lequiv l1 l2 <-> lab_Lequiv' l1 l2.
+Proof.
+  intros l1 l2.
+  unfold lab_Lequiv.
+  unfold lab_Lequiv'.
+  split; simpl; intro H.
+  - destruct H as [H | H].
+    + destruct H as [[H1 | H1] [H2 H3]]; right; auto.
+      split; try transitivity l2; auto.
+    + destruct H as [H1 [H2 H3]].
+      assert (H4: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+      destruct H4 as [H4a H4b].
+      left. auto.
+  - destruct H as [H | H].
+    + destruct H as [H1 H2].
+      assert (H3: l ⊑ l1 \/ l1 ⊑ l) by auto.
+      assert (H4: l ⊑ l2 \/ l2 ⊑ l) by auto.
+      destruct H3 as [H3 | H3]; destruct H4 as [H4 | H4]; try contradiction.
+      right. split. intro C. destruct C; contradiction. auto.
+    + destruct H as [H1 [H2 H3]].
+      left. auto.
+Qed.
+
 Fixpoint atom_LPequiv a1 a2 : Prop :=
   match a1, a2 with
     | Atom v1 l1, Atom v2 l2 =>
@@ -39,6 +68,71 @@ with value_LPequiv v1 v2 : Prop :=
            list_forall2 atom_LPequiv e1 e2 /\ t1 = t2
          | VBool _, _ | VNat _, _ | VClos _ _, _ => False
        end.
+
+Fixpoint atom_LPequiv' a1 a2 : Prop :=
+  match a1, a2 with
+    | Atom v1 l1, Atom v2 l2 =>
+      (~ l1 ⊑ l /\ ~ l2 ⊑ l /\
+       match v1, v2 with
+         | VNat n1, VNat n2 => P v1 v2
+         | VClos e1 t1, VClos e2 t2 => value_LPequiv v1 v2
+         | _, _ => True
+       end) \/
+      (l1 ⊑ l /\ l1 =L l2 /\ value_LPequiv v1 v2)
+  end.
+
+Lemma atom_LPequiv_LPequiv' :
+  forall a1 a2,
+    atom_LPequiv a1 a2 <-> atom_LPequiv' a1 a2.
+Proof.
+  intros a1 a2.
+  destruct a1 as [v1 l1].
+  destruct a2 as [v2 l2].
+  split; intro H.
+  - destruct H as [Ha Hb].
+    assert (H1: l1 ⊑ l \/ l ⊑ l1) by auto.
+    destruct H1 as [H1 | H1].
+    + assert (H2: l1 ⊑ l \/ l2 ⊑ l) by auto.
+      apply Ha in H2. destruct H2 as [H2a H2b].
+      destruct H2b as [[H2b H2c] | [H2b [H2c H2d]]].
+      * right. auto.
+      * contradict H1. auto.
+    + assert (H2: l2 ⊑ l \/ l ⊑ l2) by auto.
+      destruct H2 as [H2 | H2].
+      * assert (H3: l1 ⊑ l \/ l2 ⊑ l) by auto.
+        apply Ha in H3. destruct H3 as [H3a H3b].
+        inversion H3b as [[H3c [H3d H3e]] | [H3c [H3d H3e]]].
+        right. split. transitivity l2; auto. split. auto. split; auto. auto.
+        contradict H2. auto.
+      * assert (H3: l1 ⊑ l \/ ~ l1 ⊑ l) by apply classic.
+        assert (H4: l2 ⊑ l \/ ~ l2 ⊑ l) by apply classic.
+        destruct H3 as [H3 | H3]; destruct H4 as [H4 | H4].
+        assert (H5: l1 ⊑ l \/ l2 ⊑ l) by auto.
+        apply Ha in H5. destruct H5 as [H5a H5b].
+        right. splits; auto. split; transitivity l; auto.
+        assert (H5: l1 ⊑ l \/ l2 ⊑ l) by auto.
+        apply Ha in H5. destruct H5 as [H5a H5b].
+        right. splits; auto.
+        destruct H5b as [[H5b H5c] | [H5b [H5c H5d]]]; auto.
+        split. transitivity l; auto. contradict H3. auto.
+        assert (H5: l1 ⊑ l \/ l2 ⊑ l) by auto.
+        apply Ha in H5. destruct H5 as [H5a H5b].
+        inversion H5b as [[H5c [H5d H5e]] | [H5c [H5d H5e]]].
+        contradict H3. transitivity l2; auto.
+        contradict H4. auto.
+        assert (H5: ~ (l1 ⊑ l \/ l2 ⊑ l) /\ l ⊑ l1 /\ l ⊑ l2)
+          by (split; [ intro C; destruct C; contradiction | auto ]).
+        apply Hb in H5. left. auto.
+  - destruct H as [[H1 [H2 H3]] | [H1 [H2 H3]]].
+    + split; intro H4.
+      * destruct H4; contradiction.
+      * destruct H4 as [H4a [H4b H4c]].
+        destruct v1; destruct v2; auto.
+    + split; intro H4.
+      * split; auto. left. auto.
+      * destruct H4 as [H4a [H4b H4c]].
+        destruct v1; destruct v2; inversion H3; auto.
+Qed.
 
 Definition env_LPequiv : env L -> env L -> Prop :=
   list_forall2 atom_LPequiv.
