@@ -486,6 +486,80 @@ Proof.
       apply Ha2. auto.
 Qed.
 
+Lemma atom_LPequiv_labEquiv_left :
+  forall v1 l1 v2 l2 l1',
+    l1 =L l1' ->
+    atom_LPequiv (Atom v1 l1) (Atom v2 l2) ->
+    atom_LPequiv (Atom v1 l1') (Atom v2 l2).
+Proof.
+  intros v1 l1 v2 l2 l1' H1 H2.
+  destruct H2 as [H2a H2b].
+  split; intro H3.
+  - assert (H4: l1 ⊑ l \/ l2 ⊑ l)
+      by (inversion H1 as [H1a H1b];
+          destruct H3 as [H3 | H3];
+          [ left; transitivity l1'; assumption |
+            right; assumption ]).
+    apply H2a in H4. destruct H4 as [H4a H4b].
+    split.
+    + assumption.
+    + destruct H4b as [[H4b H4c] | [H4b H4c]];
+      inversion H1 as [H1a H1b];
+      inversion H4c as [H4d H4e].
+      * left. split. assumption. split; transitivity l1; assumption.
+      * right. split. intro C.
+        assert (H4b': ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
+        destruct H4b' as [H5 H6].
+        destruct C as [C | C].
+        contradict H5. transitivity l1'; assumption.
+        contradict H6. assumption.
+        split; assumption.
+  - destruct v1; destruct v2; try reflexivity;
+    inversion H1 as [H1a H1b];
+    destruct H3 as [H3a [H3b H3c]];
+    assert (H4: ~ l1' ⊑ l /\ ~ l2 ⊑ l) by auto;
+    destruct H4 as [H4a H4b]; apply H2b;
+    (splits; [
+       intro C;
+       destruct C as [C | C]; [
+         contradict H4a; transitivity l1; assumption |
+         contradict H4b; assumption
+       ] |
+       transitivity l1'; assumption |
+       assumption
+     ]).
+Qed.
+
+Lemma atom_LPequiv_labEquiv_right :
+  forall v1 l1 v2 l2 l2',
+    l2 =L l2' ->
+    atom_LPequiv (Atom v1 l1) (Atom v2 l2) ->
+    atom_LPequiv (Atom v1 l1) (Atom v2 l2').
+Proof.
+  intros v1 l1 v2 l2 l2' H1 H2.
+  assert (H3: atom_LPequiv (Atom v2 l2) (Atom v1 l1))
+    by (apply atom_LPequiv_sym; assumption).
+  assert (H4: atom_LPequiv (Atom v2 l2') (Atom v1 l1))
+    by (apply (atom_LPequiv_labEquiv_left v2 l2 v1 l1 l2');
+        assumption).
+  apply atom_LPequiv_sym. assumption.
+Qed.
+
+Lemma atom_LPequiv_labEquiv :
+  forall v1 l1 v2 l2 l1' l2',
+    l1 =L l1' ->
+    l2 =L l2' ->
+    atom_LPequiv (Atom v1 l1) (Atom v2 l2) ->
+    atom_LPequiv (Atom v1 l1') (Atom v2 l2').
+Proof.
+  intros v1 l1 v2 l2 l1' l2' H1 H2 H3.
+  assert (H4: atom_LPequiv (Atom v1 l1') (Atom v2 l2))
+    by (apply (atom_LPequiv_labEquiv_left v1 l1 v2 l2 l1');
+        assumption).
+  apply (atom_LPequiv_labEquiv_right v1 l1' v2 l2 l2');
+    assumption.
+Qed.
+
 Lemma atom_LPequiv_lab_Lequiv_raise :
   forall v1 l1 v2 l2 l1' l2',
     lab_Lequiv l1' l2' ->

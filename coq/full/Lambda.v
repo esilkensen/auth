@@ -60,7 +60,7 @@ Definition eval_km {L : Type} {M : LabelAlgebra unit L} :
                        exists v l1,
                          eval l P pc e t' (Atom v l1) /\
                          ((l1 ⊑ l' /\
-                           a = Atom v (l1 ⊔ l')) \/
+                           a = Atom v l') \/
                           (l' ⊑ l1 /\
                            let eval := eval_km (snd km, fst km - 1) _ in
                            (forall pc' e' v' l1',
@@ -110,7 +110,7 @@ Lemma eval_km_eq {L : Type} {M : LabelAlgebra unit L} :
                exists v l1,
                  eval l P pc e t' (Atom v l1) /\
                  ((l1 ⊑ l' /\
-                   a = Atom v (l1 ⊔ l')) \/
+                   a = Atom v l') \/
                   (l' ⊑ l1 /\
                    let eval := eval_km (snd km, fst km - 1) in
                    (forall pc' e' v' l1',
@@ -236,7 +236,7 @@ Lemma eval_km_relabel_up {L : Type} {M : LabelAlgebra unit L} :
   forall k m l P pc e t' l' v l1,
     eval_km (k, m) l P pc e t' (Atom v l1) ->
     l1 ⊑ l' ->
-    eval_km (S k, m) l P pc e (TRelabel t' l') (Atom v (l1 ⊔ l')).
+    eval_km (S k, m) l P pc e (TRelabel t' l') (Atom v l').
 Proof.
   intros.
   rewrite eval_km_eq. simpl.
@@ -269,7 +269,7 @@ Lemma eval_km_relabel_inv {L : Type} {M : LabelAlgebra unit L} :
        k = S k' /\
        eval_km (k', m) l P pc e t' (Atom v l1) /\
        l1 ⊑ l' /\
-       a = Atom v (l1 ⊔ l')) \/
+       a = Atom v l') \/
     (exists k' v l1,
        k = S k' /\
        eval_km (k', m) l P pc e t' (Atom v l1) /\

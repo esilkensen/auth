@@ -11,6 +11,8 @@ Context
   (l : L)
   (P : value L -> value L -> Prop)
   (Prefl : forall v, P v v)
+  (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
+  (Ptrans : forall v1 v2 v3, P v1 v2 -> P v2 v3 -> P v1 v3)
   (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
 
 Lemma eval_km_mon_n :
@@ -314,8 +316,13 @@ Proof.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
         by (apply (IHn k1' k1'' m pc pc' e e' t a1 a1');
             try omega; assumption); subst.
-      apply atom_LPequiv_lab_Lequiv_raise with (l1 := l11) (l2 := l11');
-        try apply lab_Lequiv_refl; auto.
+      remember (Atom v11 (l11 ⊔ l0)) as a11.
+      remember (Atom v11' (l11' ⊔ l0)) as a11'.
+      assert (Ha11: atom_LPequiv L M l P a11 a11')
+        by (subst; apply atom_LPequiv_lab_Lequiv_raise;
+            try apply lab_Lequiv_refl; auto); subst.
+      apply atom_LPequiv_labEquiv with (l1 := (l11 ⊔ l0)) (l2 := (l11' ⊔ l0));
+        try assumption; split; auto.
     + remember (Atom v11 l11) as a1.
       remember (Atom v11' l11') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
@@ -332,11 +339,9 @@ Proof.
             left. split. assumption. split; auto.
           destruct Hl11 as [Hl11 [Hl11a Hl11b]].
             assert (~ l11 ⊑ l) by auto.
-            destruct Hl as [Hl | Hl].
-              assert (l11 ⊑ l) by (transitivity (l11 ⊔ l0); auto);
-                contradiction.
-              assert (l11 ⊑ l) by (transitivity l0; auto).
-                contradiction.
+            destruct Hl as [Hl | Hl];
+              assert (l11 ⊑ l) by (transitivity l0; auto);
+              contradiction.
       * destruct v11; destruct v11'; try reflexivity;
         (destruct Hl11 as [Hl11 | Hl11]; [
            destruct Hl11 as [Hl11 Hl11'];
@@ -372,7 +377,7 @@ Proof.
                 apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
                 split. assumption. left. split. left. assumption. split; auto.
               assert (Htmp: l11 ⊑ l \/ l11' ⊑ l)
-                  by (right; transitivity (l11' ⊔ l0); auto).
+                  by (right; transitivity l0; auto).
               apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
               split. assumption. left. split. right. assumption. split; auto.
       * destruct v11; destruct v11'; try reflexivity;
