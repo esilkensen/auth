@@ -70,6 +70,14 @@ Definition eval_km {L : Type} {M : LabelAlgebra unit L} :
                               eval l P pc' e' t' (Atom v' l1') ->
                               value_LPequiv L M l P v v') /\
                            a = Atom v l'))
+                | TIf t1 t2 t3 =>
+                  if Compare_dec.zerop (fst km) then False
+                  else let eval := eval_km (fst km - 1, snd km) _ in
+                       exists b l1,
+                         eval l P pc e t1 (Atom (VBool L b) l1) /\
+                         l1 ⊑ l /\
+                         if b then eval l P (l1 ⊔ pc) e t2 a
+                         else eval l P (l1 ⊔ pc) e t3 a
               end));
   unfold pair_lt; simpl; omega.
 Defined.
@@ -112,6 +120,14 @@ Lemma eval_km_eq {L : Type} {M : LabelAlgebra unit L} :
                       eval l P pc' e' t' (Atom v' l1') ->
                       value_LPequiv L M l P v v') /\
                    a = Atom v l'))
+        | TIf t1 t2 t3 =>
+          if Compare_dec.zerop (fst km) then False
+          else let eval := eval_km (fst km - 1, snd km) in
+               exists b l1,
+                 eval l P pc e t1 (Atom (VBool L b) l1) /\
+                 l1 ⊑ l /\
+                 if b then eval l P (l1 ⊔ pc) e t2 a
+                 else eval l P (l1 ⊔ pc) e t3 a
       end.
 Proof.
   intro km.
@@ -126,17 +142,19 @@ Proof.
   apply functional_extensionality; intro a.
   destruct t; try reflexivity;
   assert (H': forall (y : nat * nat), f y = g y) by
-      (intro; apply functional_extensionality; apply H).
-  - destruct x1; auto; simpl.
-    apply functional_extensionality_ex; intro e1'.
+      (intro; apply functional_extensionality; apply H);
+  destruct x1; auto; simpl.
+  - apply functional_extensionality_ex; intro e1'.
     apply functional_extensionality_ex; intro t1'.
     apply functional_extensionality_ex; intro l1.
     apply functional_extensionality_ex; intro a2.
     rewrite H'. reflexivity.
-  - destruct x1; auto; simpl.
-    apply functional_extensionality_ex; intro v.
+  - apply functional_extensionality_ex; intro v.
     apply functional_extensionality_ex; intro l1.
     rewrite 2! H'. reflexivity.
+  - apply functional_extensionality_ex; intro b.
+    apply functional_extensionality_ex; intro l1.
+    rewrite H'. reflexivity.
 Qed.
 
 Lemma eval_km_bool {L : Type} {M : LabelAlgebra unit L} :
@@ -273,6 +291,57 @@ Proof.
     destruct H2 as [[H2 H3] | [H2 H3]].
     + left. exists k v l1. auto.
     + right. exists k v l1. auto.
+Qed.
+
+Lemma eval_km_iftrue {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t1 t2 t3 l1 a,
+    eval_km (k, m) l P pc e t1 (Atom (VBool L true) l1) ->
+    l1 ⊑ l ->
+    eval_km (k, m) l P (l1 ⊔ pc) e t2 a ->
+    eval_km (S k, m) l P pc e (TIf t1 t2 t3) a.
+Proof.
+  introv Ht1 Hl1 Ht2.
+  rewrite eval_km_eq. simpl.
+  replace (k - 0) with k by omega.
+  exists true l1. auto.
+Qed.
+
+Lemma eval_km_iffalse {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t1 t2 t3 l1 a,
+    eval_km (k, m) l P pc e t1 (Atom (VBool L false) l1) ->
+    l1 ⊑ l ->
+    eval_km (k, m) l P (l1 ⊔ pc) e t3 a ->
+    eval_km (S k, m) l P pc e (TIf t1 t2 t3) a.
+Proof.
+  introv Ht1 Hl1 Ht3.
+  rewrite eval_km_eq. simpl.
+  replace (k - 0) with k by omega.
+  exists false l1. auto.
+Qed.
+
+Lemma eval_km_if_inv {L : Type} {M : LabelAlgebra unit L} :
+  forall k m l P pc e t1 t2 t3 a,
+    eval_km (k, m) l P pc e (TIf t1 t2 t3) a ->
+    (exists k' l1,
+       k = S k' /\
+       eval_km (k', m) l P pc e t1 (Atom (VBool L true) l1) /\
+       l1 ⊑ l /\
+       eval_km (k', m) l P (l1 ⊔ pc) e t2 a) \/
+    (exists k' l1,
+       k = S k' /\
+       eval_km (k', m) l P pc e t1 (Atom (VBool L false) l1) /\
+       l1 ⊑ l /\
+       eval_km (k', m) l P (l1 ⊔ pc) e t3 a).
+Proof.
+  intros.
+  rewrite eval_km_eq in H.
+  destruct k; simpl in H.
+  - inversion H.
+  - destruct H as [b [l1 [H1 [H2 H3]]]].
+    replace (k - 0) with k in * by omega.
+    destruct b.
+    + left. exists k l1. auto.
+    + right. exists k l1. auto.
 Qed.
 
 Definition eval {L : Type} {M : LabelAlgebra unit L}

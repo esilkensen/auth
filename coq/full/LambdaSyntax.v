@@ -10,7 +10,8 @@ Inductive term (L : Type) : Type :=
   | TVar : nat -> term L
   | TAbs : term L -> term L
   | TApp : term L -> term L -> term L
-  | TRelabel : term L -> L -> term L.
+  | TRelabel : term L -> L -> term L
+  | TIf : term L -> term L -> term L -> term L.
 
 (** * Atoms, values. *)
 Section Atoms.

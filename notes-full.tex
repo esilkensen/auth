@@ -58,7 +58,8 @@ $L_2$ are labels, then $L_1 \sqsubseteq L_2$ or $L_2 \sqsubseteq L_1$.
     x\;\; |\;\;
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
-    e \updownarrow L
+    e \updownarrow L\;\; |\;\;
+    \mathsf{if}\ e\ \mathsf{then}\ e\ \mathsf{else}\ e
     \\[0.3ex]
     v & ::= &
     c\;\; |\;\;
@@ -236,33 +237,59 @@ $L_2$ are labels, then $L_1 \sqsubseteq L_2$ or $L_2 \sqsubseteq L_1$.
       \Downarrow^{k+1}_{m}
       v \at L_2
     }[\textsc{E-Relabel2}]
+    \\[3ex]
+    \inference{
+      \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{tt} \at L_1
+      &
+      L_1 \sqsubseteq L
+      \\
+      (\pc \sqcup L_1), \rho |- e_2 \Downarrow^{k}_{m} a_2
+    }{
+      \pc, \rho |-
+      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+      \Downarrow^{k+1}_{m}
+      a_2
+    }[\textsc{E-IfTrue}]
+    \\[3ex]
+    \inference{
+      \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{ff} \at L_1
+      &
+      L_1 \sqsubseteq L
+      \\
+      (\pc \sqcup L_1), \rho |- e_3 \Downarrow^{k}_{m} a_3
+    }{
+      \pc, \rho |-
+      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+      \Downarrow^{k+1}_{m}
+      a_3
+    }[\textsc{E-IfFalse}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathcal{M}_{0}}$.}
   \label{fig:semantics}
 \end{figure}
-
-\begin{lemma}
-  $\Downarrow^{k}_{m}\ \subseteq\ \Downarrow^{k+1}_{m}$
-  and
-  $\Downarrow^{k}_{m+1}\ \subseteq\ \Downarrow^{k}_{m}$.
-  
-  \begin{enumerate}
-  \item
-    If $\pc, \rho |- e \Downarrow^{k}_{m} a$, then
-    $\pc, \rho |- \Downarrow^{k+1}_{m} a$.
-  \item
-    If $\pc, \rho |- e \Downarrow^{k}_{m+1} a$, then
-    $\pc, \rho |- e \Downarrow^{k}_{m} a$.
-    \Coqed
-  \end{enumerate}
-  \label{lem:semantics-mon}
-\end{lemma}
 
 \begin{definition}
   $\pc, \rho |- e \Downarrow a\, <=>\,
   \exists{k}.\, \forall{m}.\, \pc, \rho |- e \Downarrow^{k}_{m} a$
   \label{def:eval}
 \end{definition}
+
+\begin{lemma}
+  $\Downarrow^{k}_{m}\ \subseteq\ \Downarrow^{k+1}_{m}$
+  and
+  $\Downarrow^{k}_{m+1}\ \subseteq\ \Downarrow^{k}_{m}$.
+  \Coqed
+  % \begin{enumerate}
+  % \item
+  %   If $\pc, \rho |- e \Downarrow^{k}_{m} a$, then
+  %   $\pc, \rho |- \Downarrow^{k+1}_{m} a$.
+  % \item
+  %   If $\pc, \rho |- e \Downarrow^{k}_{m+1} a$, then
+  %   $\pc, \rho |- e \Downarrow^{k}_{m} a$.
+  %   \Coqed
+  % \end{enumerate}
+  \label{lem:semantics-mon}
+\end{lemma}
 
 \begin{theorem}
   For any observer labeled $L$, if

@@ -78,6 +78,26 @@ Proof.
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down (S k') m l P pc e t l0 v l1);
           assumption.
+    + (* TIf *)
+      apply eval_km_if_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_IfTrue *)
+        destruct Heval as [k' [l1 [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_km (S k', m) l P pc e t1 (Atom (VBool L true) l1))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H4': eval_km (S k', m) l P (l1 ⊔ pc) e t2 a)
+          by (apply IHn in H4; try assumption; omega).
+        clear H2; clear H4; subst.
+        apply (eval_km_iftrue (S k') m l P pc e t1 t2 t3 l1 a);
+          assumption.
+      * (* E_IfFalse *)
+        destruct Heval as [k' [l1 [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_km (S k', m) l P pc e t1 (Atom (VBool L false) l1))
+          by (apply IHn in H2; try assumption; omega).
+        assert (H4': eval_km (S k', m) l P (l1 ⊔ pc) e t3 a)
+          by (apply IHn in H4; try assumption; omega).
+        clear H2; clear H4; subst.
+        apply (eval_km_iffalse (S k') m l P pc e t1 t2 t3 l1 a);
+          assumption.
   - destruct t.
     + (* TBool *)
       apply eval_km_bool_inv in Heval.
@@ -129,6 +149,26 @@ Proof.
               apply (H4 pc' e' v' l1'); assumption).
         clear H2; clear H4; subst.
         apply (eval_km_relabel_down k' m l P pc e t l0 v l1);
+          assumption.
+    + (* TIf *)
+      apply eval_km_if_inv in Heval; destruct Heval as [Heval | Heval].
+      * (* E_IfTrue *)
+        destruct Heval as [k' [l1 [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_km (k', m) l P pc e t1 (Atom (VBool L true) l1))
+          by (apply IHn; try omega; assumption).
+        assert (H4': eval_km (k', m) l P (l1 ⊔ pc) e t2 a)
+          by (apply IHn; try omega; assumption).
+        clear H2; clear H4; subst.
+        apply (eval_km_iftrue k' m l P pc e t1 t2 t3 l1 a);
+          assumption.
+      * (* E_IfFalse *)
+        destruct Heval as [k' [l1 [H1 [H2 [H3 H4]]]]].
+        assert (H2': eval_km (k', m) l P pc e t1 (Atom (VBool L false) l1))
+          by (apply IHn; try omega; assumption).
+        assert (H4': eval_km (k', m) l P (l1 ⊔ pc) e t3 a)
+          by (apply IHn; try omega; assumption).
+        clear H2; clear H4; subst.
+        apply (eval_km_iffalse k' m l P pc e t1 t2 t3 l1 a);
           assumption.
 Qed.
 
@@ -365,6 +405,55 @@ Proof.
       * split; try apply lab_Lequiv_refl; assumption.
       * destruct v11; destruct v11'; try reflexivity.
         inversion Hv. auto. assumption.
+  - (* TIf *)
+    apply eval_km_if_inv in Heval1.
+    apply eval_km_if_inv in Heval2.
+    destruct Heval1 as [Heval1 | Heval1];
+      destruct Heval2 as [Heval2 | Heval2];
+      destruct Heval1 as [k1 [l1 [H1 [H2 [H3 H4]]]]];
+      destruct Heval2 as [k1' [l1' [H1' [H2' [H3' H4']]]]].
+    + remember (Atom (VBool L true) l1) as a1.
+      remember (Atom (VBool L true) l1') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1 k1' m pc pc' e e' t1 a1 a1');
+            try omega; assumption).
+      assert (Hl1: lab_Lequiv L M l l1 l1')
+        by (subst; eapply atom_LPequiv_lab_inv; eauto).
+      assert (Hl1': lab_Lequiv L M l (l1 ⊔ pc) (l1' ⊔ pc'))
+        by (apply lab_Lequiv_join; auto).
+      apply (IHn k1 k1' m (l1 ⊔ pc) (l1' ⊔ pc') e e' t2 a a');
+        try omega; assumption.
+    + remember (Atom (VBool L true) l1) as a1.
+      remember (Atom (VBool L false) l1') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1 k1' m pc pc' e e' t1 a1 a1');
+            try omega; assumption); subst.
+      assert (Hl1: lab_Lequiv L M l l1 l1')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      destruct Ha1 as [Ha11 Ha12].
+      assert (HC: l1 ⊑ l \/ l1' ⊑ l) by auto.
+      apply Ha11 in HC. destruct HC as [HC1 HC2]. inversion HC1.
+    + remember (Atom (VBool L false) l1) as a1.
+      remember (Atom (VBool L true) l1') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1 k1' m pc pc' e e' t1 a1 a1');
+            try omega; assumption); subst.
+      assert (Hl1: lab_Lequiv L M l l1 l1')
+        by (eapply atom_LPequiv_lab_inv; eauto).
+      destruct Ha1 as [Ha11 Ha12].
+      assert (HC: l1 ⊑ l \/ l1' ⊑ l) by auto.
+      apply Ha11 in HC. destruct HC as [HC1 HC2]. inversion HC1.
+    + remember (Atom (VBool L false) l1) as a1.
+      remember (Atom (VBool L false) l1') as a1'.
+      assert (Ha1: atom_LPequiv L M l P a1 a1')
+        by (apply (IHn k1 k1' m pc pc' e e' t1 a1 a1');
+            try omega; assumption).
+      assert (Hl1: lab_Lequiv L M l l1 l1')
+        by (subst; eapply atom_LPequiv_lab_inv; eauto).
+      assert (Hl1': lab_Lequiv L M l (l1 ⊔ pc) (l1' ⊔ pc'))
+        by (apply lab_Lequiv_join; auto).
+      apply (IHn k1 k1' m (l1 ⊔ pc) (l1' ⊔ pc') e e' t3 a a');
+        try omega; assumption.
 Qed.
 
 Theorem non_interference :
