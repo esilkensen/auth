@@ -17,7 +17,7 @@ Context (L : Type)
 
 Definition lab_Lequiv l1 l2 : Prop :=
   ((l1 ⊑ l \/ l2 ⊑ l) /\ l1 =L l2) \/
-  ~ (l1 ⊑ l \/ l2 ⊑ l) /\ l ⊑ l2 /\ l ⊑ l2.
+  ~ (l1 ⊑ l \/ l2 ⊑ l) /\ l ⊑ l1 /\ l ⊑ l2.
 
 Definition lab_Lequiv' l1 l2 : Prop :=
   (~ l1 ⊑ l /\ ~ l2 ⊑ l) \/
@@ -268,48 +268,52 @@ Proof.
       * assert (l2 ⊑ l1 ⊔ l1') by (transitivity l1; auto).
         assert (l2' ⊑ l1 ⊔ l1') by (transitivity l1'; auto). auto.
   - inversion H1b as [H3 H4].
-    inversion H2b as [H5 H6]; clear H6.
+    inversion H2b as [H5 H6].
     assert (H5': ~ l2' ⊑ l) by auto.
-    assert (H6: l ⊑ l1' \/ l1' ⊑ l) by auto.
-    assert (H6': ~ l1' ⊑ l) by auto.
-    destruct H6 as [H6 | H6]; try contradiction.
-    destruct H1a as [H1a | H1a];
-      right; (split; [
-                intro C; (destruct C as [C | C]; [
-                            contradict H6'; transitivity (l1 ⊔ l1'); auto |
-                            contradict H5'; transitivity (l2 ⊔ l2'); auto
-                          ]) |
-                split; transitivity l2'; auto
-              ]).
-  - inversion H1b as [H3 H4]; clear H4.
-    inversion H2b as [H4 H5].
+    assert (H7: l ⊑ l1' \/ l1' ⊑ l) by auto.
+    assert (H7': ~ l1' ⊑ l) by auto.
+    destruct H7 as [H7 | H7]; try contradiction.
+    destruct H1a as [H1a | H1a]; right;
+    (splits; [
+       intro C; (destruct C as [C | C]; [
+                   contradict H7'; transitivity (l1 ⊔ l1'); auto |
+                   contradict H5'; transitivity (l2 ⊔ l2'); auto
+                ]) |
+       transitivity l1'; auto |
+       transitivity l2'; auto
+     ]).
+  - inversion H1b as [H3 H4].
+    inversion H2b as [H5 H6].
     assert (H3': ~ l2 ⊑ l) by auto.
-    assert (H6': ~ l1 ⊑ l) by auto.
-    assert (H6: l ⊑ l1 \/ l1 ⊑ l) by auto.
-    destruct H6 as [H6 | H6]; try contradiction.
-    destruct H2a as [H2a | H2a];
-      right; (split; [
-                intro C; (destruct C as [C | C]; [
-                            contradict H6'; transitivity (l1 ⊔ l1'); auto |
-                            contradict H3'; transitivity (l2 ⊔ l2'); auto
-                          ]) |
-                split; transitivity l2; auto
-              ]).
-  - inversion H1b as [H3 H4]; clear H4.
-    inversion H2b as [H4 H5]; clear H5.
-    assert (H5: l ⊑ l1 \/ l1 ⊑ l) by auto.
-    assert (H6: l ⊑ l1' \/ l1' ⊑ l) by auto.
-    assert (H3': ~ l2 ⊑ l) by auto.
-    assert (H4': ~ l2' ⊑ l) by auto.
-    assert (H5': ~ l1 ⊑ l) by auto.
-    assert (H6': ~ l1' ⊑ l) by auto.
-    destruct H5 as [H5 | H5];
-      destruct H6 as [H6 | H6]; try contradiction.
-    right. split.
-    + intro C. destruct C as [C | C].
-      * contradict H5'. transitivity (l1 ⊔ l1'); auto.
-      * contradict H3'. transitivity (l2 ⊔ l2'); auto.
-    + split; transitivity l2; auto.
+    assert (H4': ~ l1 ⊑ l) by auto.
+    assert (H7: l ⊑ l1 \/ l1 ⊑ l) by auto.
+    destruct H7 as [H7 | H7]; try contradiction.
+    destruct H2a as [H2a | H2a]; right;
+    (splits; [
+       intro C; (destruct C as [C | C]; [
+                   contradict H4'; transitivity (l1 ⊔ l1'); auto |
+                   contradict H3'; transitivity (l2 ⊔ l2'); auto
+                ]) |
+       transitivity l1; auto |
+       transitivity l2; auto
+     ]).
+  - inversion H1b as [H3 H4].
+    inversion H2b as [H5 H6].
+    assert (H7: l ⊑ l1 \/ l1 ⊑ l) by auto.
+    assert (H8: l ⊑ l1' \/ l1' ⊑ l) by auto.
+    assert (H4': ~ l2 ⊑ l) by auto.
+    assert (H6': ~ l2' ⊑ l) by auto.
+    assert (H3': ~ l1 ⊑ l) by auto.
+    assert (H5': ~ l1' ⊑ l) by auto.
+    destruct H7 as [H7 | H7];
+      destruct H8 as [H8 | H8]; try contradiction.
+    right. splits.
+    * intro C; (destruct C as [C | C]; [
+                  contradict H5'; transitivity (l1 ⊔ l1'); auto |
+                  contradict H6'; transitivity (l2 ⊔ l2'); auto
+                ]).
+    * transitivity l1; auto.
+    * transitivity l2; auto.
 Qed.
 
 Lemma atom_value_env_LPequiv_refl :
@@ -479,10 +483,10 @@ Proof.
         by (apply Ha1; destruct Hl; assumption).
       destruct H4 as [H4a H4b].
       destruct v1; destruct v2; inversion H4a; auto.
-    + destruct Hl as [H4 [H5 H6]]; clear H6.
+    + destruct Hl as [H4 [H5 H6]].
       assert (H4a: ~ l1 ⊑ l) by auto.
-      assert (H6: l ⊑ l1 \/ l1 ⊑ l) by auto.
-      destruct H6 as [H6 | H6]; try contradiction.
+      assert (H7: l ⊑ l1 \/ l1 ⊑ l) by auto.
+      destruct H7 as [H7 | H7]; try contradiction.
       apply Ha2. auto.
 Qed.
 
@@ -513,7 +517,7 @@ Proof.
         destruct C as [C | C].
         contradict H5. transitivity l1'; assumption.
         contradict H6. assumption.
-        split; assumption.
+        split. transitivity l1; auto. assumption.
   - destruct v1; destruct v2; try reflexivity;
     inversion H1 as [H1a H1b];
     destruct H3 as [H3a [H3b H3c]];
