@@ -250,11 +250,15 @@ Proof.
   - (* TBool *)
     apply eval_km_bool_inv in Heval1.
     apply eval_km_bool_inv in Heval2. subst.
-    split; auto.
+    destruct Hpc as [[Hpc1 Hpc2] | [Hpc1 Hpc2]].
+    + left. auto.
+    + right. auto.
   - (* TNat *)
     apply eval_km_nat_inv in Heval1.
     apply eval_km_nat_inv in Heval2. subst.
-    split; auto.
+    destruct Hpc as [[Hpc1 Hpc2] | [Hpc1 Hpc2]].
+    + left. auto.
+    + right. auto.
   - (* TVar *)
     apply eval_km_var_inv in Heval1.
     apply eval_km_var_inv in Heval2.
@@ -266,8 +270,9 @@ Proof.
   - (* TAbs *)
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
-    assert (H1: pc ⊑ l \/ ~ pc ⊑ l) by apply classic.
-    split; auto.
+    destruct Hpc as [[Hpc1 Hpc2] | [Hpc1 Hpc2]].
+    + left. auto.
+    + right. auto.
   - (* TApp *)
     apply eval_km_app_inv in Heval1.
     apply eval_km_app_inv in Heval2.
@@ -285,21 +290,22 @@ Proof.
           try assumption; omega).
     assert (Hinv: env_LPequiv L M l P e11' e11'' /\ t11'' = t11' /\
                   lab_Lequiv L M l l11 l11')
-      by (inversion Ha1 as [Ha1a Ha1b];
+      by (destruct Ha1 as [[Ha1a [Ha1b [Ha1c Ha1d]]] |
+                           [Ha1a [Ha1b [Ha1c Ha1d]]]];
           fold (atom_LPequiv L M l P) in *;
             assert (Hl11: l11 ⊑ l \/ l ⊑ l11) by auto;
           assert (Hl11': l11' ⊑ l \/ l ⊑ l11') by auto;
           destruct Hl11 as [Hl11 | Hl11];
           destruct Hl11' as [Hl11' | Hl11'];
           try (assert (Hl: l11 ⊑ l \/ l11' ⊑ l) by auto;
-               apply Ha1a in Hl; destruct Hl as [[Hla Hlb] Hlc]; auto);
+               destruct Hl; contradiction);
           try (assert (Hl': (l11 ⊑ l \/ l11' ⊑ l) \/ ~ (l11 ⊑ l \/ l11' ⊑ l))
                 by apply classic;
-               destruct Hl' as [Hl' | Hl'];
-               try (apply Ha1a in Hl'; destruct Hl' as [[Hla Hlb] Hlc]; auto);
-               try (assert (Hl: ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
-                     by auto;
-                    apply Ha1b in Hl; destruct Hl; splits; auto; right; auto))).
+               destruct Hl' as [Hl' | Hl']; [
+                 destruct Hl'; contradiction |
+                 splits; auto; left; auto
+              ]);
+          splits; auto; right; auto).
     destruct Hinv as [He11 [Ht11 Hl11]]. subst.
     apply (IHn k1' k1'' m l11 l11' (a21 :: e11') (a21' :: e11'') t11' a a');
       try omega; try split; assumption.
@@ -330,31 +336,20 @@ Proof.
             try omega; assumption); subst.
       assert (Hl11: lab_Lequiv L M l l11 l11')
         by (eapply atom_LPequiv_lab_inv; eauto).
-      split; intro Hl; destruct Ha1 as [Ha11 Ha12];
-      fold (value_LPequiv L M l P v11 v11') in *.
-      * destruct Hl11 as [Hl11 | Hl11].
-          destruct Hl11 as [Hl11 Hl11'].
-            apply Ha11 in Hl11. destruct Hl11 as [Hl11a Hl11b].
-            split. assumption.
-            left. split. assumption. split; auto.
-          destruct Hl11 as [Hl11 [Hl11a Hl11b]].
-            assert (~ l11 ⊑ l) by auto.
-            destruct Hl as [Hl | Hl];
-              assert (l11 ⊑ l) by (transitivity l0; auto);
-              contradiction.
-      * destruct v11; destruct v11'; try reflexivity;
-        (destruct Hl11 as [Hl11 | Hl11]; [
-           destruct Hl11 as [Hl11 Hl11'];
-           apply Ha11 in Hl11; destruct Hl11 as [Hl11a Hl11b];
-           inversion Hl11a; auto |
-           destruct Hl11 as [Hl11 [Hl11a Hl11b]];
-             destruct Hl as [Hla [Hlb Hlc]];
-             assert (~ l11 ⊑ l) by auto;
-             assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto;
-             destruct Htmp as [Htmp | Htmp]; try contradiction;
-             assert (Htmp': ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
-               by auto; apply Ha12 in Htmp'; assumption
-         ]).
+      destruct Ha1 as [[Ha1a [Ha1b Ha1c]] | [Ha1a [Ha1b Ha1c]]];
+        fold (value_LPequiv L M l P v11 v11') in *.
+      * destruct Hl11 as [[Hl11a Hl11b] | [Hl11a Hl11b]].
+        left. splits.
+        intro C. contradict Hl11a. transitivity l0; auto.
+        intro C. contradict Hl11a. transitivity l0; auto.
+        destruct v11; destruct v11'; auto.
+        contradiction.
+      * destruct Hl11 as [[Hl11a Hl11b] | [Hl11a [Hl11b Hl11c]]].
+        contradiction.
+        right. splits.
+        transitivity l11'; auto. transitivity l11; auto.
+        auto.
+        destruct v11; destruct v11'; auto.
     + remember (Atom v11 l11) as a1.
       remember (Atom v11' l11') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
@@ -362,37 +357,19 @@ Proof.
             try omega; assumption); subst.
       assert (Hl11: lab_Lequiv L M l l11 l11')
         by (eapply atom_LPequiv_lab_inv; eauto).
-      split; intro Hl; destruct Ha1 as [Ha11 Ha12];
-      fold (value_LPequiv L M l P v11 v11') in *.
-      * destruct Hl11 as [Hl11 | Hl11].
-          destruct Hl11 as [Hl11 Hl11'].
-            apply Ha11 in Hl11. destruct Hl11 as [Hl11a Hl11b].
-            split. assumption.
-            left. split. assumption. split; auto.
-          destruct Hl11 as [Hl11 [Hl11a Hl11b]].
-            assert (~ l11 ⊑ l) by auto.
-            destruct Hl as [Hl | Hl].
-              assert (l11' ⊑ l) by (transitivity l0; auto).
-                assert (Htmp: l11 ⊑ l \/ l11' ⊑ l) by auto.
-                apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
-                split. assumption. left. split. left. assumption. split; auto.
-              assert (Htmp: l11 ⊑ l \/ l11' ⊑ l)
-                  by (right; transitivity l0; auto).
-              apply Ha11 in Htmp. destruct Htmp as [Htmp1 Htmp2].
-              split. assumption. left. split. right. assumption. split; auto.
-      * destruct v11; destruct v11'; try reflexivity;
-        (destruct Hl11 as [Hl11 | Hl11]; [
-           destruct Hl11 as [Hl11 Hl11'];
-           apply Ha11 in Hl11; destruct Hl11 as [Hl11a Hl11b];
-           inversion Hl11a; auto |
-           destruct Hl11 as [Hl11 [Hl11a Hl11b]];
-             destruct Hl as [Hla [Hlb Hlc]];
-             assert (~ l11 ⊑ l) by auto;
-             assert (Htmp: l11 ⊑ l \/ l ⊑ l11) by auto;
-             destruct Htmp as [Htmp | Htmp]; try contradiction;
-             assert (Htmp': ~ (l11 ⊑ l \/ l11' ⊑ l) /\ l ⊑ l11 /\ l ⊑ l11')
-               by auto; apply Ha12 in Htmp'; assumption
-         ]).
+      destruct Ha1 as [[Ha1a [Ha1b Ha1c]] | [Ha1a [Ha1b Ha1c]]];
+        fold (value_LPequiv L M l P v11 v11') in *.
+      * destruct Hl11 as [[Hl11a Hl11b] | [Hl11a Hl11b]].
+        left. splits.
+        intro C. contradict Hl11b. transitivity l0; auto.
+        intro C. contradict Hl11b. transitivity l0; auto.
+        destruct v11; destruct v11'; auto.
+        contradiction.
+      * destruct Hl11 as [[Hl11a Hl11b] | [Hl11a [Hl11b Hl11c]]].
+        contradiction.
+        right. splits.
+        transitivity l11; auto. auto.
+        destruct v11; destruct v11'; auto.
     + remember (Atom v11 l11) as a1.
       remember (Atom v11' l11') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
@@ -406,10 +383,14 @@ Proof.
         by (apply (eval_km_mon_m m m k1'); try omega; assumption).
       assert (Hv: value_LPequiv L M l P v11 v11')
         by (subst; apply (H8 pc' e' v11' l11'); assumption); subst.
-      split; intro Hl; fold (value_LPequiv L M l P v11 v11').
-      * split; try apply lab_Lequiv_refl; assumption.
-      * destruct v11; destruct v11'; try reflexivity.
-        inversion Hv. auto. assumption.
+      destruct Hl11 as [[Hl11a Hl11b] | [Hl11a [Hl11b Hl11c]]].
+      * assert (Hl0: l0 ⊑ l \/ ~ l0 ⊑ l) by apply classic.
+        destruct Hl0 as [Hl0 | Hl0].
+        right; fold (value_LPequiv L M l P v11 v11'); auto.
+        left; fold (value_LPequiv L M l P v11 v11').
+        splits; destruct v11; destruct v11'; inversion Hv; auto.
+      * right; fold (value_LPequiv L M l P v11 v11').
+        splits; auto. transitivity l11; [ transitivity l11'; auto | auto ]. 
   - (* TIf *)
     apply eval_km_if_inv in Heval1.
     apply eval_km_if_inv in Heval2.
@@ -435,9 +416,9 @@ Proof.
             try omega; assumption); subst.
       assert (Hl1: lab_Lequiv L M l l1 l1')
         by (eapply atom_LPequiv_lab_inv; eauto).
-      destruct Ha1 as [Ha11 Ha12].
-      assert (HC: l1 ⊑ l \/ l1' ⊑ l) by auto.
-      apply Ha11 in HC. destruct HC as [HC1 HC2]. inversion HC1.
+      destruct Ha1 as [[Ha1a [Ha1b Ha1c]] | [Ha1a [Ha1b Ha1c]]].
+      * contradiction.
+      * inversion Ha1c.
     + remember (Atom (VBool L false) l1) as a1.
       remember (Atom (VBool L true) l1') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
@@ -445,9 +426,9 @@ Proof.
             try omega; assumption); subst.
       assert (Hl1: lab_Lequiv L M l l1 l1')
         by (eapply atom_LPequiv_lab_inv; eauto).
-      destruct Ha1 as [Ha11 Ha12].
-      assert (HC: l1 ⊑ l \/ l1' ⊑ l) by auto.
-      apply Ha11 in HC. destruct HC as [HC1 HC2]. inversion HC1.
+      destruct Ha1 as [[Ha1a [Ha1b Ha1c]] | [Ha1a [Ha1b Ha1c]]].
+      * contradiction.
+      * inversion Ha1c.
     + remember (Atom (VBool L false) l1) as a1.
       remember (Atom (VBool L false) l1') as a1'.
       assert (Ha1: atom_LPequiv L M l P a1 a1')
