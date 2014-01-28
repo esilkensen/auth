@@ -12,8 +12,7 @@ Context
   (P : value L -> value L -> Prop)
   (Prefl : forall v, P v v)
   (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
-  (Ptrans : forall v1 v2 v3, P v1 v2 -> P v2 v3 -> P v1 v3)
-  (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
+  (Ptrans : forall v1 v2 v3, P v1 v2 -> P v2 v3 -> P v1 v3).
 
 Lemma eval_km_mon_n :
   forall n,
@@ -292,20 +291,10 @@ Proof.
                   lab_Lequiv L M l l11 l11')
       by (destruct Ha1 as [[Ha1a [Ha1b [Ha1c Ha1d]]] |
                            [Ha1a [Ha1b [Ha1c Ha1d]]]];
-          fold (atom_LPequiv L M l P) in *;
-            assert (Hl11: l11 ⊑ l \/ l ⊑ l11) by auto;
-          assert (Hl11': l11' ⊑ l \/ l ⊑ l11') by auto;
-          destruct Hl11 as [Hl11 | Hl11];
-          destruct Hl11' as [Hl11' | Hl11'];
-          try (assert (Hl: l11 ⊑ l \/ l11' ⊑ l) by auto;
-               destruct Hl; contradiction);
-          try (assert (Hl': (l11 ⊑ l \/ l11' ⊑ l) \/ ~ (l11 ⊑ l \/ l11' ⊑ l))
-                by apply classic;
-               destruct Hl' as [Hl' | Hl']; [
-                 destruct Hl'; contradiction |
-                 splits; auto; left; auto
-              ]);
-          splits; auto; right; auto).
+          fold (atom_LPequiv L M l P) in *; [
+              splits; try left; auto |
+              splits; try right; auto
+         ]).
     destruct Hinv as [He11 [Ht11 Hl11]]. subst.
     apply (IHn k1' k1'' m l11 l11' (a21 :: e11') (a21' :: e11'') t11' a a');
       try omega; try split; assumption.

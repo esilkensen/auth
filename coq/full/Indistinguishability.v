@@ -12,8 +12,7 @@ Context (L : Type)
         (P : value L -> value L -> Prop)
         (Psym : forall v1 v2, P v1 v2 -> P v2 v1)
         (Prefl : forall v, P v v)
-        (Ptrans : forall v1 v2 v3, P v1 v2 -> P v2 v3 -> P v1 v3)
-        (Ltotal : forall l l', l ⊑ l' \/ l' ⊑ l).
+        (Ptrans : forall v1 v2 v3, P v1 v2 -> P v2 v3 -> P v1 v3).
 
 Definition lab_Lequiv l1 l2 : Prop :=
   (~ l1 ⊑ l /\ ~ l2 ⊑ l) \/
@@ -56,9 +55,6 @@ Proof.
     + right. simpl. splits; try transitivity l2; auto.
   - assert (H4: ~ l1 ⊑ l /\ ~ l2 ⊑ l) by auto.
     destruct H4 as [H4 H5].
-    assert (H4': l1 ⊑ l \/ l ⊑ l1) by auto.
-    assert (H5': l2 ⊑ l \/ l ⊑ l2) by auto.
-    destruct H4'; destruct H5'; try contradiction.
     left. auto.
 Qed.
 
@@ -67,11 +63,9 @@ Lemma lab_Lequiv_refl :
 Proof.
   intros l1.
   assert (H1: l1 ⊑ l \/ ~ l1 ⊑ l) by apply classic.
-  assert (H2: l1 ⊑ l \/ l ⊑ l1) by auto.
   destruct H1 as [H1 | H1].
-  - destruct H2 as [H2 | H2]; right; auto.
-  - destruct H2 as [H2 | H2]; try contradiction.
-    left. auto.
+  - right. auto.
+  - left. auto.
 Qed.
 
 Lemma lab_Lequiv_sym :
@@ -152,13 +146,10 @@ Lemma atom_value_env_LPequiv_refl :
 Proof.
   apply atom_value_env_mutind.
   - intros v Hv l1.
-    assert (H1: l1 ⊑ l \/ l ⊑ l1) by auto.
+    assert (H1: l1 ⊑ l \/ ~ l1 ⊑ l) by apply classic.
     destruct H1 as [H1 | H1].
     + right. auto.
-    + assert (H2: l1 ⊑ l \/ ~ l1 ⊑ l) by apply classic.
-      destruct H2 as [H2 | H2].
-      * right. auto.
-      * left. destruct v; auto.
+    + left. destruct v; auto.
   - intros b.
     unfold value_LPequiv. auto.
   - intros n.
@@ -335,33 +326,15 @@ Proof.
   destruct Ha as [[Ha1 [Ha2 Ha3]] | [Ha1 [[Ha2 Ha3] Ha4]]].
   - destruct Hlab as [[Hlab1 Hlab2] | [Hlab1 [Hlab2 Hlab3]]]; left;
     (splits; [
-       intro C; contradict Ha1;
-       assert (H2: l1 ⊑ l \/ l ⊑ l1) by auto;
-       destruct H2 as [H2 | H2]; try contradiction;
-       transitivity (l1 ⊔ l1'); auto |
-       intro C; contradict Ha2;
-       assert (H2: l2 ⊑ l \/ l ⊑ l2) by auto;
-       destruct H2 as [H2 | H2]; try contradiction;
-       transitivity (l2 ⊔ l2'); auto |
+       intro C; contradict Ha1; transitivity (l1 ⊔ l1'); auto |
+       intro C; contradict Ha2; transitivity (l2 ⊔ l2'); auto |
        destruct v1; destruct v2; auto
      ]).
   - destruct Hlab as [[Hlab1 Hlab2] | [Hlab1 [Hlab2 Hlab3]]].
-    + assert (H1: l ⊑ l1')
-        by (assert (H2: l ⊑ l1' \/ l1' ⊑ l) by auto;
-            destruct H2; try contradiction; auto).
-      assert (H2: l ⊑ l2')
-        by (assert (H2: l ⊑ l2' \/ l2' ⊑ l) by auto;
-            destruct H2; try contradiction; auto).
-      assert (H3: l1 ⊔ l1' ⊑ l \/ l ⊑ l1 ⊔ l1') by auto.
-      destruct H3 as [H3 | H3].
-      * right. simpl. splits; auto.
-        transitivity l. auto.
-          transitivity l2'; auto.
-        contradict Hlab1. transitivity (l1 ⊔ l1'); auto.
-      * left. splits.
-        intro C. contradict Hlab1. transitivity (l1 ⊔ l1'); auto.
-        intro C. contradict Hlab2. transitivity (l2 ⊔ l2'); auto.
-        destruct v1; destruct v2; try inversion Ha4; auto.
+    + left. splits.
+      * intro C. contradict Hlab1. transitivity (l1 ⊔ l1'); auto.
+      * intro C. contradict Hlab2. transitivity (l2 ⊔ l2'); auto.
+      * destruct v1; destruct v2; inversion Ha4; auto.
     + right. simpl. splits; auto.
       * assert (H1: l1 ⊑ l2 ⊔ l2') by (transitivity l2; auto).
         assert (H2: l1' ⊑ l2 ⊔ l2') by (transitivity l2'; auto).
