@@ -60,6 +60,10 @@ Definition eval_km {L : Type} {M : LabelAlgebra unit L} :
                        exists n1 l1 n2 l2,
                          eval l P pc e t1 (Atom (VNat L n1) l1) /\
                          eval l P pc e t2 (Atom (VNat L n2) l2) /\
+                         (forall n1' n2',
+                            P (VNat L n1) (VNat L n1') ->
+                            P (VNat L n2) (VNat L n2') ->
+                            P (VNat L (f n1 n2)) (VNat L (f n1' n2'))) /\
                          a = Atom (VNat L (f n1 n2)) (l1 ⊔ l2)
                 | TRelabel t' l' =>
                   if Compare_dec.zerop (fst km) then False
@@ -117,23 +121,27 @@ Lemma eval_km_eq {L : Type} {M : LabelAlgebra unit L} :
                exists n1 l1 n2 l2,
                  eval l P pc e t1 (Atom (VNat L n1) l1) /\
                  eval l P pc e t2 (Atom (VNat L n2) l2) /\
+                 (forall n1' n2',
+                    P (VNat L n1) (VNat L n1') ->
+                    P (VNat L n2) (VNat L n2') ->
+                    P (VNat L (f n1 n2)) (VNat L (f n1' n2'))) /\
                  a = Atom (VNat L (f n1 n2)) (l1 ⊔ l2)
-                | TRelabel t' l' =>
-                  if Compare_dec.zerop (fst km) then False
-                  else let eval := eval_km (fst km - 1, snd km) in
-                       exists v l1,
-                         eval l P pc e t' (Atom v l1) /\
-                         ((l1 ⊑ l' /\
-                           a = Atom v l') \/
-                          (l' ⊑ l1 /\
-                           let eval := eval_km (snd km, fst km - 1) in
-                           (forall pc' e' v' l1',
-                              lab_Lequiv L M l pc pc' ->
-                              env_LPequiv L M l P e e' ->
-                              lab_Lequiv L M l l1 l1' ->
-                              eval l P pc' e' t' (Atom v' l1') ->
-                              value_LPequiv L M l P v v') /\
-                           a = Atom v l'))
+        | TRelabel t' l' =>
+          if Compare_dec.zerop (fst km) then False
+          else let eval := eval_km (fst km - 1, snd km) in
+               exists v l1,
+                 eval l P pc e t' (Atom v l1) /\
+                 ((l1 ⊑ l' /\
+                   a = Atom v l') \/
+                  (l' ⊑ l1 /\
+                   let eval := eval_km (snd km, fst km - 1) in
+                   (forall pc' e' v' l1',
+                      lab_Lequiv L M l pc pc' ->
+                      env_LPequiv L M l P e e' ->
+                      lab_Lequiv L M l l1 l1' ->
+                      eval l P pc' e' t' (Atom v' l1') ->
+                      value_LPequiv L M l P v v') /\
+                   a = Atom v l'))
         | TIf t1 t2 t3 =>
           if Compare_dec.zerop (fst km) then False
           else let eval := eval_km (fst km - 1, snd km) in
@@ -255,6 +263,10 @@ Lemma eval_km_prim {L : Type} {M : LabelAlgebra unit L} :
   forall k m l P pc e f t1 t2 n1 l1 n2 l2,
     eval_km (k, m) l P pc e t1 (Atom (VNat L n1) l1) ->
     eval_km (k, m) l P pc e t2 (Atom (VNat L n2) l2) ->
+    (forall n1' n2',
+       P (VNat L n1) (VNat L n1') ->
+       P (VNat L n2) (VNat L n2') ->
+       P (VNat L (f n1 n2)) (VNat L (f n1' n2'))) ->
     eval_km (S k, m) l P pc e (TPrim f t1 t2)
             (Atom (VNat L (f n1 n2)) (l1 ⊔ l2)).
 Proof.
@@ -271,13 +283,17 @@ Lemma eval_km_prim_inv {L : Type} {M : LabelAlgebra unit L} :
       k = S k' /\
       eval_km (k', m) l P pc e t1 (Atom (VNat L n1) l1) /\
       eval_km (k', m) l P pc e t2 (Atom (VNat L n2) l2) /\
+      (forall n1' n2',
+         P (VNat L n1) (VNat L n1') ->
+         P (VNat L n2) (VNat L n2') ->
+         P (VNat L (f n1 n2)) (VNat L (f n1' n2'))) /\
       a = Atom (VNat L (f n1 n2)) (l1 ⊔ l2).
 Proof.
   intros.
   rewrite eval_km_eq in H.
   destruct k; simpl in H.
   - inversion H.
-  - destruct H as [n1 [l1 [n2 [l2 [H1 [H2 H3]]]]]].
+  - destruct H as [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]].
     replace (k - 0) with k in * by omega.
     exists k n1 l1 n2 l2. auto.
 Qed.

@@ -57,7 +57,7 @@ Proof.
       rename n0 into f.
       apply eval_km_prim_inv in Heval.
       destruct Heval
-        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 [H4 H5]]]]]]]]].
       assert (H2': eval_km (S k', m) l P pc e t1 (Atom (VNat L n1) l1))
         by (apply IHn in H2; try assumption; omega).
       assert (H3': eval_km (S k', m) l P pc e t2 (Atom (VNat L n2) l2))
@@ -141,7 +141,7 @@ Proof.
       rename n0 into f.
       apply eval_km_prim_inv in Heval.
       destruct Heval
-        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 [H4 H5]]]]]]]]].
       assert (H2': eval_km (k', m) l P pc e t1 (Atom (VNat L n1) l1))
         by (apply IHn in H2; try omega; assumption).
       assert (H3': eval_km (k', m) l P pc e t2 (Atom (VNat L n2) l2))
@@ -327,9 +327,9 @@ Proof.
     apply eval_km_prim_inv in Heval1.
     apply eval_km_prim_inv in Heval2.
     destruct Heval1
-      as [k1 [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+      as [k1 [n1 [l1 [n2 [l2 [H1 [H2 [H3 [H4 H5]]]]]]]]].
     destruct Heval2
-      as [k1' [n1' [l1' [n2' [l2' [H1' [H2' [H3' H4']]]]]]]].
+      as [k1' [n1' [l1' [n2' [l2' [H1' [H2' [H3' [H4' H5']]]]]]]]].
     remember (Atom (VNat L n1) l1) as a1.
     remember (Atom (VNat L n1') l1') as a1'.
     assert (Ha1: atom_LPequiv L M l P a1 a1')
@@ -346,18 +346,15 @@ Proof.
     + left. splits.
       * intro C. contradict Ha1a. transitivity (l1 ⊔ l2); auto.
       * intro C. contradict Ha1b. transitivity (l1' ⊔ l2'); auto.
-      * (* need: P n1 n1' /\ P n2 n2' -> P (f n1 n2) (f n1' n2') *)
-        admit.
+      * auto.
     + left. splits.
       * intro C. contradict Ha1a. transitivity (l1 ⊔ l2); auto.
       * intro C. contradict Ha1b. transitivity (l1' ⊔ l2'); auto.
-      * (* need: P n1 n1' /\ n2 = n2' -> P (f n1 n2) (f n1' n2') *)
-        admit.
+      * auto.
     + left. splits.
       * intro C. contradict Ha2a. transitivity (l1 ⊔ l2); auto.
       * intro C. contradict Ha2b. transitivity (l1' ⊔ l2'); auto.
-      * (* need: n1 = n1' /\ P n2 n2' -> P (f n1 n2) (f n1' n2') *)
-        admit.
+      * auto. 
     + right. splits; simpl; auto. split.
       * assert (l1 ⊑ l1' ⊔ l2')
           by (inversion Ha1b; transitivity l1'; auto).
