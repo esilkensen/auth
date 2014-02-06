@@ -53,6 +53,18 @@ Proof.
       clear H2; clear H3; clear H4; subst.
       apply (eval_km_app (S k') m l P pc e t1 t2 e1' t1' l1 a2 a);
         assumption.
+    + (* TPrim *)
+      rename n0 into f.
+      apply eval_km_prim_inv in Heval.
+      destruct Heval
+        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+      assert (H2': eval_km (S k', m) l P pc e t1 (Atom (VNat L n1) l1))
+        by (apply IHn in H2; try assumption; omega).
+      assert (H3': eval_km (S k', m) l P pc e t2 (Atom (VNat L n2) l2))
+        by (apply IHn in H3; try assumption; omega).
+      clear H2; clear H3; subst.
+      apply (eval_km_prim (S k') m l P pc e f t1 t2 n1 l1 n2 l2);
+        assumption.
     + (* TRelabel *)
       apply eval_km_relabel_inv in Heval; destruct Heval as [Heval | Heval].
       * (* E_Relabel1 *)
@@ -124,6 +136,18 @@ Proof.
         by (apply IHn; try omega; assumption).
       clear H2; clear H3; clear H4; subst.
       apply (eval_km_app k' m l P pc e t1 t2 e1' t1' l1 a2 a);
+        assumption.
+    + (* TPrim *)
+      rename n0 into f.
+      apply eval_km_prim_inv in Heval.
+      destruct Heval
+        as [k' [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+      assert (H2': eval_km (k', m) l P pc e t1 (Atom (VNat L n1) l1))
+        by (apply IHn in H2; try omega; assumption).
+      assert (H3': eval_km (k', m) l P pc e t2 (Atom (VNat L n2) l2))
+        by (apply IHn in H3; try assumption; omega).
+      clear H2; clear H3; subst.
+      apply (eval_km_prim k' m l P pc e f t1 t2 n1 l1 n2 l2);
         assumption.
     + (* TRelabel *)
       apply eval_km_relabel_inv in Heval; destruct Heval as [Heval | Heval].
@@ -265,7 +289,7 @@ Proof.
     destruct Heval2 as [v2' [l2' [He2 Ha2]]].
     assert (Ha: atom_LPequiv L M l P (Atom v1' l1') (Atom v2' l2'))
       by (eapply list_forall2_atIndex; eauto). subst.
-    apply atom_LPequiv_lab_Lequiv_raise; auto.
+    assumption.
   - (* TAbs *)
     apply eval_km_abs_inv in Heval1.
     apply eval_km_abs_inv in Heval2. subst.
@@ -298,6 +322,53 @@ Proof.
     destruct Hinv as [He11 [Ht11 Hl11]]. subst.
     apply (IHn k1' k1'' m l11 l11' (a21 :: e11') (a21' :: e11'') t11' a a');
       try omega; try split; assumption.
+  - (* TPrim *)
+    rename n0 into f.
+    apply eval_km_prim_inv in Heval1.
+    apply eval_km_prim_inv in Heval2.
+    destruct Heval1
+      as [k1 [n1 [l1 [n2 [l2 [H1 [H2 [H3 H4]]]]]]]].
+    destruct Heval2
+      as [k1' [n1' [l1' [n2' [l2' [H1' [H2' [H3' H4']]]]]]]].
+    remember (Atom (VNat L n1) l1) as a1.
+    remember (Atom (VNat L n1') l1') as a1'.
+    assert (Ha1: atom_LPequiv L M l P a1 a1')
+      by (apply (IHn k1 k1' m pc pc' e e' t1 a1 a1');
+          try assumption; omega).
+    remember (Atom (VNat L n2) l2) as a2.
+    remember (Atom (VNat L n2') l2') as a2'.
+    assert (Ha2: atom_LPequiv L M l P a2 a2')
+      by (apply (IHn k1 k1' m pc pc' e e' t2 a2 a2');
+          try assumption; omega).
+    subst.
+    destruct Ha1 as [[Ha1a [Ha1b Ha1c]] | [Ha1a [Ha1b Ha1c]]];
+      destruct Ha2 as [[Ha2a [Ha2b Ha2c]] | [Ha2a [Ha2b Ha2c]]]; subst.
+    + left. splits.
+      * intro C. contradict Ha1a. transitivity (l1 ⊔ l2); auto.
+      * intro C. contradict Ha1b. transitivity (l1' ⊔ l2'); auto.
+      * (* need: P n1 n1' /\ P n2 n2' -> P (f n1 n2) (f n1' n2') *)
+        admit.
+    + left. splits.
+      * intro C. contradict Ha1a. transitivity (l1 ⊔ l2); auto.
+      * intro C. contradict Ha1b. transitivity (l1' ⊔ l2'); auto.
+      * (* need: P n1 n1' /\ n2 = n2' -> P (f n1 n2) (f n1' n2') *)
+        admit.
+    + left. splits.
+      * intro C. contradict Ha2a. transitivity (l1 ⊔ l2); auto.
+      * intro C. contradict Ha2b. transitivity (l1' ⊔ l2'); auto.
+      * (* need: n1 = n1' /\ P n2 n2' -> P (f n1 n2) (f n1' n2') *)
+        admit.
+    + right. splits; simpl; auto. split.
+      * assert (l1 ⊑ l1' ⊔ l2')
+          by (inversion Ha1b; transitivity l1'; auto).
+        assert (l2 ⊑ l1' ⊔ l2')
+          by (inversion Ha2b; transitivity l2'; auto).
+        auto.
+      * assert (l1' ⊑ l1 ⊔ l2)
+          by (inversion Ha1b; transitivity l1; auto).
+        assert (l2' ⊑ l1 ⊔ l2)
+          by (inversion Ha2b; transitivity l2; auto).
+        auto.
   - (* TRelabel *)
     apply eval_km_relabel_inv in Heval1.
     apply eval_km_relabel_inv in Heval2.
@@ -379,7 +450,7 @@ Proof.
         left; fold (value_LPequiv L M l P v11 v11').
         splits; destruct v11; destruct v11'; inversion Hv; auto.
       * right; fold (value_LPequiv L M l P v11 v11').
-        splits; auto. transitivity l11; [ transitivity l11'; auto | auto ]. 
+        splits; auto. transitivity l11; [ transitivity l11'; auto | auto ].
   - (* TIf *)
     apply eval_km_if_inv in Heval1.
     apply eval_km_if_inv in Heval2.
