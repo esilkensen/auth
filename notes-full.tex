@@ -57,6 +57,8 @@ $\mathcal{M}$.
     x\;\; |\;\;
     \lambda{x}.\, e\;\; |\;\;
     e\ e\;\; |\;\;
+    e \oplus e\;\; |
+    \\[0.3ex] & &
     e \updownarrow L\;\; |\;\;
     \mathsf{if}\ e\ \mathsf{then}\ e\ \mathsf{else}\ e
     \\[0.3ex]
@@ -91,7 +93,7 @@ $\mathcal{M}$.
 \end{definition}
 
 \begin{definition}
-  Let $P$ be an equivalence relation on values. We say that atoms
+  Let $P$ be an equivalence relation on numbers. We say that atoms
   $v_1 \at L_1$ and $v_2 \at L_2$ are \emph{indistinguishable mod $P$ at
     level $L$}, written $v_1 \at L_1 \approx^{L}_{P} v_2 \at L_2$, iff
   \begin{itemize}
@@ -102,7 +104,7 @@ $\mathcal{M}$.
     \item
       $v_1 = n_1$ and
       $v_2 = n_2$ implies
-      $P(v_1, v_2)$, and
+      $P(n_1, n_2)$, and
     \item
       $v_1 = \langle{\lambda{x_1}.\, e_1, \rho_1\rangle}$ and
       $v_2 = \langle{\lambda{x_2}.\, e_2, \rho_2\rangle}$ implies
@@ -170,7 +172,7 @@ $\mathcal{M}$.
       \pc, \rho |-
       x
       \Downarrow^{k}_{m}
-      v \at (\pc \sqcup L_1)
+      v \at L_1
     }[\textsc{E-Var}]
     \\[3ex]
     \inference{}{
@@ -199,6 +201,27 @@ $\mathcal{M}$.
       \Downarrow^{k+1}_{m}
       a_3
     }[\textsc{E-App}]
+    \\[3ex]
+    \inference{
+      \pc, \rho |-
+      e_1
+      \Downarrow^{k}_{m}
+      n_1 \at L_1
+      &
+      \pc, \rho |-
+      e_2
+      \Downarrow^{k}_{m}
+      n_2 \at L_2
+      \\
+      \forall{n_1' \approx^{L}_{P} n_1, n_2' \approx^{L}_{P} n_2}.
+      \quad\qquad\\
+      (n_1 \oplus n_2) \approx^{L}_{P} (n_1' \oplus n_2')
+    }{
+      \pc, \rho |-
+      (e_1 \oplus e_2)
+      \Downarrow^{k+1}_{m}
+      (n_1 \oplus n_2) \at (L_1 \sqcup L_2)
+    }[\textsc{E-Prim}]
     \\[3ex]
     \inference{
       \pc, \rho |-
@@ -240,30 +263,44 @@ $\mathcal{M}$.
     }[\textsc{E-Relabel2}]
     \\[3ex]
     \inference{
-      \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{tt} \at L_1
+      \pc, \rho |- e \Downarrow^{k}_{m} b \at L_1
       &
       L_1 \sqsubseteq L
       \\
-      (\pc \sqcup L_1), \rho |- e_2 \Downarrow^{k}_{m} a_2
+      (\pc \sqcup L_1), \rho |- e_{b} \Downarrow^{k}_{m} a
     }{
       \pc, \rho |-
-      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+      \mathsf{if}\ e\ \mathsf{then}\ e_{\mathit{tt}}\ \mathsf{else}\
+      e_{\mathit{ff}}
       \Downarrow^{k+1}_{m}
-      a_2
-    }[\textsc{E-IfTrue}]
-    \\[3ex]
-    \inference{
-      \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{ff} \at L_1
-      &
-      L_1 \sqsubseteq L
-      \\
-      (\pc \sqcup L_1), \rho |- e_3 \Downarrow^{k}_{m} a_3
-    }{
-      \pc, \rho |-
-      \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
-      \Downarrow^{k+1}_{m}
-      a_3
-    }[\textsc{E-IfFalse}]
+      a
+    }[\textsc{E-If}]
+    % \\[3ex]
+    % \inference{
+    %   \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{tt} \at L_1
+    %   &
+    %   L_1 \sqsubseteq L
+    %   \\
+    %   (\pc \sqcup L_1), \rho |- e_2 \Downarrow^{k}_{m} a_2
+    % }{
+    %   \pc, \rho |-
+    %   \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+    %   \Downarrow^{k+1}_{m}
+    %   a_2
+    % }[\textsc{E-IfTrue}]
+    % \\[3ex]
+    % \inference{
+    %   \pc, \rho |- e_1 \Downarrow^{k}_{m} \mathit{ff} \at L_1
+    %   &
+    %   L_1 \sqsubseteq L
+    %   \\
+    %   (\pc \sqcup L_1), \rho |- e_3 \Downarrow^{k}_{m} a_3
+    % }{
+    %   \pc, \rho |-
+    %   \mathsf{if}\ e_1\ \mathsf{then}\ e_2\ \mathsf{else}\ e_3
+    %   \Downarrow^{k+1}_{m}
+    %   a_3
+    % }[\textsc{E-IfFalse}]
   \end{gather*}
   \caption{Semantics of $\lambda_{\mathcal{M}_{0}}$.}
   \label{fig:semantics}
