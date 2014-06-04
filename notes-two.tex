@@ -509,413 +509,413 @@
   \Coqed
   \label{thm:non-interference}
 \end{theorem}
-% \begin{proof}
-%   Unfolding the definition of $\Downarrow$, the claim is:
-%   \begin{flalign*}
-%     & \quad
-%     \text{If $\exists{k}.\, \forall{l}.\,
-%       (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
-%       $\exists{k'}.\, \forall{l}.\,
-%       (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
-%       $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
-%     &
-%   \end{flalign*}
-%   It suffices to show that for all $k$ and $k'$ such that $k + k' < n$, for
-%   any $n$:
-%   \begin{flalign}
-%     & \quad
-%     \text{If $\forall{l}.\,
-%       (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
-%       $\forall{l}.\,
-%       (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
-%       $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
-%     \label{ih:non-interference} &
-%   \end{flalign}
-%   The proof is by induction on $n$. Note that the claim is vacuously true when
-%   $n = 0$. Assume the claim holds for some $n$ such that $k + k' < n$.
-%   We must show that it is true for $k + k' < n + 1$, that is, when
-%   $k + k' = n$. We proceed by case analysis on the structure of $e$.
+\begin{proof}
+  Unfolding the definition of $\Downarrow$, the claim is:
+  \begin{flalign*}
+    & \quad
+    \text{If $\exists{k}.\, \forall{l}.\,
+      (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
+      $\exists{k'}.\, \forall{l}.\,
+      (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
+      $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
+    &
+  \end{flalign*}
+  It suffices to show that for all $k$ and $k'$ such that $k + k' < n$, for
+  any $n$:
+  \begin{flalign}
+    & \quad
+    \text{If $\forall{l}.\,
+      (L, P, \pc, \rho) |- e \Downarrow^{k}_{l} a$ and
+      $\forall{l}.\,
+      (L, P, \pc, \rho') |- e \Downarrow^{k'}_{l} a'$ and
+      $\rho \approx^{L}_{P} a'$, then $a \approx^{L}_{P} a'$.}
+    \label{ih:non-interference} &
+  \end{flalign}
+  The proof is by induction on $n$. Note that the claim is vacuously true when
+  $n = 0$. Assume the claim holds for some $n$ such that $k + k' < n$.
+  We must show that it is true for $k + k' < n + 1$, that is, when
+  $k + k' = n$. We proceed by case analysis on the structure of $e$.
 
-%   The cases for constants $c$, variables $x$, and abstractions
-%   $(\lambda{x}.\, e)$ are straightforward, while the cases for applications
-%   $(e_1\ e_2)$ and declassification operations
-%   $(\mathsf{declassify}\ e_1\ e_2)$, when the derivations are by
-%   \textsc{E-Decl1}, follow from a simple application of the induction
-%   hypothesis.
+  The cases for constants $c$, variables $x$, and abstractions
+  $(\lambda{x}.\, e)$ are straightforward, while the cases for applications
+  $(e_1\ e_2)$ and declassification operations
+  $(\mathsf{declassify}\ e_1\ e_2)$, when the derivations are by
+  \textsc{E-Decl1}, follow from a simple application of the induction
+  hypothesis.
 
-%   For the final case of declassification operations when the derivations
-%   are by \textsc{E-Decl2}, we have, by inversion of the derivations of $a$
-%   and $a'$, that $k > 0$ and $k' > 0$ and, for all $l$:
-%   \begin{gather*}
-%     \inference{
-%       {\begin{array}{l}
-%           (L, P, \pc, \rho) |-
-%           e_1
-%           \Downarrow^{k-1}_{l}
-%           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
-%           \\
-%           (L, P, \pc, \rho) |-
-%           e_2
-%           \Downarrow^{k-1}_{l}
-%           a_2
-%           \\
-%           (L, P, L_1, \rho_1[x = a_2]) |-
-%           e
-%           \Downarrow^{k-1}_{l}
-%           v_3 \at \top
-%           \\
-%           \forall{\rho_1', a_2' \text{ s.t. }
-%             \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
-%           \\\quad
-%           (L, P, L_1, \rho_1'[x = a_2']) |-
-%           e
-%           \Downarrow^{l}_{k-1}
-%           v_3' \at \top
-%           \\\quad =>
-%           v_3 \approx^{L}_{P} v_3'
-%         \end{array}}
-%     }{
-%       (L, P, \pc, \rho) |-
-%       (\mathsf{declassify}\ e_1\ e_2)
-%       \Downarrow^{k}_{l}
-%       v_3 \at \bot
-%     }
-%     \quad
-%     \inference{
-%       {\begin{array}{l}
-%           (L, P, \pc, \rho') |-
-%           e_1
-%           \Downarrow^{k'-1}_{l}
-%           \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
-%           \\
-%           (L, P, \pc, \rho') |-
-%           e_2
-%           \Downarrow^{k'-1}_{l}
-%           a_2'
-%           \\
-%           (L, P, L_1', \rho_1'[x = a_2']) |-
-%           e'
-%           \Downarrow^{k'-1}_{l}
-%           v_3' \at \top
-%           \\
-%           \forall{\rho_1'', a_2'' \text{ s.t. }
-%             \rho_1'[x = a_2'] \approx^{L}_{P} \rho_1''[x = a_2'']}.
-%           \\\quad
-%           (L, P, L_1', \rho_1''[x = a_2'']) |-
-%           e'
-%           \Downarrow^{l}_{k'-1}
-%           v_3'' \at \top
-%           \\\quad =>
-%           v_3' \approx^{L}_{P} v_3''
-%         \end{array}}
-%     }{
-%       (L, P, \pc, \rho') |-
-%       (\mathsf{declassify}\ e_1\ e_2)
-%       \Downarrow^{k'}_{l}
-%       v_3' \at \bot
-%     }
-%   \end{gather*}
+  For the final case of declassification operations when the derivations
+  are by \textsc{E-Decl2}, we have, by inversion of the derivations of $a$
+  and $a'$, that $k > 0$ and $k' > 0$ and, for all $l$:
+  \begin{gather*}
+    \inference{
+      {\begin{array}{l}
+          (L, P, \pc, \rho) |-
+          e_1
+          \Downarrow^{k-1}_{l}
+          \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
+          \\
+          (L, P, \pc, \rho) |-
+          e_2
+          \Downarrow^{k-1}_{l}
+          a_2
+          \\
+          (L, P, L_1, \rho_1[x = a_2]) |-
+          e
+          \Downarrow^{k-1}_{l}
+          v_3 \at \top
+          \\
+          \forall{\rho_1', a_2' \text{ s.t. }
+            \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
+          \\\quad
+          (L, P, L_1, \rho_1'[x = a_2']) |-
+          e
+          \Downarrow^{l}_{k-1}
+          v_3' \at \top
+          \\\quad =>
+          v_3 \approx^{L}_{P} v_3'
+        \end{array}}
+    }{
+      (L, P, \pc, \rho) |-
+      (\mathsf{declassify}\ e_1\ e_2)
+      \Downarrow^{k}_{l}
+      v_3 \at \bot
+    }
+    \quad
+    \inference{
+      {\begin{array}{l}
+          (L, P, \pc, \rho') |-
+          e_1
+          \Downarrow^{k'-1}_{l}
+          \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
+          \\
+          (L, P, \pc, \rho') |-
+          e_2
+          \Downarrow^{k'-1}_{l}
+          a_2'
+          \\
+          (L, P, L_1', \rho_1'[x = a_2']) |-
+          e'
+          \Downarrow^{k'-1}_{l}
+          v_3' \at \top
+          \\
+          \forall{\rho_1'', a_2'' \text{ s.t. }
+            \rho_1'[x = a_2'] \approx^{L}_{P} \rho_1''[x = a_2'']}.
+          \\\quad
+          (L, P, L_1', \rho_1''[x = a_2'']) |-
+          e'
+          \Downarrow^{l}_{k'-1}
+          v_3'' \at \top
+          \\\quad =>
+          v_3' \approx^{L}_{P} v_3''
+        \end{array}}
+    }{
+      (L, P, \pc, \rho') |-
+      (\mathsf{declassify}\ e_1\ e_2)
+      \Downarrow^{k'}_{l}
+      v_3' \at \bot
+    }
+  \end{gather*}
 
-%   Since $(k-1) + (k'-1) < n$, we can apply the induction
-%   hypothesis~(\ref{ih:non-interference})
-%   to the first three pairs of premises.
-%   First, we get
-%   $\langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
-%   \approx^{L}_{P}
-%   \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'$.
-%   It follows by inversion of the $\approx^{L}_{P}$ relation that
-%   $e = e'$, $L_1 = L_1'$, and $\rho_1 \approx^{L}_{P} \rho_1'$.
-%   Second, we get $a_2 \approx^{L}_{P} a_2'$.
-%   Since $\rho_1 \approx^{L}_{P} \rho_1'$, it follows that
-%   $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$.
-%   Finally we get $v_3 \at \top \approx^{L}_{P} v_3' \at \top$,
-%   and must show that $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
+  Since $(k-1) + (k'-1) < n$, we can apply the induction
+  hypothesis~(\ref{ih:non-interference})
+  to the first three pairs of premises.
+  First, we get
+  $\langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
+  \approx^{L}_{P}
+  \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'$.
+  It follows by inversion of the $\approx^{L}_{P}$ relation that
+  $e = e'$, $L_1 = L_1'$, and $\rho_1 \approx^{L}_{P} \rho_1'$.
+  Second, we get $a_2 \approx^{L}_{P} a_2'$.
+  Since $\rho_1 \approx^{L}_{P} \rho_1'$, it follows that
+  $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$.
+  Finally we get $v_3 \at \top \approx^{L}_{P} v_3' \at \top$,
+  and must show that $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
 
-%   Consider the fourth premise.
-%   We already have $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$ and,
-%   for any $l$, that
-%   $(L, P, L_1, \rho_1'[x = a_2']) |- e
-%   \Downarrow^{k'-1}_{l} v_3' \at \top$.
-%   Without loss of generality, we can assume $k \leq l$ and $k' \leq l$.
-%   By Lemma~\ref{lem:semantics-step-subset}, it follows that
-%   $\Downarrow^{k'-1}_{l}\ \subseteq\ \Downarrow^{l}_{k-1}$ and therefore
-%   $(L, P, L_1, \rho_1'[x = a_2']) |- e \Downarrow^{l}_{k-1}
-%   v_3' \at \top$. Applying the fourth premise, we get
-%   $v_3 \approx^{L}_{P} v_3'$ and therefore
-%   $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
-%   % \begin{description}
-%   % \item[\emph{Case} $c$:]
-%   %   \begin{gather*}
-%   %     \inference{}{
-%   %       \langle{L, P, \pc, \rho\rangle} |- c \Downarrow^{k}_{l} c \at \pc
-%   %     }
-%   %     \quad
-%   %     \inference{}{
-%   %       \langle{L, P, \pc, \rho'\rangle} |- c \Downarrow^{k'}_{l} c \at \pc
-%   %     }
-%   %   \end{gather*}
-%   %   By Lemma~\ref{lem:lp-equiv-refl}, we have
-%   %   $c \at \pc \approx^{L}_{P} c \at \pc$.
-%   % \item[\emph{Case} $x$:]
-%   %   \begin{gather*}
-%   %     \inference{
-%   %       \rho(x) = v \at L_1
-%   %     }{
-%   %       \langle{L, P, \pc, \rho\rangle} |-
-%   %       x
-%   %       \Downarrow^{k}_{l}
-%   %       v \at (\pc \sqcup L_1)
-%   %     }
-%   %     \quad
-%   %     \inference{
-%   %       \rho'(x) = v' \at L_1'
-%   %     }{
-%   %       \langle{L, P, \pc, \rho'\rangle} |-
-%   %       x
-%   %       \Downarrow^{k'}_{l}
-%   %       v' \at (\pc \sqcup L_1')
-%   %     }
-%   %   \end{gather*}
-%   %   Since $\rho \approx^{L}_{P} \rho'$, we have
-%   %   $v \at L_1 \approx v' \at L_1'$.
-%   %   By inversion, $L_1 = L_1'$. Therefore we must show
-%   %   that $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-%   %   We proceed by case analysis on $\pc$ and $L_1$.
-%   %   % 
-%   %   If $pc = \bot$, or if $\pc = \top$ and $L_1 = \top$, then
-%   %   $\pc \sqcup L_1 = L_1$ and we have
-%   %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$
-%   %   immediately.
-%   %   %
-%   %   If $pc = \top$ and $L_1 = \bot$, then $\pc \sqcup L_1 = \pc$ and,
-%   %   by Lemma~\ref{lem:lp-equiv-raise},
-%   %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
-%   % \item[\emph{Case} $(\lambda{x}.\, e)$:]
-%   %   \begin{gather*}
-%   %     \inference{}{
-%   %       \langle{L, P, \pc, \rho\rangle} |-
-%   %       (\lambda{x}.\, e)
-%   %       \Downarrow^{k}_{l}
-%   %       \langle{\lambda{x}.\, e, \rho\rangle} \at \pc
-%   %     }
-%   %     \quad
-%   %     \inference{}{
-%   %       \langle{L, P, \pc, \rho'\rangle} |-
-%   %       (\lambda{x}.\, e)
-%   %       \Downarrow^{k'}_{l}
-%   %       \langle{\lambda{x}.\, e, \rho'\rangle} \at \pc
-%   %     }
-%   %   \end{gather*}
-%   %   By the definition of $\approx^{L}_{P}$,
-%   %   $\langle{\lambda{x}.\, e, \rho\rangle} \at \pc
-%   %   \approx^{L}_{P}
-%   %   \langle{\lambda{x}.\, e, \rho'\rangle} \at \pc$
-%   %   iff
-%   %   $\langle{\lambda{x}.\, e, \rho\rangle}
-%   %   \approx^{L}_{P}
-%   %   \langle{\lambda{x}.\, e, \rho'\rangle}$,
-%   %   which we have immediately, since $\rho \approx^{L}_{P} \rho'$.
-%   % \item[\emph{Note}:]
-%   %   For the remaining cases, we have $k > 0$ and $k' > 0$.
-%   % \item[\emph{Case} $(e_1\ e_2)$:]
-%   %   \begin{gather*}
-%   %     \inference{
-%   %       {\begin{array}{l}
-%   %           \langle{L, P, \pc, \rho\rangle} |-
-%   %           e_1
-%   %           \Downarrow^{k-1}_{l}
-%   %           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
-%   %           \\
-%   %           \langle{L, P, \pc, \rho\rangle} |-
-%   %           e_2
-%   %           \Downarrow^{k-1}_{l}
-%   %           a_2
-%   %           \\
-%   %           \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
-%   %           e
-%   %           \Downarrow^{k-1}_{l}
-%   %           a_3
-%   %         \end{array}}
-%   %     }{
-%   %       \langle{L, P, \pc, \rho\rangle} |-
-%   %       (e_1\ e_2)
-%   %       \Downarrow^{k}_{l}
-%   %       a_3
-%   %     }
-%   %     \quad
-%   %     \inference{
-%   %       {\begin{array}{l}
-%   %           \langle{L, P, \pc, \rho'\rangle} |-
-%   %           e_1
-%   %           \Downarrow^{k'-1}_{l}
-%   %           \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
-%   %           \\
-%   %           \langle{L, P, \pc, \rho'\rangle} |-
-%   %           e_2
-%   %           \Downarrow^{k'-1}_{l}
-%   %           a_2'
-%   %           \\
-%   %           \langle{L, P, L_1', \rho_1'[x = a_2']\rangle} |-
-%   %           e'
-%   %           \Downarrow^{k'-1}_{l}
-%   %           a_3'
-%   %         \end{array}}
-%   %     }{
-%   %       \langle{L, P, \pc, \rho'\rangle} |-
-%   %       (e_1\ e_2)
-%   %       \Downarrow^{k'}_{l}
-%   %       a_3'
-%   %     }
-%   %   \end{gather*}
-%   %   Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis
-%   %   to each pair of premises:
-%   %   First,
-%   %   $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
-%   %   \approx^{L}_{P}
-%   %   \langle{\rho_1', \lambda{x}.\, e'\rangle} \at L_1'$,
-%   %   which means $\rho_1 \approx^{L}_{P} \rho_1'$ and, by inversion,
-%   %   $e = e'$, and $L_1 = L_1'$.
-%   %   Second,
-%   %   $a_2 \approx^{L}_{P} a_2'$,
-%   %   which means
-%   %   $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')$.
-%   %   Finally,
-%   %   $a_3 \approx^{L}_{P} a_3'$,
-%   %   which completes the case.
-%   % \item[\emph{Case} $(\mathsf{declassify}\ e_1\ e_2)$:]\
-%   %   \begin{description}
-%   %   \item[\emph{Subcase} \textsc{E-Decl1}:]
-%   %     \begin{gather*}
-%   %       \inference{
-%   %         \langle{L, P, \pc, \rho\rangle} |-
-%   %         (e_1\ e_2)
-%   %         \Downarrow^{k-1}_{l}
-%   %         v \at \bot
-%   %       }{
-%   %         \langle{L, P, \pc, \rho\rangle} |-
-%   %         (\mathsf{declassify}\ e_1\ e_2)
-%   %         \Downarrow^{k-1}_{l}
-%   %         v \at \bot
-%   %       }
-%   %       \\[2ex]
-%   %       \inference{
-%   %         \langle{L, P, \pc, \rho'\rangle} |-
-%   %         (e_1\ e_2)
-%   %         \Downarrow^{k'-1}_{l}
-%   %         v' \at \bot
-%   %       }{
-%   %         \langle{L, P, \pc, \rho'\rangle} |-
-%   %         (\mathsf{declassify}\ e_1\ e_2)
-%   %         \Downarrow^{k'-1}_{l}
-%   %         v' \at \bot
-%   %       }
-%   %     \end{gather*}
-%   %     Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
-%   %     the pair of premises, which gives
-%   %     $v \at \bot \approx^{L}_{P} v' \at \bot$, completing the subcase.
-%   %   \item[\emph{Subcase} \textsc{E-Decl2}:]
-%   %     \begin{gather*}
-%   %       \inference{
-%   %         {\begin{array}{l}
-%   %             \langle{L, P, \pc, \rho\rangle} |-
-%   %             e_1
-%   %             \Downarrow^{k-1}_{l}
-%   %             \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
-%   %             \\
-%   %             \langle{L, P, \pc, \rho\rangle} |-
-%   %             e_2
-%   %             \Downarrow^{k-1}_{l}
-%   %             a_2
-%   %             \\
-%   %             \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
-%   %             e
-%   %             \Downarrow^{k-1}_{l}
-%   %             v_3 \at \top
-%   %             \\
-%   %             \forall{\rho_1', a_2' \text{ s.t. }
-%   %               \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
-%   %             \\\quad
-%   %             \langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
-%   %             e
-%   %             \Downarrow^{l}_{k-1}
-%   %             v_3' \at \top =>
-%   %             v_3 \approx^{L}_{P} v_3'
-%   %           \end{array}}
-%   %       }{
-%   %         \langle{L, P, \pc, \rho\rangle} |-
-%   %         (\mathsf{declassify}\ e_1\ e_2)
-%   %         \Downarrow^{k}_{l}
-%   %         v_3 \at \bot
-%   %       }
-%   %       \\[2ex]
-%   %       \inference{
-%   %         {\begin{array}{l}
-%   %             \langle{L, P, \pc, \rho'\rangle} |-
-%   %             e_1
-%   %             \Downarrow^{k'-1}_{l}
-%   %             \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
-%   %             \\
-%   %             \langle{L, P, \pc, \rho'\rangle} |-
-%   %             e_2
-%   %             \Downarrow^{k'-1}_{l}
-%   %             a_2'
-%   %             \\
-%   %             \langle{L, P, L_1', \rho_1'[x = a_2']\rangle} |-
-%   %             e'
-%   %             \Downarrow^{k'-1}_{l}
-%   %             v_3' \at \top
-%   %             \\
-%   %             \forall{\rho_1'', a_2'' \text{ s.t. }
-%   %               \rho_1'[x = a_2'] \approx^{L}_{P} \rho_1''[x = a_2'']}.
-%   %             \\\quad
-%   %             \langle{L, P, L_1', \rho_1''[x = a_2'']\rangle} |-
-%   %             e'
-%   %             \Downarrow^{l}_{k'-1}
-%   %             v_3'' \at \top =>
-%   %             v_3' \approx^{L}_{P} v_3''
-%   %           \end{array}}
-%   %       }{
-%   %         \langle{L, P, \pc, \rho'\rangle} |-
-%   %         (\mathsf{declassify}\ e_1\ e_2)
-%   %         \Downarrow^{k'}_{l}
-%   %         v_3' \at \bot
-%   %       }
-%   %     \end{gather*}
-%   %     Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
-%   %     the first three pairs of premises, as in the case for application:
-%   %     \begin{enumerate}
-%   %     \item 
-%   %       $\langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
-%   %       \approx^{L}_{P}
-%   %       \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'$.
-%   %       By inversion:
-%   %       $\rho_1 \approx^{L}_{P} \rho_1'$,
-%   %       $e = e'$, and $L_1 = L_1'$.
-%   %     \item
-%   %       $a_2 \approx^{L}_{P} a_2'$.
-%   %       Therefore:
-%   %       $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$.
-%   %     \item
-%   %       $v_3 \at \top \approx^{L}_{P} v_3' \at \top$.
-%   %     \end{enumerate}
-%   %     Recall that $k \leq l$ and $k' \leq l$.
-%   %     By Lemma~\ref{lem:semantics-step-subset}, it follows that
-%   %     $\Downarrow^{k'-1}_{l}\ \subseteq\ \Downarrow^{l}_{k-1}$.
-%   %     Since we have
-%   %     $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
-%   %     e
-%   %     \Downarrow^{k'-1}_{l}
-%   %     v_3' \at \top$,
-%   %     we also have
-%   %     $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
-%   %     e
-%   %     \Downarrow^{l}_{k-1}
-%   %     v_3' \at \top$.
-%   %     Applying the final premise, we get $v_3 \approx^{L}_{P} v_3'$ and
-%   %     therefore $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
-%   %     \qedhere
-%   %   \end{description}
-%   % \end{description}
-% \end{proof}
+  Consider the fourth premise.
+  We already have $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$ and,
+  for any $l$, that
+  $(L, P, L_1, \rho_1'[x = a_2']) |- e
+  \Downarrow^{k'-1}_{l} v_3' \at \top$.
+  Without loss of generality, we can assume $k \leq l$ and $k' \leq l$.
+  By Lemma~\ref{lem:semantics-step-subset}, it follows that
+  $\Downarrow^{k'-1}_{l}\ \subseteq\ \Downarrow^{l}_{k-1}$ and therefore
+  $(L, P, L_1, \rho_1'[x = a_2']) |- e \Downarrow^{l}_{k-1}
+  v_3' \at \top$. Applying the fourth premise, we get
+  $v_3 \approx^{L}_{P} v_3'$ and therefore
+  $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
+  % \begin{description}
+  % \item[\emph{Case} $c$:]
+  %   \begin{gather*}
+  %     \inference{}{
+  %       \langle{L, P, \pc, \rho\rangle} |- c \Downarrow^{k}_{l} c \at \pc
+  %     }
+  %     \quad
+  %     \inference{}{
+  %       \langle{L, P, \pc, \rho'\rangle} |- c \Downarrow^{k'}_{l} c \at \pc
+  %     }
+  %   \end{gather*}
+  %   By Lemma~\ref{lem:lp-equiv-refl}, we have
+  %   $c \at \pc \approx^{L}_{P} c \at \pc$.
+  % \item[\emph{Case} $x$:]
+  %   \begin{gather*}
+  %     \inference{
+  %       \rho(x) = v \at L_1
+  %     }{
+  %       \langle{L, P, \pc, \rho\rangle} |-
+  %       x
+  %       \Downarrow^{k}_{l}
+  %       v \at (\pc \sqcup L_1)
+  %     }
+  %     \quad
+  %     \inference{
+  %       \rho'(x) = v' \at L_1'
+  %     }{
+  %       \langle{L, P, \pc, \rho'\rangle} |-
+  %       x
+  %       \Downarrow^{k'}_{l}
+  %       v' \at (\pc \sqcup L_1')
+  %     }
+  %   \end{gather*}
+  %   Since $\rho \approx^{L}_{P} \rho'$, we have
+  %   $v \at L_1 \approx v' \at L_1'$.
+  %   By inversion, $L_1 = L_1'$. Therefore we must show
+  %   that $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
+  %   We proceed by case analysis on $\pc$ and $L_1$.
+  %   % 
+  %   If $pc = \bot$, or if $\pc = \top$ and $L_1 = \top$, then
+  %   $\pc \sqcup L_1 = L_1$ and we have
+  %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$
+  %   immediately.
+  %   %
+  %   If $pc = \top$ and $L_1 = \bot$, then $\pc \sqcup L_1 = \pc$ and,
+  %   by Lemma~\ref{lem:lp-equiv-raise},
+  %   $v \at (\pc \sqcup L_1) \approx^{L}_{P} v' \at (\pc \sqcup L_1)$.
+  % \item[\emph{Case} $(\lambda{x}.\, e)$:]
+  %   \begin{gather*}
+  %     \inference{}{
+  %       \langle{L, P, \pc, \rho\rangle} |-
+  %       (\lambda{x}.\, e)
+  %       \Downarrow^{k}_{l}
+  %       \langle{\lambda{x}.\, e, \rho\rangle} \at \pc
+  %     }
+  %     \quad
+  %     \inference{}{
+  %       \langle{L, P, \pc, \rho'\rangle} |-
+  %       (\lambda{x}.\, e)
+  %       \Downarrow^{k'}_{l}
+  %       \langle{\lambda{x}.\, e, \rho'\rangle} \at \pc
+  %     }
+  %   \end{gather*}
+  %   By the definition of $\approx^{L}_{P}$,
+  %   $\langle{\lambda{x}.\, e, \rho\rangle} \at \pc
+  %   \approx^{L}_{P}
+  %   \langle{\lambda{x}.\, e, \rho'\rangle} \at \pc$
+  %   iff
+  %   $\langle{\lambda{x}.\, e, \rho\rangle}
+  %   \approx^{L}_{P}
+  %   \langle{\lambda{x}.\, e, \rho'\rangle}$,
+  %   which we have immediately, since $\rho \approx^{L}_{P} \rho'$.
+  % \item[\emph{Note}:]
+  %   For the remaining cases, we have $k > 0$ and $k' > 0$.
+  % \item[\emph{Case} $(e_1\ e_2)$:]
+  %   \begin{gather*}
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \langle{L, P, \pc, \rho\rangle} |-
+  %           e_1
+  %           \Downarrow^{k-1}_{l}
+  %           \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
+  %           \\
+  %           \langle{L, P, \pc, \rho\rangle} |-
+  %           e_2
+  %           \Downarrow^{k-1}_{l}
+  %           a_2
+  %           \\
+  %           \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
+  %           e
+  %           \Downarrow^{k-1}_{l}
+  %           a_3
+  %         \end{array}}
+  %     }{
+  %       \langle{L, P, \pc, \rho\rangle} |-
+  %       (e_1\ e_2)
+  %       \Downarrow^{k}_{l}
+  %       a_3
+  %     }
+  %     \quad
+  %     \inference{
+  %       {\begin{array}{l}
+  %           \langle{L, P, \pc, \rho'\rangle} |-
+  %           e_1
+  %           \Downarrow^{k'-1}_{l}
+  %           \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
+  %           \\
+  %           \langle{L, P, \pc, \rho'\rangle} |-
+  %           e_2
+  %           \Downarrow^{k'-1}_{l}
+  %           a_2'
+  %           \\
+  %           \langle{L, P, L_1', \rho_1'[x = a_2']\rangle} |-
+  %           e'
+  %           \Downarrow^{k'-1}_{l}
+  %           a_3'
+  %         \end{array}}
+  %     }{
+  %       \langle{L, P, \pc, \rho'\rangle} |-
+  %       (e_1\ e_2)
+  %       \Downarrow^{k'}_{l}
+  %       a_3'
+  %     }
+  %   \end{gather*}
+  %   Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis
+  %   to each pair of premises:
+  %   First,
+  %   $\langle{\rho_1, \lambda{x}.\, e\rangle} \at L_1
+  %   \approx^{L}_{P}
+  %   \langle{\rho_1', \lambda{x}.\, e'\rangle} \at L_1'$,
+  %   which means $\rho_1 \approx^{L}_{P} \rho_1'$ and, by inversion,
+  %   $e = e'$, and $L_1 = L_1'$.
+  %   Second,
+  %   $a_2 \approx^{L}_{P} a_2'$,
+  %   which means
+  %   $(\rho_1, x = a_2) \approx^{L}_{P} (\rho_1', x = a_2')$.
+  %   Finally,
+  %   $a_3 \approx^{L}_{P} a_3'$,
+  %   which completes the case.
+  % \item[\emph{Case} $(\mathsf{declassify}\ e_1\ e_2)$:]\
+  %   \begin{description}
+  %   \item[\emph{Subcase} \textsc{E-Decl1}:]
+  %     \begin{gather*}
+  %       \inference{
+  %         \langle{L, P, \pc, \rho\rangle} |-
+  %         (e_1\ e_2)
+  %         \Downarrow^{k-1}_{l}
+  %         v \at \bot
+  %       }{
+  %         \langle{L, P, \pc, \rho\rangle} |-
+  %         (\mathsf{declassify}\ e_1\ e_2)
+  %         \Downarrow^{k-1}_{l}
+  %         v \at \bot
+  %       }
+  %       \\[2ex]
+  %       \inference{
+  %         \langle{L, P, \pc, \rho'\rangle} |-
+  %         (e_1\ e_2)
+  %         \Downarrow^{k'-1}_{l}
+  %         v' \at \bot
+  %       }{
+  %         \langle{L, P, \pc, \rho'\rangle} |-
+  %         (\mathsf{declassify}\ e_1\ e_2)
+  %         \Downarrow^{k'-1}_{l}
+  %         v' \at \bot
+  %       }
+  %     \end{gather*}
+  %     Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
+  %     the pair of premises, which gives
+  %     $v \at \bot \approx^{L}_{P} v' \at \bot$, completing the subcase.
+  %   \item[\emph{Subcase} \textsc{E-Decl2}:]
+  %     \begin{gather*}
+  %       \inference{
+  %         {\begin{array}{l}
+  %             \langle{L, P, \pc, \rho\rangle} |-
+  %             e_1
+  %             \Downarrow^{k-1}_{l}
+  %             \langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
+  %             \\
+  %             \langle{L, P, \pc, \rho\rangle} |-
+  %             e_2
+  %             \Downarrow^{k-1}_{l}
+  %             a_2
+  %             \\
+  %             \langle{L, P, L_1, \rho_1[x = a_2]\rangle} |-
+  %             e
+  %             \Downarrow^{k-1}_{l}
+  %             v_3 \at \top
+  %             \\
+  %             \forall{\rho_1', a_2' \text{ s.t. }
+  %               \rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']}.
+  %             \\\quad
+  %             \langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
+  %             e
+  %             \Downarrow^{l}_{k-1}
+  %             v_3' \at \top =>
+  %             v_3 \approx^{L}_{P} v_3'
+  %           \end{array}}
+  %       }{
+  %         \langle{L, P, \pc, \rho\rangle} |-
+  %         (\mathsf{declassify}\ e_1\ e_2)
+  %         \Downarrow^{k}_{l}
+  %         v_3 \at \bot
+  %       }
+  %       \\[2ex]
+  %       \inference{
+  %         {\begin{array}{l}
+  %             \langle{L, P, \pc, \rho'\rangle} |-
+  %             e_1
+  %             \Downarrow^{k'-1}_{l}
+  %             \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'
+  %             \\
+  %             \langle{L, P, \pc, \rho'\rangle} |-
+  %             e_2
+  %             \Downarrow^{k'-1}_{l}
+  %             a_2'
+  %             \\
+  %             \langle{L, P, L_1', \rho_1'[x = a_2']\rangle} |-
+  %             e'
+  %             \Downarrow^{k'-1}_{l}
+  %             v_3' \at \top
+  %             \\
+  %             \forall{\rho_1'', a_2'' \text{ s.t. }
+  %               \rho_1'[x = a_2'] \approx^{L}_{P} \rho_1''[x = a_2'']}.
+  %             \\\quad
+  %             \langle{L, P, L_1', \rho_1''[x = a_2'']\rangle} |-
+  %             e'
+  %             \Downarrow^{l}_{k'-1}
+  %             v_3'' \at \top =>
+  %             v_3' \approx^{L}_{P} v_3''
+  %           \end{array}}
+  %       }{
+  %         \langle{L, P, \pc, \rho'\rangle} |-
+  %         (\mathsf{declassify}\ e_1\ e_2)
+  %         \Downarrow^{k'}_{l}
+  %         v_3' \at \bot
+  %       }
+  %     \end{gather*}
+  %     Since $(k-1) + (k'-1) < n$, we can apply the induction hypothesis to
+  %     the first three pairs of premises, as in the case for application:
+  %     \begin{enumerate}
+  %     \item 
+  %       $\langle{\lambda{x}.\, e, \rho_1\rangle} \at L_1
+  %       \approx^{L}_{P}
+  %       \langle{\lambda{x}.\, e', \rho_1'\rangle} \at L_1'$.
+  %       By inversion:
+  %       $\rho_1 \approx^{L}_{P} \rho_1'$,
+  %       $e = e'$, and $L_1 = L_1'$.
+  %     \item
+  %       $a_2 \approx^{L}_{P} a_2'$.
+  %       Therefore:
+  %       $\rho_1[x = a_2] \approx^{L}_{P} \rho_1'[x = a_2']$.
+  %     \item
+  %       $v_3 \at \top \approx^{L}_{P} v_3' \at \top$.
+  %     \end{enumerate}
+  %     Recall that $k \leq l$ and $k' \leq l$.
+  %     By Lemma~\ref{lem:semantics-step-subset}, it follows that
+  %     $\Downarrow^{k'-1}_{l}\ \subseteq\ \Downarrow^{l}_{k-1}$.
+  %     Since we have
+  %     $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
+  %     e
+  %     \Downarrow^{k'-1}_{l}
+  %     v_3' \at \top$,
+  %     we also have
+  %     $\langle{L, P, L_1, \rho_1'[x = a_2']\rangle} |-
+  %     e
+  %     \Downarrow^{l}_{k-1}
+  %     v_3' \at \top$.
+  %     Applying the final premise, we get $v_3 \approx^{L}_{P} v_3'$ and
+  %     therefore $v_3 \at \bot \approx^{L}_{P} v_3' \at \bot$.
+  %     \qedhere
+  %   \end{description}
+  % \end{description}
+\end{proof}
 
 \end{document}
